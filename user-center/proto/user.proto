@@ -13,7 +13,7 @@ message DouyinUserResponse {
   User user = 3; // 用户信息
 }
 
-message User {
+message User { //用户信息
   int64 id = 1; // 用户id
   string name = 2; // 用户名称
   int64 follow_count = 3; // 关注总数
