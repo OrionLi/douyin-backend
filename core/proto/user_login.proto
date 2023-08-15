@@ -1,0 +1,15 @@
+syntax = "proto3";
+package douyin.core;
+option go_package = "../generated/user";
+
+message DouyinUserLoginRequest {
+  string username = 1; // 登录用户名
+  string password = 2; // 登录密码
+}
+
+message DouyinUserLoginResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  int64 user_id = 3; // 用户id
+  string token = 4; // 用户鉴权token
+}
