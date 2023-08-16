@@ -1,0 +1,18 @@
+server:
+  host: http://127.0.0.1
+  port: 3000
+
+mysql:
+  DB: mysql
+  DbHost: DouyinDBA.raqtpie.xyz
+  DbPort: 3306
+  DbUser: DouyinDBA
+  DbPassword: nibainimane
+  DbName: DouyinDB
+
+redis:
+  redisDb: redis
+  redisHost: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com
+  redisPort: 6379
+  redisPw: Rh2004==
+  redisDbName: 2
