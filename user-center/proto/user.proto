@@ -1,6 +1,6 @@
 syntax = "proto3";
 package douyin.core;
-option go_package = "../generated/user";
+option go_package = "../generated/video";
 
 message DouyinUserRequest {
   int64 user_id = 1; // 用户id
