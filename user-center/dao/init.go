@@ -36,7 +36,7 @@ func Database(conn string) {
 		return
 	}
 	sqlDB, _ := db.DB()
-	sqlDB.SetConnMaxLifetime(20)
+	sqlDB.SetConnMaxLifetime(20) //配置连接池
 	sqlDB.SetConnMaxIdleTime(100)
 	sqlDB.SetConnMaxIdleTime(time.Second * 30)
 
