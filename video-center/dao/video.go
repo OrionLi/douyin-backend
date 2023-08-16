@@ -31,7 +31,11 @@ func QueryVideoListByTitle(ctx context.Context, title string) ([]*Video, error) 
 	return res, nil
 }
 
-//// QueryVideoListByAuthorId 查询目标user下的所有video
-//func QueryVideoListByAuthorId(ctx context.Context, AuthorId int64) ([]*Video, error) {
-//
-//}
+// QueryVideoListByAuthorId 查询目标user下的所有video
+func QueryVideoListByAuthorId(ctx context.Context, AuthorId int64) ([]*Video, error) {
+	res := make([]*Video, 0)
+	if err := DB.WithContext(ctx).Where("author_id = ?", AuthorId).Find(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
+}
