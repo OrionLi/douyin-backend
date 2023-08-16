@@ -1,0 +1,4 @@
+redis:
+  address: "r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379"
+  password: ""
+  db: 0

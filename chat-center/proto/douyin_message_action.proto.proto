@@ -2,6 +2,10 @@ syntax = "proto3";
 package douyin.extra.second;
 option go_package = "../generated/message";
 
+service DouyinMessageService { // 消息服务
+  rpc SendMessage(douyin_message_action_request) returns (douyin_message_action_response); // 聊天消息
+}
+
 message douyin_message_action_request { // 用户发送消息操作请求
   string token = 1; // 用户鉴权token
   int64 to_user_id = 2; // 对方用户id
