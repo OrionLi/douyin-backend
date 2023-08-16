@@ -2,7 +2,7 @@
 package videocenter
 
 import (
-	videoCenter "douyin-backend/vedio-center/kitex_gen/videoCenter"
+	videoCenter "douyin-backend/video-center/kitex_gen/videoCenter"
 	server "github.com/cloudwego/kitex/server"
 )
 

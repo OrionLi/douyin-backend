@@ -1,0 +1,11 @@
+application:
+  name: video-center
+
+db:
+  mysql:
+    url: "root:Wrh.18337353550@tcp(172.29.115.92:3306)/douyin?charset=utf8mb4&parseTime=True&loc=Local"
+  redis:
+    host: 127.0.0.1
+    port:  6067
+    db: 0
+    passwd: 123456
