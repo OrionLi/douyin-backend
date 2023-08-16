@@ -8,9 +8,12 @@ import (
 )
 
 var DB *gorm.DB
+var isInit = false
 
 func Init() {
-
+	if isInit != false { //确保只执行一次Init
+		return
+	}
 	//通过viper读取配置
 	conf.InitConfig()
 	dbUrl := conf.Viper.GetString("db.mysql.url")
@@ -28,13 +31,5 @@ func Init() {
 	if err = DB.Use(gormopentracing.New()); err != nil {
 		panic(err)
 	}
-
-	//m := DB.Migrator()
-	//if m.HasTable(&Video{}) {
-	//	return
-	//}
-	//
-	//if err = m.CreateTable(&Video{}); err != nil {
-	//	panic(err)
-	//}
+	isInit = true
 }
