@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"gorm.io/gorm"
+	"time"
 )
 
 type Video struct {
@@ -35,6 +36,21 @@ func QueryVideoListByTitle(ctx context.Context, title string) ([]*Video, error) 
 func QueryVideoListByAuthorId(ctx context.Context, AuthorId int64) ([]*Video, error) {
 	res := make([]*Video, 0)
 	if err := DB.WithContext(ctx).Where("author_id = ?", AuthorId).Find(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// FeedByTime 根据传入的时间戳来返回videoList，如果没有，则从当前时间开始
+func FeedByTime(ctx context.Context, lastTime int64) ([]*Video, error) {
+	res := make([]*Video, 0)
+	var curTime time.Time
+	if lastTime <= 0 {
+		curTime = time.Now()
+	} else {
+		curTime = time.Unix(lastTime, 0)
+	}
+	if err := DB.WithContext(ctx).Where("created_time<=", curTime).Find(&res).Error; err != nil {
 		return nil, err
 	}
 	return res, nil

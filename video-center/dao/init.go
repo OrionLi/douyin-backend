@@ -18,7 +18,14 @@ func Init() {
 	conf.InitConfig()
 	dbUrl := conf.Viper.GetString("db.mysql.url")
 	var err error
-	DB, err = gorm.Open(mysql.Open(dbUrl),
+	DB, err = gorm.Open(mysql.New(mysql.Config{
+		DSN:                       dbUrl,
+		DefaultStringSize:         256,
+		DisableDatetimePrecision:  true,
+		DontSupportRenameIndex:    true,
+		DontSupportRenameColumn:   true,
+		SkipInitializeWithVersion: false,
+	}),
 		&gorm.Config{
 			PrepareStmt:            true,
 			SkipDefaultTransaction: true,
