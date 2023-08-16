@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"gorm.io/gorm"
+	"math/rand"
 	"time"
 )
 
@@ -51,6 +52,44 @@ func FeedByTime(ctx context.Context, lastTime int64) ([]*Video, error) {
 		curTime = time.Unix(lastTime, 0)
 	}
 	if err := DB.WithContext(ctx).Where("created_time<=", curTime).Find(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+func TotalCount() (int64, error) {
+	var count int64
+	tx := DB.Model(&Video{}).Count(&count)
+	if tx.Error != nil {
+		return 0, nil
+	}
+	return count, nil
+}
+func QueryVideosByCurrentTime(ctx context.Context, lastTime int64, page int64, pagesize int64) ([]*Video, error) {
+	res := make([]*Video, 0)
+
+	var curTime time.Time
+	if lastTime <= 0 {
+		curTime = time.Now()
+	} else {
+		curTime = time.Unix(lastTime, 0)
+	}
+	seed := curTime.UnixNano()
+	//创建随机生成器
+	rand.New(rand.NewSource(seed))
+	// 创建随机数生成器
+	rng := rand.New(rand.NewSource(seed))
+	// 生成随机偏移量
+	count, err := TotalCount()
+	if err != nil {
+		return nil, err
+	}
+	maxOffset := count - pagesize*page
+	if maxOffset < 0 {
+		maxOffset = 0
+	}
+	newPage := rng.Intn(int(maxOffset + 1))
+	tx := DB.WithContext(ctx).Order("created_at DESC").Where("created_at <= ?", curTime).Offset(newPage).Limit(int(pagesize)).Find(&res)
+	if tx.Error != nil {
 		return nil, err
 	}
 	return res, nil

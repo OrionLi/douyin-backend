@@ -1,0 +1,16 @@
+application:
+  name: video-center
+
+db:
+  mysql:
+    host: DouyinDBA.raqtpie.xyz
+    port: 3306
+    username: DouyinDBA
+    password: nibainimane
+    database: DouyinDB
+    charset: utf8mb4
+  redis:
+    host: 127.0.0.1
+    port:  6067
+    db: 0
+    passwd: 123456
