@@ -1,7 +1,14 @@
 syntax = "proto3";
-package douyin.core;
+package user;
 option go_package = "../generated/user";
 
+service User {
+  rpc GetUserById(DouyinUserRequest) returns (DouyinUserResponse){}
+  rpc Register(DouyinUserRegisterRequest) returns (DouyinUserRegisterResponse){}
+  rpc Login(DouyinUserLoginRequest) returns (DouyinUserLoginResponse){}
+
+}
+//通过id获取用户信息
 message DouyinUserRequest {
   int64 user_id = 1; // 用户id
   string token = 2; // 用户鉴权token
@@ -10,10 +17,10 @@ message DouyinUserRequest {
 message DouyinUserResponse {
   int32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
-  User user = 3; // 用户信息
+  UserInfo user = 3; // 用户信息
 }
 
-message User { //用户信息
+message UserInfo {
   int64 id = 1; // 用户id
   string name = 2; // 用户名称
   int64 follow_count = 3; // 关注总数
@@ -26,3 +33,31 @@ message User { //用户信息
   int64 work_count = 10; // 作品数量
   int64 favorite_count = 11; // 点赞数量
 }
+
+//注册
+message DouyinUserRegisterRequest {
+  string username = 1; // 注册用户名，最长32个字符
+  string password = 2; // 密码，最长32个字符
+}
+
+message DouyinUserRegisterResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  int64 user_id = 3; // 用户id
+  string token = 4; // 用户鉴权token
+}
+
+//登录
+message DouyinUserLoginRequest {
+  string username = 1; // 登录用户名
+  string password = 2; // 登录密码
+}
+
+message DouyinUserLoginResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  int64 user_id = 3; // 用户id
+  string token = 4; // 用户鉴权token
+}
+
+
