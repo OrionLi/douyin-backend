@@ -4,7 +4,7 @@ package videocenter
 
 import (
 	"context"
-	videoCenter "douyin-backend/vedio-center/kitex_gen/videoCenter"
+	videoCenter "douyin-backend/video-center/kitex_gen/videoCenter"
 	"fmt"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
