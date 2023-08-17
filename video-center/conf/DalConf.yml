@@ -3,12 +3,7 @@ application:
 
 db:
   mysql:
-    host: DouyinDBA.raqtpie.xyz
-    port: 3306
-    username: DouyinDBA
-    password: nibainimane
-    database: DouyinDB
-    charset: utf8mb4
+    dsn: %DouyinDBA:%nibainimane@tcp(%DouyinDBA.raqtpie.xyz:%3306)/%DouyinDB?charset=%utf8mb4&parseTime=True&loc=Local
   redis:
     host: 127.0.0.1
     port:  6067
