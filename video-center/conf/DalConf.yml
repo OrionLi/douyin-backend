@@ -3,7 +3,12 @@ application:
 
 db:
   mysql:
-    url: "root:Wrh.18337353550@tcp(172.29.115.92:3306)/douyin?charset=utf8mb4&parseTime=True&loc=Local"
+    host: 127.0.0.1
+    port: 3306
+    username: root
+    password: root
+    database: DouyinDB
+    charset: utf8mb4
   redis:
     host: 127.0.0.1
     port:  6067

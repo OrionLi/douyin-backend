@@ -88,7 +88,7 @@ func QueryVideosByCurrentTime(ctx context.Context, lastTime int64, page int64, p
 		maxOffset = 0
 	}
 	newPage := rng.Intn(int(maxOffset + 1))
-	tx := DB.WithContext(ctx).Order("created_at DESC").Where("created_time<=", curTime).Offset(newPage).Limit(int(pagesize)).Find(&res)
+	tx := DB.WithContext(ctx).Order("created_at DESC").Where("created_at <= ?", curTime).Offset(newPage).Limit(int(pagesize)).Find(&res)
 	if tx.Error != nil {
 		return nil, err
 	}
