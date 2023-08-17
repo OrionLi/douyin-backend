@@ -8,5 +8,19 @@
       <jdbc-url>jdbc:mysql://172.29.115.92:3306</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="DouyinDB@DouyinDBA.raqtpie.xyz" uuid="b4147385-336f-4d1b-9e5a-619ff02f1bdb">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://DouyinDBA.raqtpie.xyz:3306/DouyinDB</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="0@r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com" uuid="a885e7cd-e493-4d97-a3ac-da87e6b79b4d">
+      <driver-ref>redis</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>jdbc.RedisDriver</jdbc-driver>
+      <jdbc-url>jdbc:redis://r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379/0</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

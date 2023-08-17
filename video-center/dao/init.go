@@ -2,6 +2,7 @@ package dao
 
 import (
 	conf "douyin-backend/video-center/conf"
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormopentracing "gorm.io/plugin/opentracing"
@@ -16,10 +17,23 @@ func Init() {
 	}
 	//通过viper读取配置
 	conf.InitConfig()
-	dbUrl := conf.Viper.GetString("db.mysql.url")
+	username := conf.Viper.GetString("db.mysql.username")
+	password := conf.Viper.GetString("db.mysql.password")
+	port := conf.Viper.GetString("db.mysql.port")
+	host := conf.Viper.GetString("db.mysql.host")
+	database := conf.Viper.GetString("db.mysql.database")
+	charset := conf.Viper.GetString("db.mysql.charset")
+	fmt.Println(host)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local",
+		username,
+		password,
+		host,
+		port,
+		database,
+		charset)
 	var err error
 	DB, err = gorm.Open(mysql.New(mysql.Config{
-		DSN:                       dbUrl,
+		DSN:                       dsn,
 		DefaultStringSize:         256,
 		DisableDatetimePrecision:  true,
 		DontSupportRenameIndex:    true,
