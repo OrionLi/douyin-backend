@@ -1,5 +1,6 @@
 package model
 
+// Message 消息结构体
 type message struct {
 	Id         int64
 	ToUserId   int64

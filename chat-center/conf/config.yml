@@ -1,4 +1,5 @@
-redis:
-  address: "r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379"
-  password: ""
-  db: 0
+elasticsearch:
+  address: DouyinDBA.raqtpie.xyz
+  port: 9200
+  user: elastic
+  password:
