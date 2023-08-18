@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"user-center/dao"
 	"user-center/model"
+	"user-center/pkg/util"
 )
 
 type CreateUserService struct {
@@ -20,18 +20,18 @@ func (service *CreateUserService) Register(ctx context.Context) {
 
 	_, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if err != nil {
-		log.Println(err)
+		util.LogrusObj.Info("err: ", err)
 		return //todo: 需添加返回
 	}
 	//若该用户已存在
 	if exist {
-		log.Println(err)
+		util.LogrusObj.Info("err: ", err)
 		return //todo: 需添加返回
 	}
 	// 密码加密
 	password, err := bcrypt.GenerateFromPassword([]byte(service.Password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println(err)
+		util.LogrusObj.Info("err: ", err)
 
 		return //todo: 需添加返回
 	}
@@ -46,7 +46,7 @@ func (service *CreateUserService) Register(ctx context.Context) {
 	}
 	err = userDao.CreateUser(&user)
 	if err != nil {
-		log.Println(err)
+		util.LogrusObj.Info("err: ", err)
 
 		return //todo: 需添加返回
 	}

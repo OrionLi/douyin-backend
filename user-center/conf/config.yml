@@ -12,7 +12,7 @@ mysql:
 
 redis:
   RedisDb: redis
-  RedisAddr: 192.168.88.130:6379
+  RedisAddr: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379
 
-  RedisPw: rh2004..
+  RedisPw: Rh2004==
   RedisDbName: 2
