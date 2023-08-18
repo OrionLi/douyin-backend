@@ -2,8 +2,8 @@ package dao
 
 import (
 	"bytes"
+	"chat-center/model"
 	"context"
-	"douyin-backend/chat-center/model"
 	"encoding/json"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
