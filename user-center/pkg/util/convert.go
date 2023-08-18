@@ -13,6 +13,6 @@ func StrToUint(str string) int64 {
 	return i
 }
 
-func UInt2Str(i int64) string {
-	return strconv.FormatInt(i, 10)
+func UintToStr(i uint) string {
+	return strconv.FormatInt(int64(i), 10)
 }
