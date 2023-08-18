@@ -1,7 +1,9 @@
 package dao
 
 import (
-	"douyin-backend/chat-center/generated/message"
+	"bytes"
+	"context"
+	"douyin-backend/chat-center/model"
 	"encoding/json"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
@@ -11,11 +13,7 @@ import (
 )
 
 // GetAllMessagesByToUserId 查询指定 toUserId 的消息列表
-//
-// 参数：toUserId
-//
-// 返回值：消息列表，错误
-func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]message.Message, error) {
+func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]model.Message, error) {
 
 	query := fmt.Sprintf(`{
 			"query": {
@@ -43,11 +41,7 @@ func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]message.Message, 
 }
 
 // GetMessageByToUserId 查询指定 toUserId 的消息列表
-//
-// 参数：toUserId，preMsgTime
-//
-// 返回值：消息列表，错误
-func GetMessageByToUserId(time time.Time, toUserId int, fromUserId int) ([]message.Message, error) {
+func GetMessageByToUserId(time time.Time, toUserId int, fromUserId int) ([]model.Message, error) {
 	query := fmt.Sprintf(`
 		{
 			"query": {
@@ -76,8 +70,8 @@ func GetMessageByToUserId(time time.Time, toUserId int, fromUserId int) ([]messa
 }
 
 // GetMessageList 将 Elasticsearch 返回的 Response 转换为 message.Message 列表
-func GetMessageList(res *esapi.Response) []message.Message {
-	var messageList []message.Message
+func GetMessageList(res *esapi.Response) []model.Message {
+	var messageList []model.Message
 	var responseMap map[string]interface{}
 	if err := json.NewDecoder(res.Body).Decode(&responseMap); err != nil {
 		log.Fatalf("Error decoding JSON: %s", err)
@@ -93,7 +87,7 @@ func GetMessageList(res *esapi.Response) []message.Message {
 		content := source["content"].(string)
 		createTime := source["createTime"].(string)
 
-		messageList = append(messageList, message.Message{
+		messageList = append(messageList, model.Message{
 			Id:         int64(id),
 			ToUserId:   int64(toUserId),
 			FromUserId: int64(fromUserId),
@@ -105,7 +99,27 @@ func GetMessageList(res *esapi.Response) []message.Message {
 }
 
 // SendMessage 发送信息
-// TODO: 完成发送信息的数据库中添加操作
-func SendMessage() error {
+func SendMessage(message model.Message) error {
+	docJSON, err := json.Marshal(message)
+	if err != nil {
+		log.Fatalf("Error marshaling JSON: %s", err)
+	}
+
+	req := esapi.IndexRequest{
+		Index:   "douyin_messages",
+		Body:    bytes.NewReader(docJSON),
+		Refresh: "true", // 在索引之后刷新以使文档可搜索
+	}
+
+	res, err := req.Do(context.Background(), ESClient)
+	if err != nil {
+		return fmt.Errorf("error sending the request: %s", err)
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		return fmt.Errorf("[%s] Error response: %s", res.Status(), res.String())
+	}
+
 	return nil
 }
