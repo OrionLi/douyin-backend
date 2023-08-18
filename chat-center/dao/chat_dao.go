@@ -15,16 +15,17 @@ import (
 // 参数：toUserId
 //
 // 返回值：消息列表，错误
-func GetAllMessagesByToUserId(userId int) ([]message.Message, error) {
+func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]message.Message, error) {
 
 	query := fmt.Sprintf(`
 	{
 	  "query": {
 	    "match": {
-	      "toUserId": %d
+	      "toUserId": %d,
+          "fromUserId": %d
 	    }
 	  }
-	}`, userId)
+	}`, toUserId, fromUserId)
 
 	res, err := ESClient.Search(
 		ESClient.Search.WithIndex("douyin_messages"), // 索引名
@@ -45,7 +46,7 @@ func GetAllMessagesByToUserId(userId int) ([]message.Message, error) {
 // 参数：toUserId，preMsgTime
 //
 // 返回值：消息列表，错误
-func GetMessageByToUserId(time time.Time, userId int) ([]message.Message, error) {
+func GetMessageByToUserId(time time.Time, toUserId int, fromUserId int) ([]message.Message, error) {
 	query := fmt.Sprintf(`
 	{
 	  "query": {
@@ -53,7 +54,8 @@ func GetMessageByToUserId(time time.Time, userId int) ([]message.Message, error)
 	      "must": [
 	        {
 	          "match": {
-	            "toUserId": %d
+	            "toUserId": %d,
+				"fromUserId": %d
 	          }
 	        },
 	        {
@@ -66,7 +68,7 @@ func GetMessageByToUserId(time time.Time, userId int) ([]message.Message, error)
 	      ]
 	    }
 	  }
-	}`, userId, time.Format("2006-01-02 15:04:05"))
+	}`, toUserId, fromUserId, time.Format("2006-01-02 15:04:05"))
 
 	res, err := ESClient.Search(
 		ESClient.Search.WithIndex("douyin_messages"), // 索引名

@@ -24,7 +24,9 @@ func (c ChatServiceImpl) GetAllHistoryMessage(toUserId string) ([]message.Messag
 		log.Fatalf("Parse error: %v", err)
 		return nil, err
 	}
-	messageList, err := dao.GetAllMessagesByToUserId(int(parseInt))
+	// FIXME 获取登录用户ID
+	fromUserId := 1
+	messageList, err := dao.GetAllMessagesByToUserId(int(parseInt), fromUserId)
 	if err != nil {
 		return nil, err
 	}
