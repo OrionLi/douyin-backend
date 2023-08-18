@@ -6,58 +6,60 @@ service User {
   rpc GetUserById(DouyinUserRequest) returns (DouyinUserResponse){}
   rpc Register(DouyinUserRegisterRequest) returns (DouyinUserRegisterResponse){}
   rpc Login(DouyinUserLoginRequest) returns (DouyinUserLoginResponse){}
-
+  rpc IsFollow(IsFollowRequest) returns (IsFollowResponse){}
 }
 //通过id获取用户信息
 message DouyinUserRequest {
-  int64 user_id = 1; // 用户id
-  string token = 2; // 用户鉴权token
+  int64 User_id = 1; // 用户id
+  string Token = 2; // 用户鉴权token
 }
 
 message DouyinUserResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
-  UserInfo user = 3; // 用户信息
+  int32 Status_code = 1; // 状态码，0-成功，其他值-失败
+  string Status_msg = 2; // 返回状态描述
+  UserInfo User = 3; // 用户信息
 }
 
 message UserInfo {
-  int64 id = 1; // 用户id
-  string name = 2; // 用户名称
-  int64 follow_count = 3; // 关注总数
-  int64 follower_count = 4; // 粉丝总数
-  bool is_follow = 5; // true-已关注，false-未关注
-  string avatar = 6; // 用户头像
-  string background_image = 7; // 用户个人页顶部大图
-  string signature = 8; // 个人简介
-  int64 total_favorite = 9; // 获赞数量
-  int64 work_count = 10; // 作品数量
-  int64 favorite_count = 11; // 点赞数量
+  int64 Id = 1; // 用户id
+  string Name = 2; // 用户名称
+  int64 Follow_count = 3; // 关注总数
+  int64 Follower_count = 4; // 粉丝总数
+
 }
 
 //注册
 message DouyinUserRegisterRequest {
-  string username = 1; // 注册用户名，最长32个字符
-  string password = 2; // 密码，最长32个字符
+  string Username = 1; // 注册用户名，最长32个字符
+  string Password = 2; // 密码，最长32个字符
 }
 
 message DouyinUserRegisterResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
-  int64 user_id = 3; // 用户id
-  string token = 4; // 用户鉴权token
+  int32 Status_code = 1; // 状态码，0-成功，其他值-失败
+  string Status_msg = 2; // 返回状态描述
+  int64 User_id = 3; // 用户id
+  string Token = 4; // 用户鉴权token
 }
 
 //登录
 message DouyinUserLoginRequest {
-  string username = 1; // 登录用户名
-  string password = 2; // 登录密码
+  string Username = 1; // 登录用户名
+  string Password = 2; // 登录密码
 }
 
 message DouyinUserLoginResponse {
-  int32 status_code = 1; // 状态码，0-成功，其他值-失败
-  string status_msg = 2; // 返回状态描述
-  int64 user_id = 3; // 用户id
-  string token = 4; // 用户鉴权token
+  int32 Status_code = 1; // 状态码，0-成功，其他值-失败
+  string Status_msg = 2; // 返回状态描述
+  int64 User_id = 3; // 用户id
+  string Token = 4; // 用户鉴权token
 }
 
+// 查询是否关注
+message IsFollowRequest {
+  int64 UserId = 1;
+  int64 FollowUserId = 2;
+}
 
+message IsFollowResponse {
+  bool IsFollow = 1;
+}

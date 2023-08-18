@@ -11,8 +11,8 @@ mysql:
   DbName: DouyinDB
 
 redis:
-  redisDb: redis
-  redisHost: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com
-  redisPort: 6379
-  redisPw: Rh2004==
-  redisDbName: 2
+  RedisDb: redis
+  RedisAddr: 192.168.88.130:6379
+
+  RedisPw: rh2004..
+  RedisDbName: 2

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"strings"
+	"user-center/cache"
 	"user-center/dao"
 )
 
@@ -18,9 +19,9 @@ var (
 	DbPassword string
 	DbName     string
 
-	RedisDb     string
-	redisHost   string
-	redisPort   string
+	RedisDb   string
+	redisAddr string
+
 	RedisPw     string
 	RedisDbName string
 )
@@ -51,8 +52,8 @@ func Init() {
 	DbName = viper.GetString("mysql.DbName")
 
 	RedisDb = viper.GetString("redis.RedisDb")
-	redisHost = viper.GetString("redis.redisHost")
-	redisPort = viper.GetString("redis.redisPort")
+	redisAddr = viper.GetString("redis.RedisAddr")
+
 	RedisPw = viper.GetString("redis.RedisPw")
 	RedisDbName = viper.GetString("redis.RedisDbName")
 	fmt.Println(Db)
@@ -61,5 +62,6 @@ func Init() {
 	conn := strings.Join([]string{DbUser, ":", DbPassword, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8mb4&parseTime=true"}, "")
 
 	dao.Database(conn)
+	cache.Redis(RedisDb, redisAddr, RedisPw, RedisDbName)
 
 }

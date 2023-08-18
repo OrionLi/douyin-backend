@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"user-center/conf"
 	"user-center/service"
 )
@@ -10,10 +11,13 @@ func main() {
 	ctx := context.Background()
 	//初始化配置文件
 	conf.Init()
-	userRequest := service.LoginUserService{
-		UserName: "test",
-		Password: "123456",
+	isFollow := service.IsFollowService{
+		UserId:       3,
+		FollowUserId: 5,
 	}
-	userRequest.Login(ctx)
-
+	b, err := isFollow.IsFollow(ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(b)
 }
