@@ -11,3 +11,6 @@ func UintToStr(i uint) string {
 func GenFollowUserCacheKey(userId, followUserId uint) string {
 	return "follow_user_" + UintToStr(userId) + "_" + UintToStr(followUserId)
 }
+func GenUserInfoCacheKey(userId uint) string {
+	return "user_info_" + UintToStr(userId)
+}
