@@ -9,8 +9,8 @@ import (
 
 var ESClient *elasticsearch.Client
 
-// 初始化 Elasticsearch 连接
-func init() {
+// Init 初始化 Elasticsearch 连接
+func Init() {
 	// 初始化 Viper 配置
 	viper.SetConfigName("config")
 	viper.AddConfigPath("../conf")
