@@ -1,9 +1,9 @@
 package dao
 
 import (
+	"chat-center/conf"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/spf13/viper"
 	"log"
 )
 
@@ -11,31 +11,11 @@ var ESClient *elasticsearch.Client
 
 // Init 初始化 Elasticsearch 连接
 func Init() {
-	// 初始化 Viper 配置
-	viper.SetConfigName("config")
-	viper.AddConfigPath("../conf")
-	err := viper.ReadInConfig() // 读取配置文件
-	if err != nil {
-		log.Fatalf("Error reading config file: %s", err)
-	}
-
-	// 解析 Elasticsearch 配置
-	elasticsearchConfig := viper.Sub("elasticsearch")
-	if elasticsearchConfig == nil {
-		log.Fatal("Missing 'elasticsearch' configuration section")
-	}
-
-	// 获取配置值
-	address := elasticsearchConfig.GetString("address")
-	port := elasticsearchConfig.GetInt("port")
-	user := elasticsearchConfig.GetString("user")
-	password := elasticsearchConfig.GetString("password")
-
 	// 构建 Elasticsearch 连接配置
 	cfg := elasticsearch.Config{
-		Addresses: []string{fmt.Sprintf("http://%s:%d", address, port)},
-		Username:  user,
-		Password:  password,
+		Addresses: []string{fmt.Sprintf("http://%s:%d", conf.ESAddress, conf.ESport)},
+		Username:  conf.ESUser,
+		Password:  conf.ESPassword,
 	}
 
 	// 创建 Elasticsearch 连接

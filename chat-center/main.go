@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chat-center/conf"
 	"chat-center/dao"
 	pb "chat-center/generated/message"
 	"chat-center/rpc"
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+	conf.InitConf()
+
 	// 初始化ES连接
 	dao.Init()
 
