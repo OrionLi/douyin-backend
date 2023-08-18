@@ -17,15 +17,16 @@ import (
 // 返回值：消息列表，错误
 func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]message.Message, error) {
 
-	query := fmt.Sprintf(`
-	{
-	  "query": {
-	    "match": {
-	      "toUserId": %d,
-          "fromUserId": %d
-	    }
-	  }
-	}`, toUserId, fromUserId)
+	query := fmt.Sprintf(`{
+			"query": {
+				"bool": {
+					"must": [
+						{ "match": { "toUserId": %d } },
+						{ "match": { "fromUserId": %d } }
+					]
+				}
+			}
+		}`, toUserId, fromUserId)
 
 	res, err := ESClient.Search(
 		ESClient.Search.WithIndex("douyin_messages"), // 索引名
@@ -48,27 +49,17 @@ func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]message.Message, 
 // 返回值：消息列表，错误
 func GetMessageByToUserId(time time.Time, toUserId int, fromUserId int) ([]message.Message, error) {
 	query := fmt.Sprintf(`
-	{
-	  "query": {
-	    "bool": {
-	      "must": [
-	        {
-	          "match": {
-	            "toUserId": %d,
-				"fromUserId": %d
-	          }
-	        },
-	        {
-	          "range": {
-	            "createTime": {
-	              "gte": "%s"
-	            }
-	          }
-	        }
-	      ]
-	    }
-	  }
-	}`, toUserId, fromUserId, time.Format("2006-01-02 15:04:05"))
+		{
+			"query": {
+				"bool": {
+					"must": [
+						{ "match": { "toUserId": %d } },
+						{ "match": { "fromUserId": %d } },
+						{ "range": { "createTime": { "gt": "%s" } } }
+					]
+				}
+			}
+		}`, toUserId, fromUserId, time.Format("2006-01-02 15:04:05"))
 
 	res, err := ESClient.Search(
 		ESClient.Search.WithIndex("douyin_messages"), // 索引名
