@@ -73,35 +73,22 @@ func QueryVideosByCurrentTime(ctx context.Context, lastTime int64, page int64, p
 	} else {
 		curTime = time.Unix(lastTime, 0)
 	}
-
+	seed := curTime.UnixNano()
+	//创建随机生成器
+	rand.New(rand.NewSource(seed))
+	// 创建随机数生成器
+	rng := rand.New(rand.NewSource(seed))
+	// 生成随机偏移量
 	count, err := TotalCount()
 	if err != nil {
 		return nil, err
 	}
-
-	// 计算当前偏移量
-	curOffset := int(page) * int(pagesize)
-
-	// 计算剩余数据量
-	remainingData := count - int64(curOffset)
-
-	// 创建随机生成器
-	seed := curTime.UnixNano()
-	rng := rand.New(rand.NewSource(seed))
-
-	// 如果剩余数据量不足30条，将偏移量设置为0，返回所有数据
-	if remainingData < pagesize {
-		curOffset = 0
-	} else {
-		// 如果剩余数据量足够多，生成随机偏移量
-		maxOffset := remainingData - pagesize
-		if maxOffset > 0 {
-			newPage := rng.Intn(int(maxOffset))
-			curOffset += newPage
-		}
+	maxOffset := count - pagesize*page
+	if maxOffset < 0 {
+		maxOffset = 0
 	}
-
-	tx := DB.WithContext(ctx).Order("created_at DESC").Where("created_at <= ?", curTime).Offset(curOffset).Limit(int(pagesize)).Find(&res)
+	newPage := rng.Intn(int(maxOffset + 1))
+	tx := DB.WithContext(ctx).Order("created_at DESC").Where("created_at <= ?", curTime).Offset(newPage).Limit(int(pagesize)).Find(&res)
 	if tx.Error != nil {
 		return nil, err
 	}

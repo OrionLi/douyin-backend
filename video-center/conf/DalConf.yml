@@ -3,13 +3,14 @@ application:
 
 db:
   mysql:
-    host: DouyinDBA.raqtpie.xyz
+    host: 127.0.0.1
     port: 3306
-    username: DouyinDBA
-    password: nibainimane
+    username: root
+    password: root
     database: DouyinDB
     charset: utf8mb4
   redis:
-    host: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379
+    host: 127.0.0.1
+    port:  6067
     db: 0
-    passwd: Rh2004==
+    passwd: 123456
