@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:mysql://172.29.115.92:3306</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="DouyinDB@DouyinDBA.raqtpie.xyz" uuid="3792e9c1-2daf-4976-8eb0-09d1820a7fd6">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://DouyinDBA.raqtpie.xyz:3306/DouyinDB</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

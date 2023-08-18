@@ -15,8 +15,6 @@ func Init() {
 	if isInit != false { //确保只执行一次Init
 		return
 	}
-	//通过viper读取配置
-	conf.InitConfig()
 	username := conf.Viper.GetString("db.mysql.username")
 	password := conf.Viper.GetString("db.mysql.password")
 	port := conf.Viper.GetString("db.mysql.port")

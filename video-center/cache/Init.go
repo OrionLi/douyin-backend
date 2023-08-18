@@ -5,16 +5,15 @@ import (
 	"douyin-backend/video-center/conf"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"github.com/spf13/viper"
 )
 
 var RedisClient *redis.Client
 
 func Init() {
-	conf.InitConfig()
-	host := viper.GetString("db.redis.host")
-	db := viper.GetInt("db.redis.db")
-	passwd := viper.GetString("db.redis.passwd")
+	host := conf.Viper.GetString("db.redis.host")
+	db := conf.Viper.GetInt("db.redis.db")
+	passwd := conf.Viper.GetString("db.redis.passwd")
+	fmt.Println(host)
 	RedisClient = redis.NewClient(&redis.Options{
 		Password: passwd,
 		Addr:     host,
