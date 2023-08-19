@@ -1,7 +1,7 @@
 package error
 
 import (
-	"douyin-backend/server/chat-center/pkg/common"
+	"chat-center/pkg/common"
 	"fmt"
 )
 

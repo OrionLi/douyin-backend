@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"douyin-backend/server/chat-center/conf"
+	"chat-center/conf"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v8"
 	"log"

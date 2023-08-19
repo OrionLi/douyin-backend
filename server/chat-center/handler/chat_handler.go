@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"douyin-backend/server/chat-center/pkg/common"
-	"douyin-backend/server/chat-center/pkg/util"
-	"douyin-backend/server/chat-center/service"
+	"chat-center/pkg/common"
+	"chat-center/pkg/util"
+	"chat-center/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
