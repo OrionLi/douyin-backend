@@ -10,7 +10,7 @@ var Viper *viper.Viper
 func InitConfig() {
 	v := viper.New()
 	v.AddConfigPath(".")
-	v.AddConfigPath("./video-center/conf")
+	v.AddConfigPath("./conf")
 	v.SetConfigType("yaml")
 	v.SetConfigName("DalConf.yml")
 

@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"strings"
 	"user-center/cache"
-	"user-center/dao"
+	dao "user-center/dao"
 )
 
 var (

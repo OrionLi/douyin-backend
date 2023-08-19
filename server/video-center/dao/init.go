@@ -1,11 +1,15 @@
 package dao
 
 import (
-	"douyin-backend/server/video-center/conf"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	gormopentracing "gorm.io/plugin/opentracing"
+	"log"
+	"os"
+	"time"
+	conf "video-center/conf"
 )
 
 var DB *gorm.DB
@@ -15,8 +19,12 @@ func Init() {
 	if isInit != false { //确保只执行一次Init
 		return
 	}
-	//通过viper读取配置
-	conf.InitConfig()
+	newLogger := logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold: time.Second,
+			LogLevel:      logger.Info,
+			Colorful:      true,
+		})
 	username := conf.Viper.GetString("db.mysql.username")
 	password := conf.Viper.GetString("db.mysql.password")
 	port := conf.Viper.GetString("db.mysql.port")
@@ -43,6 +51,7 @@ func Init() {
 		&gorm.Config{
 			PrepareStmt:            true,
 			SkipDefaultTransaction: true,
+			Logger:                 newLogger,
 		},
 	)
 	if err != nil {
@@ -53,4 +62,5 @@ func Init() {
 		panic(err)
 	}
 	isInit = true
+	Migrate()
 }
