@@ -7,7 +7,7 @@ import "user.proto";
 // 评论信息
 message Comment {
   int64 id = 1; // 评论id
-  User user = 2; // 评论用户信息
+  user.User user = 2; // 评论用户信息
   string content = 3; // 评论内容
   string create_date = 4; // 评论发布日期，格式 mm-dd
 }
@@ -47,10 +47,8 @@ message douyin_comment_list_response {
   repeated Comment comment_list = 3; //array[object (Comment) {4}] or null 评论列表
 }
 
-// 评论接口方法
-service video_center {
-  // 评论操作
-  rpc ActionComment(douyin_comment_action_request) returns (douyin_comment_action_response);
-  // 评论列表
-  rpc ListComment(douyin_comment_list_request) returns (douyin_comment_list_response);
+// 接口方法
+service video_center { // 消息服务
+  rpc ActionComment(douyin_comment_action_request) returns (douyin_comment_action_response); // 评论操作
+  rpc ListComment(douyin_comment_list_request) returns (douyin_comment_list_response); // 评论列表
 }

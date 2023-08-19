@@ -3,7 +3,6 @@ module chat-center
 go 1.20
 
 require (
-	github.com/Raqtpie/test v0.0.0-20230819062612-d373b6aa6872
 	github.com/elastic/go-elasticsearch/v8 v8.9.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/spf13/viper v1.16.0
@@ -11,6 +10,7 @@ require (
 )
 
 require (
+	github.com/OrionLi/douyin-backend v1.0.3 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.0.0-20230329154755-1a3c63de0db6 // indirect
