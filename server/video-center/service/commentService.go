@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"douyin-backend/server/video-center/dao"
-	"douyin-backend/server/video-center/model"
 	"time"
+	"video-center/dao"
+	"video-center/model"
 )
 
 type CommentService struct {
