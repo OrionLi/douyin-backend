@@ -2,9 +2,9 @@ package cache
 
 import (
 	"context"
-	"douyin-backend/server/video-center/conf"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"video-center/conf"
 )
 
 var RedisClient *redis.Client

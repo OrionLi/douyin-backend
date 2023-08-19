@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"douyin-backend/server/video-center/conf"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -10,6 +9,7 @@ import (
 	"log"
 	"os"
 	"time"
+	conf "video-center/conf"
 )
 
 var DB *gorm.DB

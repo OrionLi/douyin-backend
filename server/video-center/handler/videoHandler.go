@@ -113,13 +113,6 @@ func (s *VideoServer) PublishAction(ctx context.Context, req *pb.DouyinPublishAc
 		resp.StatusMsg = &convertErr.ErrMsg
 		return resp, nil
 	}
-	////判断AuthorId是否在user表中
-	//isExist := dao.ExistID(ctx, AuthorId)
-	//if !isExist {
-	//	resp.StatusCode = errno.ParamErrCode
-	//	resp.StatusMsg = &errno.ParamErr.ErrMsg
-	//	return resp, nil
-	//}
 	//向七牛云存放视频资源
 	playUrl, coverUrl, err2 := oss.UploadVideo(ctx, AuthorId, req.Data, req.Title)
 	if err2 != nil {
