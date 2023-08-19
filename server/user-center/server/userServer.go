@@ -30,6 +30,7 @@ func (s *UserRPCServer) Login(ctx context.Context, req *pb.DouyinUserLoginReques
 		UserName: req.GetUsername(),
 		Password: req.GetPassword(),
 	}
+
 	return loginReq.Login(ctx)
 }
 func (s *UserRPCServer) IsFollow(ctx context.Context, req *pb.IsFollowRequest) (*pb.IsFollowResponse, error) {

@@ -1,12 +1,14 @@
 package e
 
-const (
-	Error         = 500
-	InvalidParams = 400
+import "google.golang.org/grpc/codes"
 
-	ErrorExistUser             = 30001
-	ErrorExistUserNotFound     = 30003
-	ErrorNotCompare            = 30004
-	ErrorAuthToken             = 30005
-	ErrorAuthCheckTokenTimeout = 30006
+const (
+	Error         = codes.Unknown
+	InvalidParams = codes.InvalidArgument
+
+	ErrorExistUser             = codes.AlreadyExists
+	ErrorExistUserNotFound     = codes.NotFound
+	ErrorNotCompare            = codes.Unauthenticated
+	ErrorAuthToken             = codes.PermissionDenied
+	ErrorAuthCheckTokenTimeout = codes.DeadlineExceeded
 )
