@@ -1,14 +1,14 @@
 package main
 
 import (
-	"douyin-backend/pkg/pb"
-	handler "douyin-backend/server/video-center/handler"
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
 	"net"
+	"video-center/handler"
+	"video-center/pkg/pb"
 )
 
 func main() {

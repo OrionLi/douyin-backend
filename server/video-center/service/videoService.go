@@ -2,10 +2,9 @@ package service
 
 import (
 	"context"
-	"douyin-backend/pkg/pb"
-	"douyin-backend/server/user-center/service"
-	"douyin-backend/server/video-center/dao"
-	"fmt"
+	"video-center/pkg/pb"
+
+	"video-center/dao"
 )
 
 type VideoService struct {
@@ -23,25 +22,12 @@ func (s *VideoService) PublishList(authorId int64) ([]*pb.Video, error) {
 	if err != nil {
 		return nil, err
 	}
-	//todo 根据userId封装Video，以及是否点赞
-	idService := service.GetUserByIdService{
-		Id: uint(authorId),
-	}
-	idService.GetUserById(s.ctx) //获取user
-	if err != nil {
-		return nil, err
-	}
 	for _, v := range videoList {
 		videos = append(videos, &pb.Video{
 			Id: v.Id,
-			//todo 封装user
-			//Author: &pb.User{
-			//	Id:            user.Id,
-			//	Name:          user.Username,
-			//	FollowCount:   &user.FollowCount,
-			//	FollowerCount: &user.FanCount,
-			//	IsFollow:      false,
-			//},
+			Author: &pb.User{
+				Id: authorId,
+			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
 			FavoriteCount: v.FavoriteCount,
@@ -66,9 +52,7 @@ func (s *VideoService) PublishAction(authorId int64, playURL string, coverURL st
 }
 func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video, error) {
 	videoList, err := dao.QueryVideosByCurrentTime(s.ctx, lastTime, 0, 30)
-	var isFan bool
 	var isFav bool
-	isFan = false
 	isFav = false
 	videos := make([]*pb.Video, 0)
 	if err != nil {
@@ -76,36 +60,22 @@ func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video,
 	}
 	//如果登录了传入userId，否则传0表示没有登录
 	for _, v := range videoList {
-		if userId != 0 { //！=0表示已登录，查询是否是作者的粉丝
-			followService := service.IsFollowService{UserId: v.ID, FollowUserId: uint(userId)}
-			follow, err := followService.IsFollow(s.ctx)
-			if err != nil {
-				isFan = false
-			}
-			fmt.Println(isFan)
-			isFan = follow
+		if userId != 0 { //！=0表示已登录，查询是否是作者的粉丝s
 			favorite, err := dao.IsFavorite(context.Background(), v.Id, userId) //查看是否点赞
 			if err != nil {
 				isFav = false
 			}
 			isFav = favorite
 		}
-		//todo 查询user
-		//byIdService := service.GetUserByIdService{
-		//	Id: uint(v.AuthorID),
-		//}
-		//byIdService.GetUserById(s.ctx) //获取user
+		if err != nil {
+			continue
+		}
 
 		videos = append(videos, &pb.Video{
 			Id: v.Id,
-			//todo 封装user
-			//Author: &video.User{
-			//	Id:            user.Id,
-			//	Name:          user.Username,
-			//	FollowCount:   &user.FollowCount,
-			//	FollowerCount: &user.FanCount,
-			//	IsFollow:      isFan,
-			//},
+			Author: &pb.User{
+				Id: userId,
+			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
 			FavoriteCount: v.FavoriteCount,

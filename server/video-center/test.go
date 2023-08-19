@@ -1,11 +1,10 @@
 package main
 
 import (
-	conf2 "douyin-backend/server/user-center/conf"
-	"douyin-backend/server/video-center/cache"
-	"douyin-backend/server/video-center/conf"
-	"douyin-backend/server/video-center/dao"
-	"douyin-backend/server/video-center/oss"
+	"video-center/cache"
+	"video-center/conf"
+	"video-center/dao"
+	"video-center/oss"
 )
 
 func main() {
@@ -13,5 +12,4 @@ func main() {
 	cache.Init()
 	dao.Init()
 	oss.Init("D://d", "OssConf.yaml")
-	conf2.Init()
 }

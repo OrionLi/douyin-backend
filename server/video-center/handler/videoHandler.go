@@ -2,11 +2,12 @@ package handler
 
 import (
 	"context"
-	"douyin-backend/pkg/pb"
-	"douyin-backend/server/video-center/cache"
-	"douyin-backend/server/video-center/oss"
-	"douyin-backend/server/video-center/pkg/errno"
-	"douyin-backend/server/video-center/service"
+	"video-center/cache"
+	"video-center/oss"
+	"video-center/pkg/errno"
+	"video-center/pkg/pb"
+	"video-center/service"
+
 	"fmt"
 	"strconv"
 )
