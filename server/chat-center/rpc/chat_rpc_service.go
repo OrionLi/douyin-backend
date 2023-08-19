@@ -1,11 +1,11 @@
 package rpc
 
 import (
-	"chat-center/dao"
-	"chat-center/model"
-	"chat-center/pkg/common"
 	"context"
 	"douyin-backend/pkg/pb"
+	"douyin-backend/server/chat-center/dao"
+	"douyin-backend/server/chat-center/model"
+	"douyin-backend/server/chat-center/pkg/common"
 	"time"
 )
 
@@ -98,4 +98,10 @@ func messageListToPbMessageList(msg []model.Message) []*pb.Message {
 		})
 	}
 	return messageList
+}
+
+func validateToken(token string) int64 {
+	//TODO 解析token
+	//HACK parseToken(token)
+	panic("implement me")
 }
