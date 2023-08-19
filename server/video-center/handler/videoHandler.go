@@ -2,14 +2,21 @@ package handler
 
 import (
 	"context"
-	"douyin-backend/pkg/pb"
-	"douyin-backend/server/video-center/cache"
-	"douyin-backend/server/video-center/pkg/errno"
-	"douyin-backend/server/video-center/service"
+	"video-center/cache"
+	"video-center/oss"
+	"video-center/pkg/errno"
+	"video-center/pkg/pb"
+	"video-center/service"
+
+	"fmt"
 	"strconv"
 )
 
-func PublishList(ctx context.Context, req *pb.DouyinPublishListRequest) (*pb.DouyinPublishListResponse, error) {
+type VideoServer struct {
+	pb.UnsafeVideoCenterServer
+}
+
+func (s *VideoServer) PublishList(ctx context.Context, req *pb.DouyinPublishListRequest) (*pb.DouyinPublishListResponse, error) {
 	resp := new(pb.DouyinPublishListResponse)
 	//判断Token
 	token := req.Token
@@ -42,31 +49,35 @@ func PublishList(ctx context.Context, req *pb.DouyinPublishListRequest) (*pb.Dou
 	//正常返回
 	resp.StatusCode = errno.SuccessCode
 	resp.StatusMsg = &errno.Success.ErrMsg
-	//将返回的video封装为目标video
-	videoList := make([]*pb.Video, 0)
-	//todo 根据video查询user,将User信息放入video中
-
-	for _, v := range list {
-		videoList = append(videoList, &pb.Video{
-			Id: v.Id,
-			//todo Author: 即为查询到的user
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
-			IsFavorite:    v.IsFavorite,
-			Title:         v.Title,
-		})
-	}
-	resp.VideoList = videoList
+	resp.VideoList = list
 	return resp, nil
 }
 
-// FeedVideoList 根据分页查询，随机时间种子来实现，每页最多30个
-func FeedVideoList(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.DouyinFeedResponse, error) {
+// Feed 根据分页查询，随机时间种子来实现，每页最多30个
+func (s *VideoServer) Feed(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.DouyinFeedResponse, error) {
 	resp := new(pb.DouyinFeedResponse)
+	var userId int64
+	userId = 0
+	//判断token,并获取userId
+	if len(req.GetToken()) != 0 {
+		key, err := cache.RedisGetKey(ctx, req.GetToken())
+		if err != nil {
+			convertErr := errno.ConvertErr(err)
+			resp.StatusCode = int32(convertErr.ErrCode)
+			resp.StatusMsg = &convertErr.ErrMsg
+			return resp, nil
+		}
+		userId, err = strconv.ParseInt(key, 10, 64)
+		if err != nil {
+			convertErr := errno.ConvertErr(err)
+			resp.StatusCode = int32(convertErr.ErrCode)
+			resp.StatusMsg = &convertErr.ErrMsg
+			return resp, nil
+		}
+	}
 	lastTime := req.LatestTime
-	list, err := service.NewVideoService(ctx).FeedVideoList(*lastTime)
+	fmt.Println(userId)
+	list, err := service.NewVideoService(ctx).FeedVideoList(*lastTime, userId)
 	if err != nil {
 		convertErr := errno.ConvertErr(err)
 		resp.StatusCode = int32(convertErr.ErrCode)
@@ -76,27 +87,11 @@ func FeedVideoList(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.DouyinFe
 	//正常返回
 	resp.StatusCode = errno.SuccessCode
 	resp.StatusMsg = &errno.Success.ErrMsg
-	//将返回的video封装为目标video
-	videoList := make([]*pb.Video, 0)
-	for _, v := range list {
-		//todo 根据video查询user,将User信息放入video中
-
-		videoList = append(videoList, &pb.Video{
-			Id: v.Id,
-			//todo Author: 即为查询到的user
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
-			IsFavorite:    v.IsFavorite,
-			Title:         v.Title,
-		})
-	}
-	resp.VideoList = videoList
+	resp.VideoList = list
 	return resp, nil
 }
 
-func PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) (*pb.DouyinPublishActionResponse, error) {
+func (s *VideoServer) PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) (*pb.DouyinPublishActionResponse, error) {
 	resp := new(pb.DouyinPublishActionResponse)
 	token := req.Token
 	if len(token) == 0 {
@@ -118,12 +113,14 @@ func PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) (*pb
 		resp.StatusMsg = &convertErr.ErrMsg
 		return resp, nil
 	}
-	//todo 判断AuthorId是否在user表中
-
-	//todo 向七牛云存放视频资源
-
-	playUrl := ""
-	coverUrl := ""
+	//向七牛云存放视频资源
+	playUrl, coverUrl, err2 := oss.UploadVideo(ctx, AuthorId, req.Data, req.Title)
+	if err2 != nil {
+		convertErr := errno.ConvertErr(err2)
+		resp.StatusCode = int32(convertErr.ErrCode)
+		resp.StatusMsg = &convertErr.ErrMsg
+		return resp, nil
+	}
 	err := service.NewVideoService(ctx).PublishAction(AuthorId, playUrl, coverUrl, req.Title)
 	if err != nil {
 		convertErr := errno.ConvertErr(err)

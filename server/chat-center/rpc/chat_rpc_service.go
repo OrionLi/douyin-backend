@@ -1,11 +1,11 @@
 package rpc
 
 import (
-	"chat-center/dao"
-	"chat-center/model"
-	"chat-center/pkg/common"
 	"context"
-	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"douyin-backend/pkg/pb"
+	"douyin-backend/server/chat-center/dao"
+	"douyin-backend/server/chat-center/model"
+	"douyin-backend/server/chat-center/pkg/common"
 	"time"
 )
 

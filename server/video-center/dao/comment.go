@@ -1,8 +1,8 @@
 package dao
 
 import (
-	"douyin-backend/server/video-center/model"
 	"gorm.io/gorm"
+	"video-center/model"
 )
 
 // SaveComment 发布评论
