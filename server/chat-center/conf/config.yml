@@ -1,0 +1,12 @@
+elasticsearch:
+  address: DouyinDBA.raqtpie.xyz
+  port: 9200
+  user: elastic
+  password:
+
+nacos:
+  address:
+  port: 8848
+  group: Douyin_GROUP
+  server-name: chat-center
+  ip: 127.0.0.1
