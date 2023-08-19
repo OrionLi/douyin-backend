@@ -6,6 +6,7 @@ import (
 	cache2 "user-center/cache"
 	"user-center/dao"
 	"user-center/pb"
+	"user-center/pkg/e"
 	util2 "user-center/pkg/util"
 )
 
@@ -20,7 +21,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	cacheData, err := cache.HasUser(ctx, service.Id)
 	if err != nil {
 		util2.LogrusObj.Info("err: ", err)
-		return nil, err
+		return nil, e.NewError(e.Error)
 	}
 	if len(cacheData) != 0 {
 		id := service.Id
@@ -40,7 +41,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	user, err := userDao.GetUserById(service.Id)
 	if err != nil {
 		util2.LogrusObj.Info("err: ", err)
-		return nil, err
+
+		return nil, e.NewError(e.Error)
 	}
 	if user.IsCelebrity() == true {
 		m := map[string]interface{}{
@@ -52,7 +54,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		err = cache.AddUser(ctx, user.ID, m)
 		if err != nil {
 			util2.LogrusObj.Info("err: ", err)
-			return nil, err
+			return nil, e.NewError(e.Error)
 		}
 	}
 	return &pb.DouyinUserResponse{User: &pb.User{

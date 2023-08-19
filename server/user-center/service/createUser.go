@@ -7,6 +7,7 @@ import (
 	"user-center/dao"
 	"user-center/model"
 	"user-center/pb"
+	"user-center/pkg/e"
 	"user-center/pkg/util"
 )
 
@@ -28,14 +29,14 @@ func (service *CreateUserService) Register(ctx context.Context) (*pb.DouyinUserR
 	//若该用户已存在
 	if exist {
 		util.LogrusObj.Info("err: ", err)
-		return nil, err //todo: 需添加返回
+		return nil, e.NewError(e.ErrorExistUser) //todo: 需添加返回
 	}
 	// 密码加密
 	password, err := bcrypt.GenerateFromPassword([]byte(service.Password), bcrypt.DefaultCost)
 	if err != nil {
 		util.LogrusObj.Info("err: ", err)
 
-		return nil, err //todo: 需添加返回
+		return nil, e.NewError(e.Error) //todo: 需添加返回
 	}
 
 	user = model.User{
@@ -50,12 +51,12 @@ func (service *CreateUserService) Register(ctx context.Context) (*pb.DouyinUserR
 	if err != nil {
 		util.LogrusObj.Info("err: ", err)
 
-		return nil, err //todo: 需添加返回
+		return nil, e.NewError(e.Error) //todo: 需添加返回
 	}
 	token, err := util.GenerateToken(user.ID, service.UserName, 0)
 	if err != nil {
 		fmt.Println("token签发失败")
-		return nil, err
+		return nil, e.NewError(e.ErrorAuthToken)
 	}
 	return &pb.DouyinUserRegisterResponse{
 		UserId: int64(user.ID),
