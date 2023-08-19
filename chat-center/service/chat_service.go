@@ -3,51 +3,34 @@ package service
 import (
 	"chat-center/dao"
 	"chat-center/model"
-	"log"
-	"strconv"
 	"time"
 )
 
 type ChatService interface {
-	GetAllHistoryMessage(toUserId string) ([]model.Message, error)
-	GetMessage(toUserId string, preMsgTime int64) ([]model.Message, error)
-	SendMessage(fromUserId string, content string) error
+	GetAllHistoryMessage(currentId int64, interActiveId int64) ([]model.Message, error)
+	GetMessageByPreMsgTime(currentId int64, interActiveId int64, preMsgTime int64) ([]model.Message, error)
+	SendMessage(currentId int64, interActiveId int64, content string) error
 }
 
 type ChatServiceImpl struct{}
 
-// TODO: 该源文件下所有函数实现鉴权
-
 // GetAllHistoryMessage 根据toUserId查询数据库中所有聊天记录
 // 当preMsgTime为0时，查询所有聊天记录
-func (c ChatServiceImpl) GetAllHistoryMessage(toUserId string) ([]model.Message, error) {
+func (c ChatServiceImpl) GetAllHistoryMessage(currentId int64, interActiveId int64) ([]model.Message, error) {
 	// 查询相关记录
-	parseInt, err := strconv.ParseInt(toUserId, 10, 64)
-	if err != nil {
-		log.Fatalf("Parse error: %v", err)
-		return nil, err
-	}
-	// FIXME 获取登录用户ID
-	fromUserId := 1
-	messageList, err := dao.GetAllMessagesByToUserId(int(parseInt), fromUserId)
+	messageList, err := dao.GetAllMessagesByToUserId(currentId, interActiveId)
 	if err != nil {
 		return nil, err
 	}
 	return messageList, nil
 }
 
-// GetMessage 根据toUserId查询数据库中所有聊天记录
-func (c ChatServiceImpl) GetMessage(toUserId string, preMsgTime int64) ([]model.Message, error) {
+// GetMessageByPreMsgTime 根据toUserId查询数据库中所有聊天记录
+func (c ChatServiceImpl) GetMessageByPreMsgTime(currentId int64, interActiveId int64, preMsgTime int64) ([]model.Message, error) {
 	timeObj := time.Unix(preMsgTime, 0)
-	// 查询相关记录
-	parseInt, err := strconv.ParseInt(toUserId, 10, 64)
-	if err != nil {
-		log.Fatalf("Parse error: %v", err)
-		return nil, err
-	}
-	// FIXME 获取登录用户ID
-	fromUserId := 1
-	messageList, err := dao.GetMessageByToUserId(timeObj, int(parseInt), fromUserId)
+	// 查询相关记录, 从preMsgTime开始
+	// Dao层中toUserId和fromUserId的顺序是反的，因为前端传参中toUserId为对方的ID，fromUserId为自己的ID
+	messageList, err := dao.GetMessageByToUserId(timeObj, currentId, interActiveId)
 	if err != nil {
 		return nil, err
 	}
@@ -55,20 +38,13 @@ func (c ChatServiceImpl) GetMessage(toUserId string, preMsgTime int64) ([]model.
 }
 
 // SendMessage 将消息存入数据库
-func (c ChatServiceImpl) SendMessage(fromUserId string, content string) error {
-	// FIXME 获取登录用户ID
-	toUserId := 1
-	fromUserIdInt, err := strconv.ParseInt(fromUserId, 10, 64)
-	if err != nil {
-		log.Fatalf("Parse error: %v", err)
-		return err
-	}
+func (c ChatServiceImpl) SendMessage(currentId int64, interActiveId int64, content string) error {
 	message := model.Message{
-		ToUserId:   int64(toUserId),
-		FromUserId: fromUserIdInt,
+		ToUserId:   interActiveId,
+		FromUserId: currentId,
 		Content:    content,
 	}
-	err = dao.SendMessage(message)
+	err := dao.SendMessage(message)
 	if err != nil {
 		return err
 	}

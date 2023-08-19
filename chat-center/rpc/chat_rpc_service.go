@@ -21,27 +21,40 @@ func (s *ChatRPCService) GetMessage(ctx context.Context, request *message.Douyin
 	// HACK 如果不鉴权： userId := ctx.Value("userId")
 	// HACK 如果鉴权： token := req.GetToken()，解析token，获取userId
 	// HACK userId暂时定为固定值1
-	fromUserId := 1
+	// toUserId为对方id fromUserId为自己id
+	var fromUserId int64 = 1
 	toUserId := request.GetToUserId()
 	preMsgTime := request.GetPreMsgTime()
 	if preMsgTime == 0 {
-		messageListTemp, err := dao.GetAllMessagesByToUserId(int(toUserId), fromUserId)
+		messageListTemp, err := dao.GetAllMessagesByToUserId(toUserId, fromUserId)
 		messageList := messageListToPbMessageList(messageListTemp)
 		if err != nil {
-			return &message.DouyinMessageChatResponse{}, err
+			return &message.DouyinMessageChatResponse{
+				StatusCode:  common.ErrorGetCode,
+				StatusMsg:   common.ErrorGetMsg,
+				MessageList: nil,
+			}, err
 		}
 		return &message.DouyinMessageChatResponse{
+			StatusCode:  common.SuccessCode,
+			StatusMsg:   common.SuccessMsg,
 			MessageList: messageList,
 		}, nil
 	} else {
 		// 将时间戳转换为 time.Time 类型
 		timeObj := time.Unix(preMsgTime, 0)
-		messageListTemp, err := dao.GetMessageByToUserId(timeObj, int(toUserId), fromUserId)
+		messageListTemp, err := dao.GetMessageByToUserId(timeObj, toUserId, fromUserId)
 		messageList := messageListToPbMessageList(messageListTemp)
 		if err != nil {
-			return &message.DouyinMessageChatResponse{}, err
+			return &message.DouyinMessageChatResponse{
+				StatusCode:  common.ErrorGetCode,
+				StatusMsg:   common.ErrorGetMsg,
+				MessageList: nil,
+			}, err
 		}
 		return &message.DouyinMessageChatResponse{
+			StatusCode:  common.SuccessCode,
+			StatusMsg:   common.SuccessMsg,
 			MessageList: messageList,
 		}, nil
 	}
@@ -51,17 +64,21 @@ func (s *ChatRPCService) SendMessage(ctx context.Context, request *message.Douyi
 	// HACK 如果不鉴权： userId := ctx.Value("userId")
 	// HACK 如果鉴权： token := req.GetToken()，解析token，获取userId
 	// HACK userId暂时定为固定值1
-	fromUserId := 1
+	// toUserId为对方id，发送消息操作，即为消息接收者
+	var fromUserId int64 = 1
 	toUserId := request.GetToUserId()
 	content := request.GetContent()
 	msg := model.Message{
-		ToUserId:   int64(int(toUserId)),
-		FromUserId: int64(fromUserId),
+		ToUserId:   toUserId,
+		FromUserId: fromUserId,
 		Content:    content,
 	}
 	err := dao.SendMessage(msg)
 	if err != nil {
-		return &message.DouyinMessageActionResponse{}, err
+		return &message.DouyinMessageActionResponse{
+			StatusCode: common.ErrorSendCode,
+			StatusMsg:  common.ErrorSendMsg,
+		}, err
 	}
 	return &message.DouyinMessageActionResponse{
 		StatusCode: common.SuccessCode,

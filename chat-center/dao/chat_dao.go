@@ -13,7 +13,9 @@ import (
 )
 
 // GetAllMessagesByToUserId 查询指定 toUserId 的消息列表
-func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]model.Message, error) {
+// toUserId : 消息接收者
+// fromUserId : 消息发送者
+func GetAllMessagesByToUserId(toUserId int64, fromUserId int64) ([]model.Message, error) {
 
 	query := fmt.Sprintf(`{
 			"query": {
@@ -41,7 +43,10 @@ func GetAllMessagesByToUserId(toUserId int, fromUserId int) ([]model.Message, er
 }
 
 // GetMessageByToUserId 查询指定 toUserId 的消息列表
-func GetMessageByToUserId(time time.Time, toUserId int, fromUserId int) ([]model.Message, error) {
+// toUserId : 消息接收者
+// fromUserId : 消息发送者
+// time : 最后一次阅读消息的时间
+func GetMessageByToUserId(time time.Time, toUserId int64, fromUserId int64) ([]model.Message, error) {
 	query := fmt.Sprintf(`
 		{
 			"query": {
