@@ -62,4 +62,5 @@ func Init() {
 		panic(err)
 	}
 	isInit = true
+	Migrate()
 }

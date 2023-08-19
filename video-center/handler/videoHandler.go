@@ -8,6 +8,7 @@ import (
 	"douyin-backend/video-center/oss"
 	"douyin-backend/video-center/pkg/errno"
 	"douyin-backend/video-center/service"
+	"fmt"
 	"strconv"
 )
 
@@ -48,44 +49,15 @@ func (s *VideoServer) PublishList(ctx context.Context, req *video.DouyinPublishL
 	//正常返回
 	resp.StatusCode = errno.SuccessCode
 	resp.StatusMsg = &errno.Success.ErrMsg
-	//将返回的video封装为目标video
-	videoList := make([]*video.Video, 0)
-	user, err2 := dao.QueryUserByID(ctx, req.UserId)
-	if err2 != nil {
-		convertErr := errno.ConvertErr(err)
-		resp.StatusCode = int32(convertErr.ErrCode)
-		resp.StatusMsg = &convertErr.ErrMsg
-		return resp, nil
-	}
-	for _, v := range list {
-		videoList = append(videoList, &video.Video{
-			Id: v.Id,
-			//Author: 即为查询到的user
-			Author: &video.User{
-				Id:            user.Id,
-				Name:          user.Username,
-				FollowCount:   &user.FollowCount,
-				FollowerCount: &user.FanCount,
-				IsFollow:      false,
-			},
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
-			IsFavorite:    v.IsFavorite,
-			Title:         v.Title,
-		})
-	}
-	resp.VideoList = videoList
+	resp.VideoList = list
 	return resp, nil
 }
 
 // Feed 根据分页查询，随机时间种子来实现，每页最多30个
 func (s *VideoServer) Feed(ctx context.Context, req *video.DouyinFeedRequest) (*video.DouyinFeedResponse, error) {
 	resp := new(video.DouyinFeedResponse)
-	hasToken := false
-	isfan := false
 	var userId int64
+	userId = 0
 	//判断token,并获取userId
 	if len(req.GetToken()) != 0 {
 		key, err := cache.RedisGetKey(ctx, req.GetToken())
@@ -102,10 +74,10 @@ func (s *VideoServer) Feed(ctx context.Context, req *video.DouyinFeedRequest) (*
 			resp.StatusMsg = &convertErr.ErrMsg
 			return resp, nil
 		}
-		hasToken = true
 	}
 	lastTime := req.LatestTime
-	list, err := service.NewVideoService(ctx).FeedVideoList(*lastTime)
+	fmt.Println(userId)
+	list, err := service.NewVideoService(ctx).FeedVideoList(*lastTime, 1)
 	if err != nil {
 		convertErr := errno.ConvertErr(err)
 		resp.StatusCode = int32(convertErr.ErrCode)
@@ -115,40 +87,7 @@ func (s *VideoServer) Feed(ctx context.Context, req *video.DouyinFeedRequest) (*
 	//正常返回
 	resp.StatusCode = errno.SuccessCode
 	resp.StatusMsg = &errno.Success.ErrMsg
-	//将返回的video封装为目标video
-	videoList := make([]*video.Video, 0)
-	for _, v := range list {
-		//根据video查询user,将User信息放入video中
-		user, err := dao.QueryUserByID(ctx, v.AuthorID)
-		if err != nil {
-			continue
-		}
-		if hasToken { //如果有token，则判断和视频主人是否为粉丝
-			of, err := dao.IsFanOf(v.AuthorID, uint(userId))
-			if err != nil {
-				isfan = false
-			}
-			isfan = of
-		}
-		videoList = append(videoList, &video.Video{
-			Id: v.Id,
-			//Author: 即为查询到的user
-			Author: &video.User{
-				Id:            user.Id,
-				Name:          user.Username,
-				FollowCount:   &user.FollowCount,
-				FollowerCount: &user.FanCount,
-				IsFollow:      isfan,
-			},
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
-			IsFavorite:    v.IsFavorite,
-			Title:         v.Title,
-		})
-	}
-	resp.VideoList = videoList
+	resp.VideoList = list
 	return resp, nil
 }
 

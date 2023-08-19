@@ -12,26 +12,19 @@ type User struct {
 	FanCount    int64  `json:"follower_count,omitempty"` // 粉丝总数
 	IsFollow    bool   `json:"is_follow,omitempty"`      // true-已关注，false-未关注
 }
-type TUser struct {
-	gorm.Model
-	Username    string `gorm:"not null;unique;index" `
-	Password    string `gorm:"not null"`
-	FollowCount int64
-	FanCount    int64
-
-	// 多对多
-	Follows []*TUser `gorm:"many2many:follows;"`                         // 关注列表
-	Fans    []*TUser `gorm:"many2many:follows;joinForeignKey:follow_id"` // 粉丝列表
-}
-
-func (u *TUser) TableName() string {
-	return "user"
-}
 
 func (u *User) TableName() string {
 	return "user"
 }
 
+type follow struct {
+	UserId   uint
+	followId uint
+}
+
+func (u *follow) TableName() string {
+	return "follows"
+}
 func QueryUserByID(ctx context.Context, userId int64) (*User, error) {
 	user := new(User)
 	err := DB.WithContext(ctx).Where("id = ?", userId).First(&user).Error
@@ -48,25 +41,12 @@ func ExistID(ctx context.Context, userId int64) bool {
 	}
 	return true
 }
+
 func IsFanOf(userID1 int64, userID2 uint) (bool, error) {
-	var user1, user2 TUser
-
-	// 查询用户1
-	if err := DB.First(&user1, userID1).Error; err != nil {
-		return false, err
+	var fw follow
+	result := DB.WithContext(context.Background()).Where("user_id = ? and follow_id = ?", userID1, userID2).First(&fw)
+	if result.Error != nil && result.Error != gorm.ErrRecordNotFound {
+		return false, result.Error
 	}
-
-	// 查询用户2
-	if err := DB.First(&user2, userID2).Error; err != nil {
-		return false, err
-	}
-
-	// 遍历用户1的粉丝列表，检查是否存在用户2
-	for _, fan := range user1.Fans {
-		if fan.ID == userID2 {
-			return true, nil
-		}
-	}
-
-	return false, nil
+	return result.RowsAffected > 0, nil
 }

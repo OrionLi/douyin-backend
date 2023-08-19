@@ -18,16 +18,26 @@ func main() {
 	dao.Init()
 	oss.Init("D://d", "OssConf.yaml")
 	server := handler.VideoServer{}
+	//Feed测试
 	unix := time.Now().Unix()
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwidXNlcl9uYW1lIjoib3JpIiwiYXV0aG9yaXR5IjowLCJleHAiOjE2OTI0MDk3NTIsImlzcyI6IkZhbk9uZS1naW4tbWFsbCJ9.ihgXqU_IdnzAkUIYwg6GzVwRWmtQBDmdVXhwqHdiaJY"
 	feed, err := server.Feed(context.Background(), &video.DouyinFeedRequest{
 		LatestTime: &unix,
+		Token:      &token,
 	})
 	if err != nil {
 		return
 	}
+	fmt.Println("视频1")
 	fmt.Println(feed.VideoList[0].Title)
+	fmt.Println(feed.VideoList[0].IsFavorite)
+	fmt.Println(feed.VideoList[0].Author.IsFollow)
+	fmt.Println("视频2")
 	fmt.Println(feed.VideoList[1].Title)
-	//Action测试
+	fmt.Println(feed.VideoList[1].IsFavorite)
+	fmt.Println(feed.VideoList[1].Author.IsFollow)
+
+	////Action测试
 	//open, err := os.Open("D:\\BaiduNetdiskDownload\\oceans.mp4")
 	//if err != nil {
 	//	fmt.Println(err)
