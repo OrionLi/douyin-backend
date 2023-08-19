@@ -1,5 +1,4 @@
 syntax = "proto3";
-package douyin.extra.second;
 option go_package = "../pb;pb";
 
 service DouyinMessageService { // 消息服务
