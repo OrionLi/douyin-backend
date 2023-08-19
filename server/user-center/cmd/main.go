@@ -1,27 +1,30 @@
 package main
 
 import (
-	"context"
+	"fmt"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"net"
 	"user-center/conf"
-	"user-center/service"
+	"user-center/pb"
+	"user-center/server"
 )
 
 func main() {
-	ctx := context.Background()
+
 	//初始化配置文件
 	conf.Init()
-	// 测试
-	/*	isFollow := service.IsFollowService{
-			UserId:       3,
-			FollowUserId: 5,
-		}
-		b, err := isFollow.IsFollow(ctx)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(b)*/
-	id := service.GetUserByIdService{
-		Id: 2,
+	// 创建grpc服务
+	listen, _ := net.Listen("tcp", ":8088")
+	//创建grpc服务
+	grpcServer := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	pb.RegisterUserServiceServer(grpcServer, &server.UserRPCServer{})
+
+	//启动服务
+
+	err := grpcServer.Serve(listen)
+	if err != nil {
+		fmt.Printf("failed to serve%v", err)
+		return
 	}
-	id.GetUserById(ctx)
 }
