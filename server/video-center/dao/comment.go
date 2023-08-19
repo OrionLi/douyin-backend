@@ -6,22 +6,38 @@ import (
 )
 
 // SaveComment 发布评论
-func SaveComment(comment model.Comment) model.Comment {
-	DB.Create(&comment)
-	return comment
+func SaveComment(comment model.Comment) (bool, error) {
+	result := DB.Create(&comment)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	if result.RowsAffected > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // DeleteComment 删除评论
-func DeleteComment(comment model.Comment) {
-	//todo 该评论是否为用户发表？
-	DB.Delete(&comment)
+func DeleteComment(comment model.Comment) (bool, error) {
+	result := DB.Delete(&comment)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	if result.RowsAffected > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 // CommentList 根据视频ID查看所有评论
-func CommentList(videoId int64) []model.Comment {
+func CommentList(videoId int64) ([]model.Comment, error) {
 	var comments []model.Comment
-	DB.Where("video_id = ?", videoId).Find(&comments)
-	return comments
+	err := DB.Where("video_id = ?", videoId).Find(&comments).Error
+	if err == nil {
+		return comments, nil
+	} else {
+		return nil, err
+	}
 }
 
 // IsUserComment 该评论是否为用户发布的 是返回true
