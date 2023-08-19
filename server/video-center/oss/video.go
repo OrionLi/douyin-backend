@@ -22,7 +22,7 @@ func UploadVideo(ctx context.Context, authorId int64, data []byte, title string)
 	storageURL := Viper.GetString("qiniu.url")
 	digest := md5digest(title)
 	//获取Key
-	url := fmt.Sprintf("public/%d/%s_%s.png",
+	url := fmt.Sprintf("public/%d/%s_%s.mp4",
 		authorId,
 		title,
 		digest,
