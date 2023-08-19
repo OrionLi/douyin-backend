@@ -10,7 +10,7 @@ require (
 )
 
 require (
-	github.com/OrionLi/douyin-backend v1.0.2 // indirect
+	github.com/OrionLi/douyin-backend v1.0.3 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.0.0-20230329154755-1a3c63de0db6 // indirect
