@@ -1,8 +1,8 @@
 package service
 
 import (
-	"douyin-backend/server/chat-center/dao"
-	"douyin-backend/server/chat-center/model"
+	"chat-center/dao"
+	"chat-center/model"
 	"time"
 )
 
