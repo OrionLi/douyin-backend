@@ -4,9 +4,11 @@ go 1.20
 
 require (
 	github.com/OrionLi/douyin-backend v1.0.3
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/sirupsen/logrus v1.9.3
 	github.com/sony/sonyflake v1.2.0
 	github.com/spf13/viper v1.16.0
 	google.golang.org/grpc v1.57.0

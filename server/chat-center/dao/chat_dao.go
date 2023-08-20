@@ -3,6 +3,7 @@ package dao
 import (
 	"bytes"
 	"chat-center/model"
+	"chat-center/pkg/util"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -115,6 +116,7 @@ func GetMessageList(res *esapi.Response) []model.Message {
 	var messageList []model.Message
 	var responseMap map[string]interface{}
 	if err := json.NewDecoder(res.Body).Decode(&responseMap); err != nil {
+		util.LogrusObj.Error("<GetMessage>, Error decoding JSON: ", err, " [be from]:", res)
 		log.Fatalf("Error decoding JSON: %s", err)
 	}
 

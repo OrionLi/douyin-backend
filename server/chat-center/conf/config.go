@@ -13,13 +13,6 @@ var (
 )
 
 var (
-	RedisAddress  string
-	RedisPort     int
-	RedisPassword string
-	RedisDB       int
-)
-
-var (
 	WebPort string
 )
 
@@ -41,15 +34,6 @@ func InitConf() {
 	ESport = elasticsearchConfig.GetInt("port")
 	ESUser = elasticsearchConfig.GetString("user")
 	ESPassword = elasticsearchConfig.GetString("password")
-
-	redisConfig := viper.Sub("redis")
-	if redisConfig == nil {
-		log.Fatal("Missing 'redis' configuration section")
-	}
-	RedisAddress = redisConfig.GetString("address")
-	RedisPort = redisConfig.GetInt("port")
-	RedisPassword = redisConfig.GetString("password")
-	RedisDB = redisConfig.GetInt("db")
 
 	ginConfig := viper.Sub("gin")
 	if ginConfig == nil {
