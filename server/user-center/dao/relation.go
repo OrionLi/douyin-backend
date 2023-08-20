@@ -16,8 +16,8 @@ type RelationDao struct {
 }
 
 // followExists 检查是否已经存在关注关系
-func (dao *RelationDao) followExists(followID, followerID int64) (bool, error) {
-	err := dao.DB.Where("follow_id = ? and follower_id = ?", followID, followerID).First(&model.Relation{}).Error
+func followExists(followID, followerID int64) (bool, error) {
+	err := db.Where("follow_id = ? and follower_id = ?", followID, followerID).First(&model.Relation{}).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, nil
 	} else if err != nil {
@@ -27,12 +27,12 @@ func (dao *RelationDao) followExists(followID, followerID int64) (bool, error) {
 }
 
 // FollowAction 关注用户
-func (dao *RelationDao) FollowAction(selfUserID, toUserID int64) error {
+func FollowAction(selfUserID, toUserID int64) error {
 	if selfUserID == toUserID {
 		return errors.New("you cannot follow yourself")
 	}
 
-	exists, err := dao.followExists(toUserID, selfUserID)
+	exists, err := followExists(toUserID, selfUserID)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (dao *RelationDao) FollowAction(selfUserID, toUserID int64) error {
 		Follow:   toUserID,
 		Follower: selfUserID,
 	}
-	err = dao.DB.Create(&relation).Error
+	err = db.Create(&relation).Error
 	if err != nil {
 		return err
 	}
@@ -56,8 +56,8 @@ func (dao *RelationDao) FollowAction(selfUserID, toUserID int64) error {
 }
 
 // UnFollowAction 取消关注用户
-func (dao *RelationDao) UnFollowAction(selfUserID, toUserID int64) error {
-	err := dao.DB.Where("follow_id = ? and follower_id = ?", toUserID, selfUserID).Delete(&model.Relation{}).Error
+func UnFollowAction(selfUserID, toUserID int64) error {
+	err := db.Where("follow_id = ? and follower_id = ?", toUserID, selfUserID).Delete(&model.Relation{}).Error
 	if err != nil {
 		return err
 	}
@@ -69,9 +69,9 @@ func (dao *RelationDao) UnFollowAction(selfUserID, toUserID int64) error {
 }
 
 // GetFollowList 获取我关注的博主
-func (dao *RelationDao) GetFollowList(userID int64) ([]*model.Relation, error) {
+func GetFollowList(userID int64) ([]*model.Relation, error) {
 	relationList := make([]*model.Relation, 0)
-	err := dao.DB.Where("follower_id = ?", userID).Find(&relationList).Error
+	err := db.Where("follower_id = ?", userID).Find(&relationList).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return relationList, nil
 	} else if err != nil {
@@ -81,9 +81,9 @@ func (dao *RelationDao) GetFollowList(userID int64) ([]*model.Relation, error) {
 }
 
 // GetFollowerList 获取关注我的粉丝
-func (dao *RelationDao) GetFollowerList(userID int64) ([]*model.Relation, error) {
+func GetFollowerList(userID int64) ([]*model.Relation, error) {
 	relationList := make([]*model.Relation, 0)
-	err := dao.DB.Where("follow_id = ?", userID).Find(&relationList).Error
+	err := db.Where("follow_id = ?", userID).Find(&relationList).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return relationList, nil
 	} else if err != nil {
@@ -93,12 +93,12 @@ func (dao *RelationDao) GetFollowerList(userID int64) ([]*model.Relation, error)
 }
 
 // IsFollow 判断是否已经关注过某用户
-func (dao *RelationDao) IsFollow(selfUserID, toUserID int64) (bool, error) {
+func IsFollow(selfUserID, toUserID int64) (bool, error) {
 	if selfUserID == toUserID {
 		return true, nil
 	}
 
-	exists, err := dao.followExists(toUserID, selfUserID)
+	exists, err := followExists(toUserID, selfUserID)
 	if err != nil {
 		return false, err
 	}

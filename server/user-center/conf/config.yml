@@ -12,6 +12,5 @@ mysql:
 redis:
   RedisDb: redis
   RedisAddr: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379
-
   RedisPw: Rh2004==
   RedisDbName: 2

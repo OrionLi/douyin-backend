@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var _db *gorm.DB
+var db *gorm.DB
 
 func Database(conn string) {
 	var ormLogger logger.Interface
@@ -40,12 +40,12 @@ func Database(conn string) {
 	sqlDB.SetConnMaxIdleTime(100)
 	sqlDB.SetConnMaxIdleTime(time.Second * 30)
 
-	_db = db
+	db = db
 
 	migration()
 }
 
 func NewDBClient(ctx context.Context) *gorm.DB {
-	db := _db
+	db := db
 	return db.WithContext(ctx)
 }

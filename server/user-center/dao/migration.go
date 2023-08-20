@@ -6,7 +6,7 @@ import (
 )
 
 func migration() {
-	err := _db.Set("gorm:table_options", "charset=utf8mb4").
+	err := db.Set("gorm:table_options", "charset=utf8mb4").
 		AutoMigrate(
 			&model.User{},
 		) //自动创建或更新数据库表结构
