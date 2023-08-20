@@ -5,7 +5,6 @@ import (
 	"chat-center/controller"
 	"chat-center/dao"
 	"chat-center/service"
-	"context"
 	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
@@ -15,7 +14,6 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"time"
 )
 
 func main() {
@@ -76,7 +74,6 @@ func initGRPC() {
 	}
 }
 
-// FIXME Nacos实例健康数为0，但是RPC服务可以正常访问
 func RegisterNacos() {
 	// 创建clientConfig
 	clientConfig := constant.ClientConfig{
@@ -106,9 +103,15 @@ func RegisterNacos() {
 
 	// 注册 gRPC 服务到 Nacos
 	instance := &vo.RegisterInstanceParam{
-		Ip:          conf.GRPCAddress, // 设置你的服务器的 IP 地址
-		Port:        uint64(conf.GRPCPort),
-		Metadata:    map[string]string{"protocol": "grpc"}, // 设置元数据
+		Ip:   conf.GRPCAddress, // 设置你的服务器的 IP 地址
+		Port: uint64(conf.GRPCPort),
+		Metadata: map[string]string{
+			"protocol":            "grpc",
+			"healthCheckType":     "TCP", // 使用 TCP 健康检查
+			"healthCheckPort":     fmt.Sprintf("%d", uint64(conf.GRPCPort)),
+			"healthCheckPath":     "",    // 空路径
+			"healthCheckInterval": "10s", // 健康检查间隔
+		},
 		ClusterName: "default",
 		ServiceName: conf.NacosServerName,
 		GroupName:   conf.NacosGroup,
@@ -121,55 +124,4 @@ func RegisterNacos() {
 	}
 
 	log.Println("gRPC server is registered on Nacos")
-}
-
-// HACK 测试方法，随后删除
-func testGRPC() {
-	// 连接 gRPC 服务
-	conn, err := grpc.Dial("localhost:9422", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Failed to connect: %v", err)
-	}
-	defer conn.Close()
-
-	// 创建 gRPC 客户端
-	client := pb.NewDouyinMessageServiceClient(conn)
-
-	// 调用 gRPC 方法
-	getMessageRequest := &pb.DouyinMessageChatRequest{
-		SelfUserId: 1,
-		ToUserId:   123,
-		PreMsgTime: 0, // 设置合适的时间戳
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	getMessageResponse, err := client.GetMessage(ctx, getMessageRequest)
-	if err != nil {
-		log.Fatalf("Failed to call GetMessage: %v", err)
-	}
-
-	// 打印响应
-	fmt.Printf("GetMessage Response: %+v\n", getMessageResponse)
-
-	fmt.Println("=====================================")
-
-	// 调用 gRPC 方法
-	sendMessageRequest := &pb.DouyinMessageActionRequest{
-		SelfUserId: 1,
-		ToUserId:   123,
-		Content:    "Hello World!",
-	}
-
-	ctx, cancel = context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	sendMessageResponse, err := client.SendMessage(ctx, sendMessageRequest)
-	if err != nil {
-		log.Fatalf("Failed to call SendMessage: %v", err)
-	}
-
-	// 打印响应
-	fmt.Printf("SendMessage Response: %+v\n", sendMessageResponse)
 }
