@@ -17,8 +17,6 @@ func NewCommentService(context context.Context) *CommentService {
 	return &CommentService{ctx: context}
 }
 
-//todo 返回的东西还没有写好
-
 // SaveComment 发表评论
 func (s *CommentService) SaveComment(LoginUserId int64, videoId int64, content string) (bool, *pb.Comment, error) {
 	// 发表评论
@@ -33,11 +31,10 @@ func (s *CommentService) SaveComment(LoginUserId int64, videoId int64, content s
 		return false, &pb.Comment{}, err
 	}
 	if !b {
-		//todo
 		return false, &pb.Comment{}, nil
 	}
 	//todo 通过用户ID查询用户然信息后封装
-	user := pb.User{Id: 1}
+	user := pb.User{Id: LoginUserId}
 
 	commentApi := model.ConvertToCommentApi(comment, &user)
 	return true, &commentApi, nil
@@ -61,6 +58,7 @@ func (s *CommentService) DeleteComment(LoginUserId int64, videoId int64, comment
 		//该评论存在而且正确删除
 		//todo 通过ID查询用户信息
 		user := pb.User{Id: LoginUserId}
+
 		commentApi := model.ConvertToCommentApi(comment, &user)
 		return true, &commentApi, nil
 	} else {
