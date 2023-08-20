@@ -33,7 +33,7 @@ type VideoCenterClient interface {
 	// 发布列表
 	PublishList(ctx context.Context, in *DouyinPublishListRequest, opts ...grpc.CallOption) (*DouyinPublishListResponse, error)
 	// 视频投稿
-	PublishAction(ctx context.Context, in *DouyinPublishActionRequest, opts ...grpc.CallOption) (*DouyinPublishActionResponse, error)
+	PublishAction(ctx context.Context, opts ...grpc.CallOption) (VideoCenter_PublishActionClient, error)
 }
 
 type videoCenterClient struct {
@@ -62,13 +62,38 @@ func (c *videoCenterClient) PublishList(ctx context.Context, in *DouyinPublishLi
 	return out, nil
 }
 
-func (c *videoCenterClient) PublishAction(ctx context.Context, in *DouyinPublishActionRequest, opts ...grpc.CallOption) (*DouyinPublishActionResponse, error) {
-	out := new(DouyinPublishActionResponse)
-	err := c.cc.Invoke(ctx, VideoCenter_PublishAction_FullMethodName, in, out, opts...)
+func (c *videoCenterClient) PublishAction(ctx context.Context, opts ...grpc.CallOption) (VideoCenter_PublishActionClient, error) {
+	stream, err := c.cc.NewStream(ctx, &VideoCenter_ServiceDesc.Streams[0], VideoCenter_PublishAction_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &videoCenterPublishActionClient{stream}
+	return x, nil
+}
+
+type VideoCenter_PublishActionClient interface {
+	Send(*DouyinPublishActionRequest) error
+	CloseAndRecv() (*DouyinPublishActionResponse, error)
+	grpc.ClientStream
+}
+
+type videoCenterPublishActionClient struct {
+	grpc.ClientStream
+}
+
+func (x *videoCenterPublishActionClient) Send(m *DouyinPublishActionRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *videoCenterPublishActionClient) CloseAndRecv() (*DouyinPublishActionResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(DouyinPublishActionResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // VideoCenterServer is the server API for VideoCenter service.
@@ -80,7 +105,7 @@ type VideoCenterServer interface {
 	// 发布列表
 	PublishList(context.Context, *DouyinPublishListRequest) (*DouyinPublishListResponse, error)
 	// 视频投稿
-	PublishAction(context.Context, *DouyinPublishActionRequest) (*DouyinPublishActionResponse, error)
+	PublishAction(VideoCenter_PublishActionServer) error
 	mustEmbedUnimplementedVideoCenterServer()
 }
 
@@ -94,8 +119,8 @@ func (UnimplementedVideoCenterServer) Feed(context.Context, *DouyinFeedRequest) 
 func (UnimplementedVideoCenterServer) PublishList(context.Context, *DouyinPublishListRequest) (*DouyinPublishListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PublishList not implemented")
 }
-func (UnimplementedVideoCenterServer) PublishAction(context.Context, *DouyinPublishActionRequest) (*DouyinPublishActionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PublishAction not implemented")
+func (UnimplementedVideoCenterServer) PublishAction(VideoCenter_PublishActionServer) error {
+	return status.Errorf(codes.Unimplemented, "method PublishAction not implemented")
 }
 func (UnimplementedVideoCenterServer) mustEmbedUnimplementedVideoCenterServer() {}
 
@@ -146,22 +171,30 @@ func _VideoCenter_PublishList_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _VideoCenter_PublishAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DouyinPublishActionRequest)
-	if err := dec(in); err != nil {
+func _VideoCenter_PublishAction_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(VideoCenterServer).PublishAction(&videoCenterPublishActionServer{stream})
+}
+
+type VideoCenter_PublishActionServer interface {
+	SendAndClose(*DouyinPublishActionResponse) error
+	Recv() (*DouyinPublishActionRequest, error)
+	grpc.ServerStream
+}
+
+type videoCenterPublishActionServer struct {
+	grpc.ServerStream
+}
+
+func (x *videoCenterPublishActionServer) SendAndClose(m *DouyinPublishActionResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *videoCenterPublishActionServer) Recv() (*DouyinPublishActionRequest, error) {
+	m := new(DouyinPublishActionRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(VideoCenterServer).PublishAction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: VideoCenter_PublishAction_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoCenterServer).PublishAction(ctx, req.(*DouyinPublishActionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 // VideoCenter_ServiceDesc is the grpc.ServiceDesc for VideoCenter service.
@@ -179,11 +212,13 @@ var VideoCenter_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "PublishList",
 			Handler:    _VideoCenter_PublishList_Handler,
 		},
+	},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "PublishAction",
-			Handler:    _VideoCenter_PublishAction_Handler,
+			StreamName:    "PublishAction",
+			Handler:       _VideoCenter_PublishAction_Handler,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "video.proto",
 }
