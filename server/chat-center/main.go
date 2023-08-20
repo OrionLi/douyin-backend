@@ -2,8 +2,8 @@ package main
 
 import (
 	"chat-center/conf"
+	"chat-center/controller"
 	"chat-center/dao"
-	"chat-center/handler"
 	"chat-center/service"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
@@ -21,7 +21,7 @@ func main() {
 
 	// Gin服务
 	chatService := service.NewChatService()
-	diaryHandler := handler.NewDiaryHandler(chatService)
+	diaryHandler := controller.NewChatHandler(chatService)
 
 	r := gin.Default()
 	api := r.Group("/douyin/message")

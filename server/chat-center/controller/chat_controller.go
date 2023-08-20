@@ -1,4 +1,4 @@
-package handler
+package controller
 
 import (
 	"chat-center/model"
@@ -9,17 +9,17 @@ import (
 	"net/http"
 )
 
-type ChatHandler struct {
+type ChatController struct {
 	ChatService service.ChatService
 }
 
-func NewDiaryHandler(service service.ChatService) *ChatHandler {
-	return &ChatHandler{
+func NewChatHandler(service service.ChatService) *ChatController {
+	return &ChatController{
 		ChatService: service,
 	}
 }
 
-func (h *ChatHandler) GetMessage(c *gin.Context) {
+func (h *ChatController) GetMessage(c *gin.Context) {
 	// TODO 解析token
 	// HACK userId暂时定为固定值123
 	var currentId int64 = 123
@@ -48,7 +48,7 @@ func (h *ChatHandler) GetMessage(c *gin.Context) {
 	}
 }
 
-func (h *ChatHandler) SendMessage(c *gin.Context) {
+func (h *ChatController) SendMessage(c *gin.Context) {
 	var requestBody model.ActionRequest
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		c.JSON(http.StatusOK, gin.H{"code": http.StatusBadRequest, "data": nil, "msg": common.ParamErrorMsg})
