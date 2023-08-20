@@ -15,6 +15,10 @@ const (
 	UserNotExistErrCode        = 10006
 	TokenErrCode               = 10007
 	FollowCode                 = 10008
+	CommentPostingCode         = 10009 // 发布评论失败
+	DeleteCommentCode          = 10010 // 删除评论失败
+	NoMyCommentCode            = 10011 // 不是自己的评论
+	NoCommentExistsCode        = 10012 // 视频或评论不存在
 )
 
 type Errno struct {
@@ -42,6 +46,10 @@ var (
 	AuthorizationFailedErr = NewErrno(AuthorizationFailedErrCode, "Authorization failed")
 	UserNotExistErr        = NewErrno(UserNotExistErrCode, "User does not exists")
 	TokenErr               = NewErrno(TokenErrCode, "Token confirm wrong")
+	CommentPostingErr      = NewErrno(CommentPostingCode, "Failed to post a comment")
+	DeleteCommentErr       = NewErrno(DeleteCommentCode, "Failed to delete comment")
+	NoMyCommentErr         = NewErrno(NoMyCommentCode, "Not your comment")
+	NoCommentExistsErr     = NewErrno(NoCommentExistsCode, "Comment does not exist")
 )
 
 func ConvertErr(err error) Errno {
