@@ -4,6 +4,7 @@ import (
 	"chat-center/conf"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v7"
+	"io"
 	"log"
 )
 
@@ -29,7 +30,12 @@ func Init() {
 	if err != nil {
 		log.Fatalf("Error getting response: %s", err)
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Fatalf("Error closing the response body: %s", err)
+		}
+	}(res.Body)
 
 	// 将连接赋值给全局变量
 	ESClient = client

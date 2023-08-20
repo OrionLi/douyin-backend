@@ -19,7 +19,7 @@ func NewChatRPCService() *ChatRPCService {
 	return &ChatRPCService{}
 }
 
-func (s *ChatRPCService) GetMessage(ctx context.Context, request *pb.DouyinMessageChatRequest) (*pb.DouyinMessageChatResponse, error) {
+func (s *ChatRPCService) GetMessage(_ context.Context, request *pb.DouyinMessageChatRequest) (*pb.DouyinMessageChatResponse, error) {
 	fromUserId := request.GetSelfUserId()
 	toUserId := request.GetToUserId()
 	preMsgTime := request.GetPreMsgTime()
@@ -58,7 +58,7 @@ func (s *ChatRPCService) GetMessage(ctx context.Context, request *pb.DouyinMessa
 	}
 }
 
-func (s *ChatRPCService) SendMessage(ctx context.Context, request *pb.DouyinMessageActionRequest) (*pb.DouyinMessageActionResponse, error) {
+func (s *ChatRPCService) SendMessage(_ context.Context, request *pb.DouyinMessageActionRequest) (*pb.DouyinMessageActionResponse, error) {
 	fromUserId := request.GetSelfUserId()
 	toUserId := request.GetToUserId()
 	content := request.GetContent()
