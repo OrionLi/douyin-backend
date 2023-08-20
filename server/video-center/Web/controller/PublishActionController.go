@@ -2,12 +2,12 @@ package controller
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"net/http"
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
-	"video-center/pkg/pb"
 )
 
 func PublishAction(c *gin.Context) {

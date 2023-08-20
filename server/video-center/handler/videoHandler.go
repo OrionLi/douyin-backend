@@ -2,15 +2,14 @@ package handler
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"time"
-	"video-center/cache"
 	"video-center/oss"
 	"video-center/pkg/errno"
-	"video-center/pkg/pb"
+	"video-center/pkg/util"
 	"video-center/service"
 
 	"fmt"
-	"strconv"
 )
 
 type VideoServer struct {
@@ -26,15 +25,14 @@ func (s *VideoServer) PublishList(ctx context.Context, req *pb.DouyinPublishList
 		resp.StatusMsg = &errno.ParamErr.ErrMsg
 		return resp, nil
 	}
-	key, err2 := cache.RedisGetKey(ctx, token)
+	result, err2 := util.ParseToken(token)
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
 		resp.StatusCode = int32(convertErr.ErrCode)
 		resp.StatusMsg = &convertErr.ErrMsg
 		return resp, nil
 	}
-	formatInt := strconv.FormatInt(req.UserId, 10)
-	if key != formatInt {
+	if result.ID != uint(req.UserId) {
 		resp.StatusCode = errno.TokenErrCode
 		resp.StatusMsg = &errno.TokenErr.ErrMsg
 		return resp, nil
@@ -61,20 +59,14 @@ func (s *VideoServer) Feed(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.
 	userId = 0
 	//判断token,并获取userId
 	if len(req.GetToken()) != 0 {
-		key, err := cache.RedisGetKey(ctx, req.GetToken())
+		token, err := util.ParseToken(req.GetToken())
 		if err != nil {
 			convertErr := errno.ConvertErr(err)
 			resp.StatusCode = int32(convertErr.ErrCode)
 			resp.StatusMsg = &convertErr.ErrMsg
 			return resp, nil
 		}
-		userId, err = strconv.ParseInt(key, 10, 64)
-		if err != nil {
-			convertErr := errno.ConvertErr(err)
-			resp.StatusCode = int32(convertErr.ErrCode)
-			resp.StatusMsg = &convertErr.ErrMsg
-			return resp, nil
-		}
+		userId = int64(token.ID)
 	}
 	lastTime := req.LatestTime
 	fmt.Println(userId)
@@ -98,34 +90,26 @@ func (s *VideoServer) Feed(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.
 func (s *VideoServer) PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) (*pb.DouyinPublishActionResponse, error) {
 	resp := new(pb.DouyinPublishActionResponse)
 	token := req.Token
-	if len(token) == 0 {
-		resp.StatusCode = errno.ParamErrCode
-		resp.StatusMsg = &errno.ParamErr.ErrMsg
-		return resp, nil
-	}
-	key, err2 := cache.RedisGetKey(ctx, token)
-	if err2 != nil {
-		convertErr := errno.ConvertErr(err2)
-		resp.StatusCode = int32(convertErr.ErrCode)
-		resp.StatusMsg = &convertErr.ErrMsg
-		return resp, nil
-	}
-	AuthorId, err2 := strconv.ParseInt(key, 10, 64)
-	if err2 != nil {
-		convertErr := errno.ConvertErr(err2)
-		resp.StatusCode = int32(convertErr.ErrCode)
-		resp.StatusMsg = &convertErr.ErrMsg
-		return resp, nil
+	userId := int64(0)
+	if len(req.GetToken()) != 0 {
+		token, err := util.ParseToken(token)
+		if err != nil {
+			convertErr := errno.ConvertErr(err)
+			resp.StatusCode = int32(convertErr.ErrCode)
+			resp.StatusMsg = &convertErr.ErrMsg
+			return resp, nil
+		}
+		userId = int64(token.ID)
 	}
 	//向七牛云存放视频资源
-	playUrl, coverUrl, err2 := oss.UploadVideo(ctx, AuthorId, req.Data, req.Title)
+	playUrl, coverUrl, err2 := oss.UploadVideo(ctx, userId, req.Data, req.Title)
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
 		resp.StatusCode = int32(convertErr.ErrCode)
 		resp.StatusMsg = &convertErr.ErrMsg
 		return resp, nil
 	}
-	err := service.NewVideoService(ctx).PublishAction(AuthorId, playUrl, coverUrl, req.Title)
+	err := service.NewVideoService(ctx).PublishAction(userId, playUrl, coverUrl, req.Title)
 	if err != nil {
 		convertErr := errno.ConvertErr(err)
 		resp.StatusCode = int32(convertErr.ErrCode)
