@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"user-center/dao"
 	"user-center/model"
@@ -17,25 +16,33 @@ type CreateUserService struct {
 }
 
 func (service *CreateUserService) Register(ctx context.Context) (*pb.DouyinUserRegisterResponse, error) {
+	var err error
+	defer func() {
+		//返回时若err!=nil则写入日志
+		if err != nil {
+			util.LogrusObj.Error("<Register>  ", err, " [be from req]:", service)
+		}
+	}()
+
+	//数据验证
+	if err = util.ValidateUser(service.UserName, service.Password); err != nil {
+		return nil, e.NewError(e.InvalidParams)
+	}
 	var user model.User
 
 	userDao := dao.NewUserDao(ctx)
 
 	_, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if err != nil {
-		util.LogrusObj.Info("err: ", err)
-		return nil, err //todo: 需添加返回
+		return nil, e.NewError(e.Error)
 	}
 	//若该用户已存在
 	if exist {
-		util.LogrusObj.Info("err: ", err)
 		return nil, e.NewError(e.ErrorExistUser) //todo: 需添加返回
 	}
 	// 密码加密
 	password, err := bcrypt.GenerateFromPassword([]byte(service.Password), bcrypt.DefaultCost)
 	if err != nil {
-		util.LogrusObj.Info("err: ", err)
-
 		return nil, e.NewError(e.Error) //todo: 需添加返回
 	}
 
@@ -49,13 +56,10 @@ func (service *CreateUserService) Register(ctx context.Context) (*pb.DouyinUserR
 	}
 	err = userDao.CreateUser(&user)
 	if err != nil {
-		util.LogrusObj.Info("err: ", err)
-
-		return nil, e.NewError(e.Error) //todo: 需添加返回
+		return nil, e.NewError(e.Error)
 	}
 	token, err := util.GenerateToken(user.ID, service.UserName, 0)
 	if err != nil {
-		fmt.Println("token签发失败")
 		return nil, e.NewError(e.ErrorAuthToken)
 	}
 	return &pb.DouyinUserRegisterResponse{

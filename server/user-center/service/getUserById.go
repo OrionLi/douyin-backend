@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"time"
 	cache2 "user-center/cache"
 	"user-center/dao"
 	"user-center/pb"
@@ -16,14 +15,20 @@ type GetUserByIdService struct {
 
 func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinUserResponse, error) { //todo: 添加返回结构体
 	cache := cache2.NewRedisCache(ctx)
-	util2.LogrusObj.WithTime(time.Now()).Info("requestId: ", service.Id)
-	//todo: 需添加缓存，并添加逻辑：粉丝数大于等于300为网红
+	var err error
+
+	defer func() {
+		//返回时若err!=nil则写入日志
+		if err != nil {
+			util2.LogrusObj.Error("<getUserById> : ", err, " [be from req]:", service)
+		}
+	}()
+
 	cacheData, err := cache.HasUser(ctx, service.Id)
 	if err != nil {
-		util2.LogrusObj.Info("err: ", err)
 		return nil, e.NewError(e.Error)
 	}
-	if len(cacheData) != 0 {
+	if len(cacheData) != 0 { //若缓存存在该记录
 		id := service.Id
 		name := cacheData["Name"]
 
@@ -40,7 +45,6 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	//获取用户基本信息
 	user, err := userDao.GetUserById(service.Id)
 	if err != nil {
-		util2.LogrusObj.Info("err: ", err)
 
 		return nil, e.NewError(e.Error)
 	}
@@ -51,9 +55,9 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 			"FollowCount": user.FollowCount,
 			"FanCount":    user.FanCount,
 		}
+		//将用户信息添加至缓存
 		err = cache.AddUser(ctx, user.ID, m)
 		if err != nil {
-			util2.LogrusObj.Info("err: ", err)
 			return nil, e.NewError(e.Error)
 		}
 	}
