@@ -19,7 +19,7 @@ func Database(conn string) {
 	} else {
 		ormLogger = logger.Default
 	}
-	db, err := gorm.Open(mysql.New(mysql.Config{
+	_db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       conn,
 		DefaultStringSize:         256,
 		DisableDatetimePrecision:  true,
@@ -36,17 +36,17 @@ func Database(conn string) {
 	if err != nil {
 		return
 	}
-	sqlDB, _ := db.DB()
+	sqlDB, _ := _db.DB()
 	sqlDB.SetConnMaxLifetime(20) //配置连接池
 	sqlDB.SetConnMaxIdleTime(100)
 	sqlDB.SetConnMaxIdleTime(time.Second * 30)
 
-	db = db
+	db = _db
 
 	migration()
 }
 
 func NewDBClient(ctx context.Context) *gorm.DB {
-	db := db
-	return db.WithContext(ctx)
+	_db := db
+	return _db.WithContext(ctx)
 }
