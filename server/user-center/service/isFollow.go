@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"user-center/cache"
 	"user-center/dao"
-	"user-center/pb"
 	"user-center/pkg/e"
-	util2 "user-center/pkg/util"
+	userUtil "user-center/pkg/util"
 )
 
 type IsFollowService struct {
@@ -22,7 +22,7 @@ func (service *IsFollowService) IsFollow(ctx context.Context) (*pb.IsFollowRespo
 	defer func() {
 		//返回时若err!=nil则写入日志
 		if err != nil {
-			util2.LogrusObj.Error("<IsFollow> ", err, " [be from req]:", service)
+			userUtil.LogrusObj.Error("<IsFollow> ", err, " [be from req]:", service)
 		}
 	}()
 	//查找缓存中是否存在

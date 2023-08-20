@@ -2,10 +2,10 @@ package server
 
 import (
 	"fmt"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net"
-	"user-center/pb"
 	"user-center/pkg/util"
 )
 

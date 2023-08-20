@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	cache2 "user-center/cache"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
+	userCache "user-center/cache"
 	"user-center/dao"
-	"user-center/pb"
 	"user-center/pkg/e"
-	util2 "user-center/pkg/util"
+	userUtil "user-center/pkg/util"
 )
 
 type GetUserByIdService struct {
@@ -14,13 +14,13 @@ type GetUserByIdService struct {
 }
 
 func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinUserResponse, error) { //todo: 添加返回结构体
-	cache := cache2.NewUserCache(ctx)
+	cache := userCache.NewUserCache(ctx)
 	var err error
 
 	defer func() {
 		//返回时若err!=nil则写入日志
 		if err != nil {
-			util2.LogrusObj.Error("<getUserById> : ", err, " [be from req]:", service)
+			userUtil.LogrusObj.Error("<getUserById> : ", err, " [be from req]:", service)
 		}
 	}()
 
@@ -32,8 +32,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		id := service.Id
 		name := cacheData["Name"]
 
-		followCount := util2.StrToUint(cacheData["FollowCount"])
-		fanCount := util2.StrToUint(cacheData["FanCount"])
+		followCount := userUtil.StrToUint(cacheData["FollowCount"])
+		fanCount := userUtil.StrToUint(cacheData["FanCount"])
 		return &pb.DouyinUserResponse{User: &pb.User{
 			Id:            int64(id),
 			Name:          name,
