@@ -6,11 +6,11 @@ import (
 	"strings"
 	"user-center/cache"
 	"user-center/dao"
+	"user-center/server"
 )
 
 var (
-	Host string
-	Port string
+	Address string
 
 	Db         string
 	DbHost     string
@@ -19,9 +19,8 @@ var (
 	DbPassword string
 	DbName     string
 
-	RedisDb   string
-	redisAddr string
-
+	RedisDb     string
+	redisAddr   string
 	RedisPw     string
 	RedisDbName string
 )
@@ -41,8 +40,7 @@ func Init() {
 	}
 
 	// 获取配置项的值并赋值给变量
-	Host = viper.GetString("server.host")
-	Port = viper.GetString("server.port")
+	Address = viper.GetString("server.address")
 
 	Db = viper.GetString("mysql.DB")
 	DbHost = viper.GetString("mysql.DbHost")
@@ -63,5 +61,6 @@ func Init() {
 
 	dao.Database(conn)
 	cache.Redis(RedisDb, redisAddr, RedisPw, RedisDbName)
+	server.Grpc(Address)
 
 }
