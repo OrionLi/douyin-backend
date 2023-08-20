@@ -5,7 +5,13 @@ elasticsearch:
   address: DouyinDBA.raqtpie.xyz
   port: 9200
   user: elastic
-  password: elasticnode1
+  password:
+
+redis:
+  address: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com
+  port: 6379
+  password:
+  db: 0
 
 nacos:
   address:
