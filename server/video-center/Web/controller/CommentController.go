@@ -1,41 +1,48 @@
 package controller
 
 import (
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"video-center/pkg/errno"
+	"video-center/pkg/util"
 	"video-center/service"
 )
 
 func CommentAction(c *gin.Context) {
-	var cap CommentActionParam
-	if err := c.ShouldBind(&cap); err != err {
+	var param CommentActionParam
+	if err := c.ShouldBind(&param); err != err {
 		convertErr := errno.ConvertErr(err)
 		c.JSON(http.StatusOK, CommentActionResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
 		return
 	}
-	if len(cap.Token) == 0 || cap.ActionType == "" || cap.VideoID == "" {
+	if len(param.Token) == 0 || param.ActionType == "" || param.VideoID == "" {
 		c.JSON(http.StatusOK, CommentActionResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 		})
 		return
 	}
 	//todo 用户token验证
-	var userId int64
-
+	user, err := util.ParseToken(param.Token)
+	if err != nil {
+		c.JSON(http.StatusOK, CommentActionResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: "token异常"},
+			Comment:  &pb.Comment{},
+		})
+	}
 	//判断是哪种操作？
-	if cap.ActionType == "1" {
-		videoId, err := strconv.ParseInt(cap.VideoID, 10, 64)
+	if param.ActionType == "1" {
+		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			})
 			return
 		}
-		b, comment, err := service.NewCommentService(c).SaveComment(userId, videoId, cap.CommentText)
+		b, comment, err := service.NewCommentService(c).SaveComment(int64(user.ID), videoId, param.CommentText)
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.CommentPostingCode, StatusMsg: errno.CommentPostingErr.ErrMsg},
@@ -52,21 +59,21 @@ func CommentAction(c *gin.Context) {
 		} else {
 			// 评论失败
 			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+				Response: Response{StatusCode: errno.CommentPostingCode, StatusMsg: errno.CommentPostingErr.ErrMsg},
 			})
 			return
 		}
 	}
-	if cap.ActionType == "2" {
-		videoId, err := strconv.ParseInt(cap.VideoID, 10, 64)
-		commentID, err := strconv.ParseInt(cap.CommentID, 10, 64)
+	if param.ActionType == "2" {
+		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
+		commentID, err := strconv.ParseInt(param.CommentID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			})
 			return
 		}
-		b, comment, err := service.NewCommentService(c).DeleteComment(userId, videoId, commentID)
+		b, comment, err := service.NewCommentService(c).DeleteComment(int64(user.ID), videoId, commentID)
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.DeleteCommentCode, StatusMsg: errno.DeleteCommentErr.ErrMsg},
@@ -99,9 +106,6 @@ func CommentList(c *gin.Context) {
 		})
 		return
 	}
-	//todo 用户token验证
-	//var userId int64
-	//
 	videoID, err1 := strconv.ParseInt(videoId, 10, 64)
 	if err1 != nil {
 		c.JSON(http.StatusOK, CommentListResponse{
