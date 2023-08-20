@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"video-center/pkg/pb"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 
 	"video-center/dao"
 )

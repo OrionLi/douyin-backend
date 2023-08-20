@@ -2,10 +2,11 @@ package rpc
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"video-center/pkg/errno"
-	"video-center/pkg/pb"
 )
 
+// PublishList todo 需要封装videos的user
 func PublishList(ctx context.Context, req *pb.DouyinPublishListRequest) ([]*pb.Video, error) {
 	videos := make([]*pb.Video, 0)
 	r, err := VideoClient.PublishList(ctx, req)
