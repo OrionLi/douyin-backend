@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"golang.org/x/crypto/bcrypt"
 	"user-center/dao"
-	"user-center/pb"
 	"user-center/pkg/e"
 	"user-center/pkg/util"
 )

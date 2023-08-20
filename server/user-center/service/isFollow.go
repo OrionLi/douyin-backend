@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"user-center/cache"
 	"user-center/dao"
-	"user-center/pb"
 	"user-center/pkg/e"
 )
 

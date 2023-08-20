@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="@172.29.115.92" uuid="c7368279-331a-4e08-bee2-a3022fadf37a">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://172.29.115.92:3306</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
     <data-source source="LOCAL" name="DouyinDBA.raqtpie.xyz" uuid="44dd042f-2ad4-43e3-a20e-10818f8b27d1">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>

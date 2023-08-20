@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"time"
-	cache2 "user-center/cache"
+	userCache "user-center/cache"
 	"user-center/dao"
-	"user-center/pb"
 	"user-center/pkg/e"
-	util2 "user-center/pkg/util"
+	userUtil "user-center/pkg/util"
 )
 
 type GetUserByIdService struct {
@@ -15,20 +15,20 @@ type GetUserByIdService struct {
 }
 
 func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinUserResponse, error) { //todo: 添加返回结构体
-	cache := cache2.NewRedisCache(ctx)
-	util2.LogrusObj.WithTime(time.Now()).Info("requestId: ", service.Id)
+	cache := userCache.NewRedisCache(ctx)
+	userUtil.LogrusObj.WithTime(time.Now()).Info("requestId: ", service.Id)
 	//todo: 需添加缓存，并添加逻辑：粉丝数大于等于300为网红
 	cacheData, err := cache.HasUser(ctx, service.Id)
 	if err != nil {
-		util2.LogrusObj.Info("err: ", err)
+		userUtil.LogrusObj.Info("err: ", err)
 		return nil, e.NewError(e.Error)
 	}
 	if len(cacheData) != 0 {
 		id := service.Id
 		name := cacheData["Name"]
 
-		followCount := util2.StrToUint(cacheData["FollowCount"])
-		fanCount := util2.StrToUint(cacheData["FanCount"])
+		followCount := userUtil.StrToUint(cacheData["FollowCount"])
+		fanCount := userUtil.StrToUint(cacheData["FanCount"])
 		return &pb.DouyinUserResponse{User: &pb.User{
 			Id:            int64(id),
 			Name:          name,
@@ -40,7 +40,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	//获取用户基本信息
 	user, err := userDao.GetUserById(service.Id)
 	if err != nil {
-		util2.LogrusObj.Info("err: ", err)
+		userUtil.LogrusObj.Info("err: ", err)
 
 		return nil, e.NewError(e.Error)
 	}
@@ -53,7 +53,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		}
 		err = cache.AddUser(ctx, user.ID, m)
 		if err != nil {
-			util2.LogrusObj.Info("err: ", err)
+			userUtil.LogrusObj.Info("err: ", err)
 			return nil, e.NewError(e.Error)
 		}
 	}
