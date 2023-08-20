@@ -28,6 +28,7 @@ func Database(conn string) {
 		SkipInitializeWithVersion: false,
 	}), &gorm.Config{
 		Logger: ormLogger,
+
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
