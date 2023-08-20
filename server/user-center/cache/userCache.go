@@ -6,17 +6,13 @@ import (
 	"time"
 )
 
-// RedisCache redis缓存
 type RedisCache struct {
 	*redis.Client
 }
 
-// NewRedisCache 创建Redis缓存
-func NewRedisCache(ctx context.Context) *RedisCache {
+func NewUserCache(ctx context.Context) *RedisCache {
 	return &RedisCache{NewRedisClient(ctx)}
 }
-
-// IsFollow 是否关注
 func (userCache *RedisCache) IsFollow(ctx context.Context, uId, followId uint) bool {
 
 	return userCache.

@@ -3,7 +3,7 @@ package model
 import "gorm.io/gorm"
 
 const (
-	CelebrityStandard = 0 // 设定粉丝超过300为网红，进行缓存处理
+	CelebrityStandard = 300 // 设定粉丝超过300为网红，进行缓存处理
 )
 
 type User struct {
