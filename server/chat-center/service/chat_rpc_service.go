@@ -4,6 +4,7 @@ import (
 	"chat-center/dao"
 	"chat-center/model"
 	"chat-center/pkg/common"
+	"chat-center/pkg/util"
 	"context"
 	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
@@ -44,6 +45,7 @@ func (s *ChatRPCService) GetMessage(_ context.Context, request *pb.DouyinMessage
 		messageListTemp, err := dao.GetMessageByToUserId(timeObj, toUserId, fromUserId)
 		messageList := messageListToPbMessageList(messageListTemp)
 		if err != nil {
+			util.LogrusObj.Error("<GetMessage-rpc> Get message error: ", err, " [be from req]:", request)
 			return &pb.DouyinMessageChatResponse{
 				StatusCode:  common.ErrorGetCode,
 				StatusMsg:   common.ErrorGetMsg,
@@ -84,6 +86,7 @@ func (s *ChatRPCService) SendMessage(_ context.Context, request *pb.DouyinMessag
 
 	err = dao.SendMessage(message)
 	if err != nil {
+		util.LogrusObj.Error("<SendMessage-rpc> Send message error: ", err, " [be from req]:", request)
 		return &pb.DouyinMessageActionResponse{
 			StatusCode: common.ErrorSendCode,
 			StatusMsg:  common.ErrorSendMsg,

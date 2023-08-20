@@ -7,12 +7,6 @@ elasticsearch:
   user: elastic
   password:
 
-redis:
-  address: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com
-  port: 6379
-  password:
-  db: 0
-
 nacos:
   address:
   port: 8848

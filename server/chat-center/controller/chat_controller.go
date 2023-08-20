@@ -1,15 +1,13 @@
 package controller
 
 import (
-	"chat-center/cache"
 	"chat-center/model"
 	"chat-center/pkg/common"
 	"chat-center/pkg/util"
 	"chat-center/service"
-	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"net/http"
+	"time"
 )
 
 type ChatController struct {
@@ -92,16 +90,15 @@ func (h *ChatController) SendMessage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "data": nil, "msg": common.SuccessMsg})
 }
 
-// HACK 通过Redis验证token获取userId
 // validateToken 验证token
 func validateToken(token string) int64 {
-	if len(token) == 0 {
+	parseToken, err := util.ParseToken(token)
+	if err != nil {
 		return -1
 	}
-	ctx := context.Background()
-	userId, err := cache.RedisClient.Get(ctx, token).Result()
-	if err == redis.Nil || err != nil {
+	// 判断 token 是否过期
+	if parseToken.ExpiresAt < time.Now().Unix() {
 		return -1
 	}
-	return util.StringToInt64(userId)
+	return int64(parseToken.ID)
 }
