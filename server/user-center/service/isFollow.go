@@ -6,6 +6,7 @@ import (
 	"user-center/cache"
 	"user-center/dao"
 	"user-center/pb"
+	"user-center/pkg/e"
 )
 
 type IsFollowService struct {
@@ -23,13 +24,13 @@ func (service *IsFollowService) IsFollow(ctx context.Context) (*pb.IsFollowRespo
 
 	exist, err := userDao.IsFollowLogic(service.UserId, service.FollowUserId)
 	if err != nil {
-		return nil, err
+		return nil, e.NewError(e.Error)
 	}
 	if exist == true {
 		//todo: 添加缓存记录状态
 		err = userCache.AddFollow(ctx, service.UserId, service.FollowUserId)
 		if err != nil {
-			return nil, err
+			return nil, e.NewError(e.Error)
 		}
 		return &pb.IsFollowResponse{IsFollow: true}, nil
 	}

@@ -1,5 +1,4 @@
 syntax = "proto3";
-package douyin.extra.second;
 option go_package = "../pb;pb";
 
 service DouyinMessageService { // 消息服务
@@ -8,7 +7,7 @@ service DouyinMessageService { // 消息服务
 }
 
 message douyin_message_chat_request { // 聊天消息请求
-  string token = 1; // 用户鉴权token
+  int64 self_user_id = 1; // 用户鉴权token
   int64 to_user_id = 2; // 对方用户id
   int64 pre_msg_time = 3; // 上次最新消息的时间（新增字段-apk更新中）
 }
@@ -28,7 +27,7 @@ message Message { // 消息
 }
 
 message douyin_message_action_request { // 用户发送消息操作请求
-  string token = 1; // 用户鉴权token
+  int64 self_user_id = 1; // 用户鉴权token
   int64 to_user_id = 2; // 对方用户id
   int32 action_type = 3; // 1-发送消息
   string content = 4; // 消息内容

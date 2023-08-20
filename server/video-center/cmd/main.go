@@ -21,7 +21,9 @@ func main() {
 	dao.Init()
 	oss.Init("D://d", "OssConf.yaml")
 	RegisterNacos()
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.MaxRecvMsgSize(52428800), //50Mb
+		grpc.MaxSendMsgSize(52428800))
 	pb.RegisterVideoCenterServer(server, &handler.VideoServer{})
 	listen, err := net.Listen("tcp", "127.0.0.1:8800")
 	if err != nil {

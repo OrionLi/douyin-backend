@@ -8,7 +8,7 @@ import (
 
 func Feed(ctx context.Context, req *pb.DouyinFeedRequest) ([]*pb.Video, int64, error) {
 	videos := make([]*pb.Video, 0)
-	r, err := operationsClient.Feed(ctx, req)
+	r, err := VideoClient.Feed(ctx, req)
 	if err != nil {
 		return videos, 0, err
 	}

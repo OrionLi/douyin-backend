@@ -7,9 +7,8 @@ type Response struct {
 	StatusMsg  string `json:"status_msg,omitempty"`
 }
 type PublishActionParam struct {
-	Token string `json:"token"`
-	Data  []byte `json:"data"`
-	Title string `json:"title"`
+	Token string `form:"token"`
+	Title string `form:"title"`
 }
 type PublishListParam struct {
 	UserId int64  `json:"user_id"`

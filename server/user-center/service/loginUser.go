@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"user-center/dao"
 	"user-center/pb"
+	"user-center/pkg/e"
 	"user-center/pkg/util"
 )
 
@@ -18,21 +19,21 @@ func (service *LoginUserService) Login(ctx context.Context) (*pb.DouyinUserLogin
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if err != nil {
-		return nil, err
+		return nil, e.NewError(e.Error)
 	}
 	if exist == false {
 		fmt.Println("该用户不存在")
-		return nil, err
+		return nil, e.NewError(e.ErrorExistUserNotFound)
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(service.Password)); err != nil {
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(service.Password)); err != nil {
 		fmt.Println("密码错误")
-		return nil, err
+		return nil, e.NewError(e.Error)
 	}
 	//签发token
 	token, err := util.GenerateToken(user.ID, service.UserName, 0)
 	if err != nil {
 		fmt.Println("token签发失败")
-		return nil, err
+		return nil, e.NewError(e.Error)
 	}
 	return &pb.DouyinUserLoginResponse{
 		UserId: int64(user.ID),

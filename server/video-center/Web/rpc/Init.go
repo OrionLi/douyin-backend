@@ -11,12 +11,12 @@ import (
 )
 
 func Init() {
-	initUserRpc()
+	initVideoRpc()
 }
 
-var operationsClient pb.VideoCenterClient
+var VideoClient pb.VideoCenterClient
 
-func initUserRpc() {
+func initVideoRpc() {
 	serverConfig := []constant.ServerConfig{
 		{
 			IpAddr: "127.0.0.1",
@@ -54,5 +54,5 @@ func initUserRpc() {
 	if err != nil {
 		panic(err)
 	}
-	operationsClient = client
+	VideoClient = client
 }

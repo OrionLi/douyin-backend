@@ -6,7 +6,6 @@ import (
 	"chat-center/pkg/common"
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
-
 	"time"
 )
 
@@ -19,11 +18,7 @@ func NewChatRPCService() *ChatRPCService {
 }
 
 func (s *ChatRPCService) GetMessage(ctx context.Context, request *pb.DouyinMessageChatRequest) (*pb.DouyinMessageChatResponse, error) {
-	// HACK 如果不鉴权： userId := ctx.Value("userId")
-	// HACK 如果鉴权： token := req.GetToken()，解析token，获取userId
-	// HACK userId暂时定为固定值1
-	// toUserId为对方id fromUserId为自己id
-	var fromUserId int64 = 1
+	fromUserId := request.GetSelfUserId()
 	toUserId := request.GetToUserId()
 	preMsgTime := request.GetPreMsgTime()
 	if preMsgTime == 0 {
@@ -62,11 +57,7 @@ func (s *ChatRPCService) GetMessage(ctx context.Context, request *pb.DouyinMessa
 }
 
 func (s *ChatRPCService) SendMessage(ctx context.Context, request *pb.DouyinMessageActionRequest) (*pb.DouyinMessageActionResponse, error) {
-	// HACK 如果不鉴权： userId := ctx.Value("userId")
-	// HACK 如果鉴权： token := req.GetToken()，解析token，获取userId
-	// HACK userId暂时定为固定值1
-	// toUserId为对方id，发送消息操作，即为消息接收者
-	var fromUserId int64 = 1
+	fromUserId := request.GetSelfUserId()
 	toUserId := request.GetToUserId()
 	content := request.GetContent()
 	msg := model.Message{
@@ -99,10 +90,4 @@ func messageListToPbMessageList(msg []model.Message) []*pb.Message {
 		})
 	}
 	return messageList
-}
-
-func validateToken(token string) int64 {
-	//TODO 解析token
-	//HACK parseToken(token)
-	panic("implement me")
 }

@@ -15,9 +15,9 @@ func main() {
 	r := gin.New()
 	douyin := r.Group("/douyin")
 	fmt.Println(time.Now().Unix())
-	//publish := douyin.Group("/publish")
-	//publish.POST("/action/")
-	//publish.GET("/list/")
+	publish := douyin.Group("/publish")
+	publish.POST("/action/", controller.PublishAction)
+	publish.GET("/list/", controller.PublishList)
 	douyin.GET("feed", controller.Feed)
 	if err := http.ListenAndServe(":9999", r); err != nil {
 		fmt.Println(err)

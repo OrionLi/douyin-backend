@@ -4,7 +4,7 @@ import (
 	"chat-center/conf"
 	"chat-center/dao"
 	"chat-center/rpc"
-	"douyin-backend/pkg/pb"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"google.golang.org/grpc"
 	"log"
 	"net"
