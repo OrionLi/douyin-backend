@@ -3,11 +3,11 @@ package controller
 import (
 	"context"
 	"fmt"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
-	"video-center/pkg/pb"
 )
 
 func Feed(c *gin.Context) {

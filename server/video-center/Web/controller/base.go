@@ -1,6 +1,6 @@
 package controller
 
-import "video-center/pkg/pb"
+import "github.com/OrionLi/douyin-backend/pkg/pb"
 
 type Response struct {
 	StatusCode int32  `json:"status_code"`
