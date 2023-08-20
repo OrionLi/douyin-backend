@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chat-center/cache"
 	"chat-center/conf"
 	"chat-center/controller"
 	"chat-center/dao"
@@ -16,8 +17,9 @@ func main() {
 	// 初始化配置文件
 	conf.InitConf()
 
-	// 初始化ES连接
+	// 初始化各连接
 	dao.Init()
+	cache.Init()
 
 	// Gin服务
 	chatService := service.NewChatService()

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
+	"io"
 	"log"
 	"strconv"
 	"strings"
@@ -156,7 +157,12 @@ func SendMessage(message model.Message) error {
 	if err != nil {
 		return fmt.Errorf("error sending the request: %s", err)
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Fatalf("Error closing the body: %s", err)
+		}
+	}(res.Body)
 
 	if res.IsError() {
 		return fmt.Errorf("[%s] Error response: %s", res.Status(), res.String())

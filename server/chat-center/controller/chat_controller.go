@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"chat-center/cache"
 	"chat-center/model"
 	"chat-center/pkg/common"
 	"chat-center/pkg/util"
 	"chat-center/service"
+	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"net/http"
 )
 
@@ -20,9 +23,11 @@ func NewChatHandler(service service.ChatService) *ChatController {
 }
 
 func (h *ChatController) GetMessage(c *gin.Context) {
-	// TODO 解析token
-	// HACK userId暂时定为固定值123
-	var currentId int64 = 123
+	currentId := validateToken(c.Query("token"))
+	if currentId == -1 {
+		c.JSON(http.StatusOK, gin.H{"code": http.StatusForbidden, "data": nil, "msg": common.ForbiddenMsg})
+		return
+	}
 
 	// 获取参数
 	interActiveId := util.StringToInt64(c.Query("to_user_id"))
@@ -54,9 +59,12 @@ func (h *ChatController) SendMessage(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": http.StatusBadRequest, "data": nil, "msg": common.ParamErrorMsg})
 		return
 	}
-	// TODO 解析token
-	// HACK userId暂时定为固定值1
-	var currentId int64 = 1
+
+	currentId := validateToken(requestBody.Token)
+	if currentId == -1 {
+		c.JSON(http.StatusOK, gin.H{"code": http.StatusForbidden, "data": nil, "msg": common.ForbiddenMsg})
+		return
+	}
 
 	// 判断action_type是否为1，不为1返回不支持的action_type
 	if requestBody.ActionType != "1" {
@@ -84,7 +92,16 @@ func (h *ChatController) SendMessage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": http.StatusOK, "data": nil, "msg": common.SuccessMsg})
 }
 
+// HACK 通过Redis验证token获取userId
+// validateToken 验证token
 func validateToken(token string) int64 {
-	// TODO 解析token
-	panic("implement me")
+	if len(token) == 0 {
+		return -1
+	}
+	ctx := context.Background()
+	userId, err := cache.RedisClient.Get(ctx, token).Result()
+	if err == redis.Nil || err != nil {
+		return -1
+	}
+	return util.StringToInt64(userId)
 }
