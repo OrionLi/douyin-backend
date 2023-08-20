@@ -41,6 +41,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/OrionLi/douyin-backend v1.0.3 h1:Pd2xhFARcg3GJANYmoa3SzyfzXScKyMxXRYDUufUCqo=
 github.com/OrionLi/douyin-backend v1.0.3/go.mod h1:4ATeodTy47KXveKpBOWLRpFxJethsER1nLgzcmAcEy8=
+github.com/OrionLi/douyin-backend v1.0.4 h1:QKuanjzIQvaPFTOgOSkD4ILCp5wKFYHT9eGggQ9ChJw=
+github.com/OrionLi/douyin-backend v1.0.4/go.mod h1:4ATeodTy47KXveKpBOWLRpFxJethsER1nLgzcmAcEy8=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.18/go.mod h1:v8ESoHo4SyHmuB4b1tJqDHxfTGEciD+yhvOU/5s1Rfk=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 h1:PpfENOj/vPfhhy9N2OFRjpue0hjM5XqAp2thFmkXXIk=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704/go.mod h1:RcDobYh8k5VP6TNybz9m++gL3ijVI5wueVr0EM10VsU=
