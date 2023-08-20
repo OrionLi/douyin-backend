@@ -1,8 +1,8 @@
 package model
 
 import (
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"time"
-	"video-center/pkg/pb"
 )
 
 //type ApifoxModel struct {

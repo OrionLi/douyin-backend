@@ -30,3 +30,24 @@ type PublishListResponse struct {
 type PublishActionResponse struct {
 	Response
 }
+
+type CommentActionParam struct {
+	ActionType  string `form:"action_type" json:"action_type"`             // 1-发布评论，2-删除评论
+	CommentID   string `form:"comment_id" json:"comment_id,omitempty"`     // 要删除的评论id，在action_type=2的时候使用
+	CommentText string `form:"comment_text" json:"comment_text,omitempty"` // 用户填写的评论内容，在action_type=1的时候使用
+	Token       string `form:"token" json:"token"`                         // 用户鉴权token
+	VideoID     string `form:"video_id" json:"video_id"`                   // 视频id
+}
+type CommentActionResponse struct {
+	Response
+	Comment *pb.Comment `json:"comment,omitempty"`
+}
+
+type CommentListParam struct {
+	Token   string `form:"token" json:"token"`       // 用户鉴权token
+	VideoID string `form:"video_id" json:"video_id"` // 视频id
+}
+type CommentListResponse struct {
+	Response
+	Comment []*pb.Comment `json:"comment_list,omitempty"`
+}

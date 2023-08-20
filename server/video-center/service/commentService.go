@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"sync"
 	"time"
 	"video-center/dao"
 	"video-center/model"
-	"video-center/pkg/pb"
 )
 
 type CommentService struct {
