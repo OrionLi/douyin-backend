@@ -67,10 +67,6 @@ func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video,
 			}
 			isFav = favorite
 		}
-		if err != nil {
-			continue
-		}
-
 		videos = append(videos, &pb.Video{
 			Id: v.Id,
 			Author: &pb.User{

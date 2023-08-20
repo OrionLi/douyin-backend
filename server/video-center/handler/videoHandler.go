@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"time"
 	"video-center/cache"
 	"video-center/oss"
 	"video-center/pkg/errno"
@@ -88,6 +89,9 @@ func (s *VideoServer) Feed(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.
 	resp.StatusCode = errno.SuccessCode
 	resp.StatusMsg = &errno.Success.ErrMsg
 	resp.VideoList = list
+	//获取当前时间
+	unix := time.Now().Unix()
+	resp.NextTime = &unix
 	return resp, nil
 }
 

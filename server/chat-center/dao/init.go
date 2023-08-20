@@ -3,7 +3,7 @@ package dao
 import (
 	"chat-center/conf"
 	"fmt"
-	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v7"
 	"log"
 )
 

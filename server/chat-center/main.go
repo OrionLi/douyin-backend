@@ -2,28 +2,44 @@ package main
 
 import (
 	"chat-center/conf"
+	"chat-center/controller"
 	"chat-center/dao"
-	"chat-center/rpc"
+	"chat-center/service"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"log"
 	"net"
 )
 
 func main() {
+	// 初始化配置文件
 	conf.InitConf()
 
 	// 初始化ES连接
 	dao.Init()
 
-	// 创建ChatService
-	//chatService := service.NewChatService()
+	// Gin服务
+	chatService := service.NewChatService()
+	diaryHandler := controller.NewChatHandler(chatService)
 
+	r := gin.Default()
+	api := r.Group("/douyin/message")
+	{
+		api.GET("/chat", diaryHandler.GetMessage)
+		api.POST("/action", diaryHandler.SendMessage)
+	}
+
+	if err := r.Run(":" + conf.WebPort); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
+	}
+
+	// TODO gRPC服务
 	// 创建grpc服务
 	grpcServer := grpc.NewServer()
 
 	// 注册ChatService
-	pb.RegisterDouyinMessageServiceServer(grpcServer, rpc.NewChatRPCService())
+	pb.RegisterDouyinMessageServiceServer(grpcServer, service.NewChatRPCService())
 
 	// 监听指定端口
 	// FIXME: 修复端口号

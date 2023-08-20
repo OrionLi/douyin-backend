@@ -1,11 +1,13 @@
-package rpc
+package service
 
 import (
 	"chat-center/dao"
 	"chat-center/model"
 	"chat-center/pkg/common"
 	"context"
+	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"github.com/sony/sonyflake"
 	"time"
 )
 
@@ -60,12 +62,27 @@ func (s *ChatRPCService) SendMessage(ctx context.Context, request *pb.DouyinMess
 	fromUserId := request.GetSelfUserId()
 	toUserId := request.GetToUserId()
 	content := request.GetContent()
-	msg := model.Message{
+
+	// 创建一个 SonyFlake 实例
+	sf := sonyflake.NewSonyflake(sonyflake.Settings{})
+
+	// 生成唯一 ID
+	id, err := sf.NextID()
+	if err != nil {
+		fmt.Printf("Error generating ID: %s\n", err)
+		return nil, err
+	}
+	now := time.Now()
+	format := now.Format("2006-01-02 15:04:05")
+	message := model.Message{
+		Id:         int64(id),
 		ToUserId:   toUserId,
 		FromUserId: fromUserId,
 		Content:    content,
+		CreateTime: format,
 	}
-	err := dao.SendMessage(msg)
+
+	err = dao.SendMessage(message)
 	if err != nil {
 		return &pb.DouyinMessageActionResponse{
 			StatusCode: common.ErrorSendCode,
