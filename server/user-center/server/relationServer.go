@@ -1,4 +1,4 @@
-package service
+package server
 
 import (
 	"context"
@@ -73,7 +73,7 @@ func (c RelationService) GetRelationFollowList(ctx context.Context, req *pb.GetR
 	}, nil
 }
 
-// GetRelationFollowerList 获取关注者列表
+// GetRelationFollowerList 获取粉丝列表
 func (c RelationService) GetRelationFollowerList(ctx context.Context, req *pb.GetRelationFollowerListReq) (*pb.GetRelationFollowerListRsp, error) {
 	list, err := RelationFollowList(req.UserId, 2)
 	if err != nil {
@@ -84,6 +84,7 @@ func (c RelationService) GetRelationFollowerList(ctx context.Context, req *pb.Ge
 	}, nil
 }
 
+// RelationFollowList  获取关注列表
 func RelationFollowList(userID, relationType int64) ([]int64, error) {
 	var (
 		relationList []*model.Relation
