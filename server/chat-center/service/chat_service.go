@@ -3,6 +3,8 @@ package service
 import (
 	"chat-center/dao"
 	"chat-center/model"
+	"fmt"
+	"github.com/sony/sonyflake"
 	"time"
 )
 
@@ -39,12 +41,25 @@ func (c ChatServiceImpl) GetMessageByPreMsgTime(currentId int64, interActiveId i
 
 // SendMessage 将消息存入数据库
 func (c ChatServiceImpl) SendMessage(currentId int64, interActiveId int64, content string) error {
+	// 创建一个 SonyFlake 实例
+	sf := sonyflake.NewSonyflake(sonyflake.Settings{})
+
+	// 生成唯一 ID
+	id, err := sf.NextID()
+	if err != nil {
+		fmt.Printf("Error generating ID: %s\n", err)
+		return err
+	}
+	now := time.Now()
+	format := now.Format("2006-01-02 15:04:05")
 	message := model.Message{
+		Id:         int64(id),
 		ToUserId:   interActiveId,
 		FromUserId: currentId,
 		Content:    content,
+		CreateTime: format,
 	}
-	err := dao.SendMessage(message)
+	err = dao.SendMessage(message)
 	if err != nil {
 		return err
 	}

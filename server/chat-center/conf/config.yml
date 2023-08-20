@@ -1,8 +1,11 @@
+gin:
+  port: 9421
+
 elasticsearch:
   address: DouyinDBA.raqtpie.xyz
   port: 9200
   user: elastic
-  password:
+  password: elasticnode1
 
 nacos:
   address:

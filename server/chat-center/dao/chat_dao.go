@@ -6,8 +6,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -18,19 +19,41 @@ import (
 func GetAllMessagesByToUserId(toUserId int64, fromUserId int64) ([]model.Message, error) {
 
 	query := fmt.Sprintf(`{
-			"query": {
-				"bool": {
-					"must": [
-						{ "match": { "toUserId": %d } },
-						{ "match": { "fromUserId": %d } }
-					]
-				}
+		"query": {
+			"bool": {
+				"must": [
+					{
+						"term": 
+						{
+							"to_user_id": %d 
+						}
+					},
+					{
+						"term": 
+						{
+							"from_user_id": %d 
+						}
+					}
+				]
 			}
-		}`, toUserId, fromUserId)
+		}
+	}`, toUserId, fromUserId)
+
+	// 创建排序条件
+	sort := `{
+		"create_time": {
+			"order": "desc"
+		}
+	}`
+
+	// 设置返回的结果数量
+	size := 999
 
 	res, err := ESClient.Search(
 		ESClient.Search.WithIndex("douyin_messages"), // 索引名
 		ESClient.Search.WithBody(strings.NewReader(query)),
+		ESClient.Search.WithSort(sort),
+		ESClient.Search.WithSize(size),
 		ESClient.Search.WithPretty(),
 	)
 	if err != nil {
@@ -52,17 +75,29 @@ func GetMessageByToUserId(time time.Time, toUserId int64, fromUserId int64) ([]m
 			"query": {
 				"bool": {
 					"must": [
-						{ "match": { "toUserId": %d } },
-						{ "match": { "fromUserId": %d } },
-						{ "range": { "createTime": { "gt": "%s" } } }
+						{ "term": { "to_user_id": %d } },
+						{ "term": { "from_user_id": %d } },
+						{ "range": { "create_time": { "gt": "%s" } } }
 					]
 				}
 			}
 		}`, toUserId, fromUserId, time.Format("2006-01-02 15:04:05"))
 
+	// 创建排序条件
+	sort := `{
+		"create_time": {
+			"order": "desc"
+		}
+	}`
+
+	// 设置返回的结果数量
+	size := 999
+
 	res, err := ESClient.Search(
 		ESClient.Search.WithIndex("douyin_messages"), // 索引名
 		ESClient.Search.WithBody(strings.NewReader(query)),
+		ESClient.Search.WithSort(sort),
+		ESClient.Search.WithSize(size),
 		ESClient.Search.WithPretty(),
 	)
 	if err != nil {
@@ -87,10 +122,10 @@ func GetMessageList(res *esapi.Response) []model.Message {
 	for _, hit := range hits {
 		source := hit.(map[string]interface{})["_source"].(map[string]interface{})
 		id := int(source["id"].(float64))
-		toUserId := int(source["toUserId"].(float64))
-		fromUserId := int(source["fromUserId"].(float64))
+		toUserId := int(source["to_user_id"].(float64))
+		fromUserId := int(source["from_user_id"].(float64))
 		content := source["content"].(string)
-		createTime := source["createTime"].(string)
+		createTime := source["create_time"].(string)
 
 		messageList = append(messageList, model.Message{
 			Id:         int64(id),
@@ -111,9 +146,10 @@ func SendMessage(message model.Message) error {
 	}
 
 	req := esapi.IndexRequest{
-		Index:   "douyin_messages",
-		Body:    bytes.NewReader(docJSON),
-		Refresh: "true", // 在索引之后刷新以使文档可搜索
+		Index:      "douyin_messages",
+		DocumentID: strconv.FormatInt(message.Id, 10),
+		Body:       bytes.NewReader(docJSON),
+		Refresh:    "true", // 在索引之后刷新以使文档可搜索
 	}
 
 	res, err := req.Do(context.Background(), ESClient)
