@@ -10,7 +10,6 @@ db:
     database: DouyinDB
     charset: utf8mb4
   redis:
-    host: 127.0.0.1
-    port:  6067
+    host: 127.0.0.1:6379
     db: 0
     passwd: 123456
