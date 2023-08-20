@@ -14,7 +14,7 @@ type GetUserByIdService struct {
 }
 
 func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinUserResponse, error) { //todo: 添加返回结构体
-	cache := cache2.NewRedisCache(ctx)
+	cache := cache2.NewUserCache(ctx)
 	var err error
 
 	defer func() {

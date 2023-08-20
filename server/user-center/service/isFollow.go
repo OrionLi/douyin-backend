@@ -16,7 +16,7 @@ type IsFollowService struct {
 
 func (service *IsFollowService) IsFollow(ctx context.Context) (*pb.IsFollowResponse, error) { //todo: 添加返回结构体
 	userDao := dao.NewUserDao(ctx)
-	userCache := cache.NewRedisCache(ctx)
+	userCache := cache.NewUserCache(ctx)
 	var err error
 
 	defer func() {

@@ -10,7 +10,7 @@ type RedisCache struct {
 	*redis.Client
 }
 
-func NewRedisCache(ctx context.Context) *RedisCache {
+func NewUserCache(ctx context.Context) *RedisCache {
 	return &RedisCache{NewRedisClient(ctx)}
 }
 func (userCache *RedisCache) IsFollow(ctx context.Context, uId, followId uint) bool {
