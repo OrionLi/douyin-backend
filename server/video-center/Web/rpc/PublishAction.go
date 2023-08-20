@@ -2,8 +2,8 @@ package rpc
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"video-center/pkg/errno"
-	"video-center/pkg/pb"
 )
 
 func PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) error {

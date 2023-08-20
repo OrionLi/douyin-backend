@@ -2,12 +2,12 @@ package rpc
 
 import (
 	"fmt"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"video-center/pkg/pb"
 )
 
 func Init() {
