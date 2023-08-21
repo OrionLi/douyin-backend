@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/OrionLi/douyin-backend v1.0.3 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
