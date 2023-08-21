@@ -12,6 +12,11 @@ func SaveComment(comment model.Comment) (bool, error) {
 		return false, result.Error
 	}
 	if result.RowsAffected > 0 {
+		// 更新视频评论计数
+		err := UpdateVideoCommentCount(comment.VideoId, 1)
+		if err != nil {
+			return false, err
+		}
 		return true, nil
 	}
 	return false, nil
@@ -24,9 +29,20 @@ func DeleteComment(comment model.Comment) (bool, error) {
 		return false, result.Error
 	}
 	if result.RowsAffected > 0 {
+		// 更新视频评论计数
+		err := UpdateVideoCommentCount(comment.VideoId, -1)
+		if err != nil {
+			return false, err
+		}
 		return true, nil
 	}
 	return false, nil
+}
+
+// UpdateVideoCommentCount 更新视频的评论计数
+func UpdateVideoCommentCount(videoID int64, increment int) error {
+	result := DB.Model(Video{}).Where("id = ?", videoID).UpdateColumn("comment_count", gorm.Expr("comment_count + ?", increment))
+	return result.Error
 }
 
 // CommentList 根据视频ID查看所有评论
