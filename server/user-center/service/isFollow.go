@@ -14,6 +14,7 @@ type IsFollowService struct {
 	FollowUserId uint `json:"follow_user_id" form:"follow_user_id"`
 }
 
+// IsFollow 判断是否关注 返回 true OR false
 func (service *IsFollowService) IsFollow(ctx context.Context) (*pb.IsFollowResponse, error) { //todo: 添加返回结构体
 	userDao := dao.NewUserDao(ctx)
 	userCache := cache.NewUserCache(ctx)

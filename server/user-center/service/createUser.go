@@ -15,6 +15,7 @@ type CreateUserService struct {
 	Password string `json:"password" form:"password"`
 }
 
+// Register 用户注册 返回用户Id和token
 func (service *CreateUserService) Register(ctx context.Context) (*pb.DouyinUserRegisterResponse, error) {
 	var err error
 	defer func() {

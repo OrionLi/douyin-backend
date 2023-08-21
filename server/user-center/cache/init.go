@@ -15,24 +15,28 @@ var (
 	RedisDbName string
 )
 
-func Redis(redisDb, redisAddr, redisPw, redisDbName string) {
+// Redis 引擎初始化
+func Redis(redisDb, redisAddr, redisPw, redisDbName string) error {
 	RedisDb = redisDb
 	RedisAddr = redisAddr
 	RedisPw = redisPw
 	RedisDbName = redisDbName
 	db, _ := strconv.ParseUint(RedisDbName, 10, 64)
-	ctx := context.Background()
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     RedisAddr,
 		Password: RedisPw,
 		DB:       int(db),
 	})
+	//创建上下文
+	ctx := context.Background()
+	//测试连接
 	err := client.Ping(ctx).Err()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	_redis = client
-
+	return nil
 }
 
 func NewRedisClient(ctx context.Context) *redis.Client {
