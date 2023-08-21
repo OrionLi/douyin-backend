@@ -7,7 +7,7 @@ import "user.proto";
 //video基本信息"
 message Video {
   int64 id = 1; // 视频唯一标识
-  user.User author = 2; // 视频作者信息
+  User author = 2; // 视频作者信息
   string play_url = 3; // 视频播放地址
   string cover_url = 4; // 视频封面地址
   int64 favorite_count = 5; // 视频的点赞总数
@@ -58,5 +58,5 @@ service video_center {
   //发布列表
   rpc PublishList(douyin_publish_list_request) returns(douyin_publish_list_response){}
   //视频投稿
-  rpc PublishAction(douyin_publish_action_request) returns(douyin_publish_action_response){}
+  rpc PublishAction(stream douyin_publish_action_request) returns(douyin_publish_action_response){}
 }

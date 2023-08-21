@@ -15,7 +15,7 @@ func Grpc(add string) {
 	grpcServer := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
 	pb.RegisterUserServiceServer(grpcServer, &UserRPCServer{})
 	pb.RegisterRelationServiceServer(grpcServer, &RelationService{})
-
+	fmt.Println("startPPC: ", listen)
 	//启动服务
 	err := grpcServer.Serve(listen)
 	if err != nil {

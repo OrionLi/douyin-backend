@@ -50,4 +50,5 @@ func (dao *UserDao) IsFollow(uId, followId uint) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+
 }

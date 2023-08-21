@@ -26,7 +26,6 @@ func (service *LoginUserService) Login(ctx context.Context) (*pb.DouyinUserLogin
 			util.LogrusObj.Error("<login> ", err, " [be from req]:", service)
 		}
 	}()
-
 	// 数据验证
 	if err = util.ValidateUser(service.UserName, service.Password); err != nil {
 		return nil, e.NewError(e.InvalidParams)

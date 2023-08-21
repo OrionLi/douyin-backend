@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis/v8"
 
 	"strconv"
@@ -21,10 +20,6 @@ func Redis(redisDb, redisAddr, redisPw, redisDbName string) {
 	RedisAddr = redisAddr
 	RedisPw = redisPw
 	RedisDbName = redisDbName
-	fmt.Println(RedisDb,
-		RedisAddr,
-		RedisPw,
-		RedisDbName)
 	db, _ := strconv.ParseUint(RedisDbName, 10, 64)
 	ctx := context.Background()
 	client := redis.NewClient(&redis.Options{

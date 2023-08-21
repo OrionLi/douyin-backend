@@ -1,12 +1,12 @@
 server:
-  address: http://localhost:3000
+  address: :3001
 
 mysql:
   DB: mysql
   DbHost: DouyinDBA.raqtpie.xyz
   DbPort: 3306
   DbUser: DouyinDBA
-  DbPassword:
+  DbPassword: nibainimane
   DbName: DouyinDB
 
 redis:
@@ -15,5 +15,5 @@ redis:
 
 
 
-  RedisPw:
+  RedisPw: Rh2004==
   RedisDbName: 2
