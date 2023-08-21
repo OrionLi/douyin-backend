@@ -48,7 +48,7 @@ message douyin_comment_list_response {
 }
 
 // 评论接口方法
-service video_center {
+service comment_center {
   // 评论操作
   rpc ActionComment(douyin_comment_action_request) returns (douyin_comment_action_response);
   // 评论列表
