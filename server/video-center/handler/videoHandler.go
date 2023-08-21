@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"io"
 	"time"
-	"video-center/oss"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
 	"video-center/service"
@@ -14,6 +14,29 @@ import (
 
 type VideoServer struct {
 	pb.UnsafeVideoCenterServer
+}
+
+func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) error {
+	for {
+		request, err := server.Recv() // Receive request message
+		if err == io.EOF {
+			break // No more requests, exit loop
+		}
+		if err != nil {
+			return err
+		}
+		//todo 解析request，解析token，获取userId，然后调用oss的上传方法，解析路径，然后存入数据库
+		fmt.Println(request)
+		//todo 封装response
+		response := &pb.DouyinPublishActionResponse{
+			// Populate response fields based on request
+		}
+		// todo 发送response
+		if err := server.SendAndClose(response); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *VideoServer) PublishList(ctx context.Context, req *pb.DouyinPublishListRequest) (*pb.DouyinPublishListResponse, error) {
@@ -84,40 +107,6 @@ func (s *VideoServer) Feed(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.
 	//获取当前时间
 	unix := time.Now().Unix()
 	resp.NextTime = &unix
-	return resp, nil
-}
-
-func (s *VideoServer) PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) (*pb.DouyinPublishActionResponse, error) {
-	resp := new(pb.DouyinPublishActionResponse)
-	token := req.Token
-	userId := int64(0)
-	if len(req.GetToken()) != 0 {
-		token, err := util.ParseToken(token)
-		if err != nil {
-			convertErr := errno.ConvertErr(err)
-			resp.StatusCode = int32(convertErr.ErrCode)
-			resp.StatusMsg = &convertErr.ErrMsg
-			return resp, nil
-		}
-		userId = int64(token.ID)
-	}
-	//向七牛云存放视频资源
-	playUrl, coverUrl, err2 := oss.UploadVideo(ctx, userId, req.Data, req.Title)
-	if err2 != nil {
-		convertErr := errno.ConvertErr(err2)
-		resp.StatusCode = int32(convertErr.ErrCode)
-		resp.StatusMsg = &convertErr.ErrMsg
-		return resp, nil
-	}
-	err := service.NewVideoService(ctx).PublishAction(userId, playUrl, coverUrl, req.Title)
-	if err != nil {
-		convertErr := errno.ConvertErr(err)
-		resp.StatusCode = int32(convertErr.ErrCode)
-		resp.StatusMsg = &convertErr.ErrMsg
-		return resp, nil
-	}
-	resp.StatusCode = errno.SuccessCode
-	resp.StatusMsg = &errno.Success.ErrMsg
 	return resp, nil
 }
 
