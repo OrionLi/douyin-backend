@@ -6,7 +6,7 @@ mysql:
   DbHost: DouyinDBA.raqtpie.xyz
   DbPort: 3306
   DbUser: DouyinDBA
-  DbPassword: nibainimane
+  DbPassword: ${MYSQL_PASSWORD}
   DbName: DouyinDB
 
 redis:
@@ -15,5 +15,5 @@ redis:
 
 
 
-  RedisPw: Rh2004==
+  RedisPw: ${REDIS_PASSWORD}
   RedisDbName: 2

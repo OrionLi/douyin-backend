@@ -10,7 +10,7 @@ import (
 )
 
 // Grpc 启动grpc服务的
-func Grpc(addr string) {
+func Grpc(addr string) error {
 
 	listen, _ := net.Listen("tcp", addr)
 	// 创建一个grpc服务，并设置不安全的证书 todo: 后期改用STL
@@ -24,6 +24,7 @@ func Grpc(addr string) {
 	if err != nil {
 		fmt.Printf("failed to serve%v", err)
 		util.LogrusObj.Error("Service startup error ", err)
-		return
+		return err
 	}
+	return nil
 }
