@@ -19,7 +19,8 @@ func main() {
 	conf.InitConfig()
 	cache.Init()
 	dao.Init()
-	oss.Init("D://d", "OssConf.yaml")
+	//oss.Init("D://d", "OssConf.yaml")
+	oss.Init("D:\\APP\\Wechat\\WeChat Files\\wxid_agbdyvobpg9422\\FileStorage\\File\\2023-08", "OssConf.yaml")
 	RegisterNacos()
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb
