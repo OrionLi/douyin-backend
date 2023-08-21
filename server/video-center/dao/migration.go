@@ -18,5 +18,4 @@ func Migrate() {
 	if err := m.CreateTable(&Video{}); err != nil {
 		panic(err)
 	}
-
 }
