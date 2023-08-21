@@ -9,6 +9,7 @@ import (
 	userUtil "user-center/pkg/util"
 )
 
+// IsFollowService 关注否服务请求
 type IsFollowService struct {
 	UserId       uint `json:"user_id"  form:"user_id"`
 	FollowUserId uint `json:"follow_user_id" form:"follow_user_id"`
@@ -30,7 +31,7 @@ func (service *IsFollowService) IsFollow(ctx context.Context) (*pb.IsFollowRespo
 	if userCache.IsFollow(ctx, service.UserId, service.FollowUserId) == true {
 		return &pb.IsFollowResponse{IsFollow: true}, nil
 	}
-
+	//查找缓存中是否存在
 	exist, err := userDao.IsFollow(service.UserId, service.FollowUserId)
 	if err != nil {
 		return nil, e.NewError(e.Error)

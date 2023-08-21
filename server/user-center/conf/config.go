@@ -2,6 +2,7 @@ package conf
 
 import (
 	"github.com/spf13/viper"
+	"os"
 	"strings"
 	"user-center/cache"
 	"user-center/dao"
@@ -11,7 +12,6 @@ import (
 var (
 	Address string
 
-	Db         string
 	DbHost     string
 	DbPort     string
 	DbUser     string
@@ -40,24 +40,33 @@ func Init() error {
 
 	// 获取配置项的值并赋值给变量
 	Address = viper.GetString("server.address")
-	Db = viper.GetString("mysql.DB")
+
 	DbHost = viper.GetString("mysql.DbHost")
 	DbPort = viper.GetString("mysql.DbPort")
 	DbUser = viper.GetString("mysql.DbUser")
-	DbPassword = viper.GetString("mysql.DbPassword")
+	DbPassword, _ = os.LookupEnv("MYSQL_PASSWORD")
 	DbName = viper.GetString("mysql.DbName")
 	RedisDb = viper.GetString("redis.RedisDb")
 	redisAddr = viper.GetString("redis.RedisAddr")
-	RedisPw = viper.GetString("redis.RedisPw")
+	RedisPw, _ = os.LookupEnv("REDIS_PASSWORD")
 	RedisDbName = viper.GetString("redis.RedisDbName")
 
 	//mysql连接信息
 	conn := strings.Join([]string{DbUser, ":", DbPassword, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8mb4&parseTime=true"}, "")
 	// gorm引擎初始化
 	err = dao.Database(conn)
+	if err != nil {
+		return err
+	}
 	// redis引擎初始化
 	err = cache.Redis(RedisDb, redisAddr, RedisPw, RedisDbName)
+	if err != nil {
+		return err
+	}
 	// grpc初始化
 	err = server.Grpc(Address)
+	if err != nil {
+		return err
+	}
 	return nil
 }

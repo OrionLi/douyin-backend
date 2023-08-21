@@ -9,6 +9,7 @@ import (
 	userUtil "user-center/pkg/util"
 )
 
+// GetUserByIdService 获取用户信息服务请求
 type GetUserByIdService struct {
 	Id uint `json:"id" form:"id"`
 }

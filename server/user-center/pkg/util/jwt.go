@@ -17,17 +17,19 @@ type Claims struct {
 // GenerateToken 签发token
 func GenerateToken(id uint, userName string, authority int) (string, error) {
 	newTime := time.Now()
-	expireTime := newTime.Add(24 * time.Hour)
+	expireTime := newTime.Add(7 * 24 * time.Hour)
 	claims := Claims{
 		ID:        id,
 		UserName:  userName,
 		Authority: authority,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
-			Issuer:    "FanOne-gin-mall",
+			Issuer:    "xz",
 		},
 	}
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	//签发token
 	token, err := tokenClaims.SignedString(jwtSecret)
 	return token, err
 }

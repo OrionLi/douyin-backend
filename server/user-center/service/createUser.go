@@ -10,6 +10,7 @@ import (
 	"user-center/pkg/util"
 )
 
+// CreateUserService 用户创建服务请求
 type CreateUserService struct {
 	UserName string `json:"user_name" form:"user_name"`
 	Password string `json:"password" form:"password"`
