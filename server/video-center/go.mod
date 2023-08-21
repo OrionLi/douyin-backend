@@ -3,7 +3,7 @@ module video-center
 go 1.20
 
 require (
-	github.com/OrionLi/douyin-backend v1.0.4
+	github.com/OrionLi/douyin-backend v1.0.5
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5
@@ -18,7 +18,6 @@ require (
 )
 
 require (
-	github.com/OrionLi/douyin-backend v1.0.3 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
