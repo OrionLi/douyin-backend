@@ -21,8 +21,7 @@ func NewChatController(service service.ChatService) *ChatController {
 }
 
 func (h *ChatController) GetMessage(c *gin.Context) {
-	//currentId := validateToken(c.Query("token"))
-	var currentId int64 = 1
+	currentId := validateToken(c.Query("token"))
 	if currentId == -1 {
 		c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: http.StatusForbidden, StatusMsg: common.ForbiddenMsg}})
 		return
@@ -62,8 +61,7 @@ func (h *ChatController) SendMessage(c *gin.Context) {
 		return
 	}
 
-	//currentId := validateToken(requestBody.Token)
-	var currentId int64 = 1
+	currentId := validateToken(requestBody.Token)
 	if currentId == -1 {
 		c.JSON(http.StatusOK, common.SendMessageResponse{Response: common.Response{StatusCode: http.StatusForbidden, StatusMsg: common.ForbiddenMsg}})
 		return
