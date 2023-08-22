@@ -67,11 +67,7 @@ func (h *FavoriteController) ActionFav(c *gin.Context) {
 func (h *FavoriteController) ListFav(context *gin.Context) {
 	userId := context.Query("user_id")
 	token := context.Query("token")
-	println("0")
-	println("userId = ", userId)
-	println("token = ", token)
 	if userId == "" || token == "" {
-		println("1")
 		context.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 		})
@@ -80,14 +76,12 @@ func (h *FavoriteController) ListFav(context *gin.Context) {
 	tokenUserId := validateToken(token)
 	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
-		println("2")
 		context.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 		})
 		return
 	}
 	if tokenUserId != UserIdParseInt {
-		println("3")
 		context.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 		})
