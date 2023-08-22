@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.3
 	github.com/qiniu/go-sdk/v7 v7.17.0
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
 	google.golang.org/grpc v1.57.0
 	gorm.io/driver/mysql v1.5.1
