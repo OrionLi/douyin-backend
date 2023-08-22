@@ -4,22 +4,28 @@ import (
 	"context"
 	"google.golang.org/grpc/status"
 	"web/grpcClient"
+	"web/pkg/util"
 	"web/serializer"
 )
 
-func UserRegister(ctx context.Context, username, password string) serializer.DouyinUserRegisterResponse {
+func UserRegister(ctx context.Context, username, password string) interface{} {
 	resp, err := grpcClient.UserRegister(ctx, username, password)
 	if err != nil {
-		// 将错误转换为status.Status
-		st, _ := status.FromError(err)
-		// 获取错误码和错误信息
-		code := int32(st.Code())
-		msg := st.Message()
-		return serializer.DouyinUserRegisterResponse{
-			StatusCode: code,
-			StatusMsg:  msg,
-			UserID:     0,
-			Token:      "",
+		// 该错误如果是status类型就解析错误，不是则另外处理
+		if st, ok := status.FromError(err); ok {
+			// 获取错误码和错误信息
+			code := int32(st.Code())
+			msg := st.Message()
+			return serializer.DouyinUserRegisterResponse{
+				StatusCode: code,
+				StatusMsg:  msg,
+			}
+		} else {
+			util.LogrusObj.Error("service GetUserById:", err)
+			return serializer.ErrResponse{
+				StatusCode: 1,
+				StatusMsg:  "fail",
+			}
 		}
 	}
 	return serializer.DouyinUserRegisterResponse{
@@ -30,17 +36,24 @@ func UserRegister(ctx context.Context, username, password string) serializer.Dou
 	}
 }
 
-func UserLogin(ctx context.Context, username, password string) serializer.DouyinUserLoginResponse {
+func UserLogin(ctx context.Context, username, password string) interface{} {
 	resp, err := grpcClient.UserLogin(ctx, username, password)
 	if err != nil {
-		// 将错误转换为status.Status
-		st, _ := status.FromError(err)
-		// 获取错误码和错误信息
-		code := int32(st.Code())
-		msg := st.Message()
-		return serializer.DouyinUserLoginResponse{
-			StatusCode: code,
-			StatusMsg:  msg,
+		// 该错误如果是status类型就解析错误，不是则另外处理
+		if st, ok := status.FromError(err); ok {
+			// 获取错误码和错误信息
+			code := int32(st.Code())
+			msg := st.Message()
+			return serializer.DouyinUserLoginResponse{
+				StatusCode: code,
+				StatusMsg:  msg,
+			}
+		} else {
+			util.LogrusObj.Error("service GetUserById:", err)
+			return serializer.ErrResponse{
+				StatusCode: 1,
+				StatusMsg:  "fail",
+			}
 		}
 	}
 	return serializer.DouyinUserLoginResponse{
@@ -50,17 +63,25 @@ func UserLogin(ctx context.Context, username, password string) serializer.Douyin
 		Token:      resp.GetToken(),
 	}
 }
-func GetUserById(ctx context.Context, myId, uId uint) serializer.DouyinUserResponse {
+
+func GetUserById(ctx context.Context, myId, uId uint) interface{} {
 	user, err := GetUser(ctx, myId, uId)
 	if err != nil {
-		// 将错误转换为status.Status
-		st, _ := status.FromError(err)
-		// 获取错误码和错误信息
-		code := int32(st.Code())
-		msg := st.Message()
-		return serializer.DouyinUserResponse{
-			StatusCode: code,
-			StatusMsg:  msg,
+		// 该错误如果是status类型就解析错误，不是则另外处理
+		if st, ok := status.FromError(err); ok {
+			// 获取错误码和错误信息
+			code := int32(st.Code())
+			msg := st.Message()
+			return serializer.ErrResponse{
+				StatusCode: code,
+				StatusMsg:  msg,
+			}
+		} else {
+			util.LogrusObj.Error("service GetUserById:", err)
+			return serializer.ErrResponse{
+				StatusCode: 1,
+				StatusMsg:  "fail",
+			}
 		}
 	}
 	return serializer.DouyinUserResponse{
