@@ -35,19 +35,3 @@ type DouyinUserLoginResponse struct {
 	UserID     int64  `json:"user_id"`
 	Token      string `json:"token"`
 }
-
-type DouyinUserRegisterRequest struct {
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-}
-type DouyinUserLoginRequest struct {
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-}
-type DouyinUserRequest struct {
-	UserID uint   `json:"user_id"`
-	Token  string `json:"token"`
-}
-type UserRequest struct {
-	UserID uint `protobuf:"varint,1,opt,name=user_id,proto3" json:"user_id,omitempty"`
-}
