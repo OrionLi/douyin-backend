@@ -87,7 +87,7 @@ message douyin_comment_list_response {
 }
 
 // RPC接口
-service comment_center {
+service DouyinVideoInteractionService {
   // 点赞操作
   rpc ActionFavorite(douyin_favorite_action_request) returns (douyin_favorite_action_response);
   // 点赞列表

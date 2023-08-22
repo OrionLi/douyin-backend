@@ -3,8 +3,8 @@ package cache
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
-
 	"strconv"
+	"sync"
 )
 
 var (
@@ -13,9 +13,10 @@ var (
 	RedisAddr   string
 	RedisPw     string
 	RedisDbName string
+
+	redisOnce sync.Once
 )
 
-// Redis 引擎初始化
 func Redis(redisDb, redisAddr, redisPw, redisDbName string) error {
 	RedisDb = redisDb
 	RedisAddr = redisAddr
@@ -23,19 +24,25 @@ func Redis(redisDb, redisAddr, redisPw, redisDbName string) error {
 	RedisDbName = redisDbName
 	db, _ := strconv.ParseUint(RedisDbName, 10, 64)
 
-	client := redis.NewClient(&redis.Options{
-		Addr:     RedisAddr,
-		Password: RedisPw,
-		DB:       int(db),
+	redisOnce.Do(func() {
+		client := redis.NewClient(&redis.Options{
+			Addr:     RedisAddr,
+			Password: RedisPw,
+			DB:       int(db),
+			PoolSize: 10, // 配置连接池容量
+		})
+
+		// 创建上下文
+		ctx := context.Background()
+
+		// 测试连接
+		if err := client.Ping(ctx).Err(); err != nil {
+			panic("Failed to connect to Redis: " + err.Error())
+		}
+
+		_redis = client
 	})
-	//创建上下文
-	ctx := context.Background()
-	//测试连接
-	err := client.Ping(ctx).Err()
-	if err != nil {
-		return err
-	}
-	_redis = client
+
 	return nil
 }
 

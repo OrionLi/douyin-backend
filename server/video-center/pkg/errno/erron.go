@@ -19,6 +19,7 @@ const (
 	DeleteCommentCode          = 10010 // 删除评论失败
 	NoMyCommentCode            = 10011 // 不是自己的评论
 	NoCommentExistsCode        = 10012 // 视频或评论不存在
+	FavListEmptyCode           = 10013 // 喜欢列表为空
 )
 
 type Errno struct {
@@ -50,6 +51,7 @@ var (
 	DeleteCommentErr       = NewErrno(DeleteCommentCode, "Failed to delete comment")
 	NoMyCommentErr         = NewErrno(NoMyCommentCode, "Not your comment")
 	NoCommentExistsErr     = NewErrno(NoCommentExistsCode, "Comment does not exist")
+	FavListEmptyErr        = NewErrno(FavListEmptyCode, "Like the list to be empty")
 )
 
 func ConvertErr(err error) Errno {

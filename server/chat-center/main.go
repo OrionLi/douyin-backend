@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
-	"github.com/nacos-group/nacos-sdk-go/clients"
-	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/vo"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients"
+	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -43,6 +43,7 @@ func initGin() {
 
 	r := gin.Default()
 	api := r.Group("/douyin/message")
+	api.Use(controller.LogMiddleware())
 	{
 		api.GET("/chat", diaryHandler.GetMessage)
 		api.POST("/action", diaryHandler.SendMessage)
@@ -85,7 +86,7 @@ func RegisterNacos() {
 		LogLevel:            "debug",
 	}
 
-	// 至少一个ServerConfig
+	// 创建ServerConfig
 	serverConfigs := []constant.ServerConfig{
 		{
 			IpAddr:      conf.NacosAddress,
