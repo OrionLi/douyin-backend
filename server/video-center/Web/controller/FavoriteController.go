@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
+	"video-center/pkg/errno"
 	"video-center/pkg/util"
 	"video-center/service"
 )
@@ -29,17 +32,18 @@ func (h *FavoriteController) ActionFav(c *gin.Context) {
 	var requestBody FavoriteParam
 	err := c.ShouldBindJSON(&requestBody)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"code": http.StatusBadRequest, "data": nil, "msg": "参数错误"})
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: "参数错误"}})
 		return
 	}
 	userId := validateToken(requestBody.Token)
+	//var userId int64 = 1
 	if userId == -1 {
-		c.JSON(http.StatusOK, gin.H{"code": http.StatusForbidden, "data": nil, "msg": "token错误"})
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: "token错误"}})
 		return
 	}
 	videoId := util.StringToInt64(requestBody.VideoId)
 	if videoId == -1 {
-		c.JSON(http.StatusOK, gin.H{"code": http.StatusBadRequest, "data": nil, "msg": "参数错误"})
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: "video_id错误"}})
 		return
 	}
 	if requestBody.ActionType == "1" {
@@ -48,14 +52,59 @@ func (h *FavoriteController) ActionFav(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"code": http.StatusInternalServerError, "data": nil, "msg": err.Error()})
 			return
 		}
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: "点赞成功"}})
+		return
 	} else if requestBody.ActionType == "2" {
 		err := h.ChatService.DeleteFav(videoId, userId)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"code": http.StatusInternalServerError, "data": nil, "msg": err.Error()})
 			return
 		}
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: "取消点赞成功"}})
+		return
 	} else {
-		c.JSON(http.StatusOK, gin.H{"code": http.StatusBadRequest, "data": nil, "msg": "参数错误"})
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: "不支持的action_type"}})
+		return
+	}
+}
+
+// ListFav 获取喜欢列表
+func (h *FavoriteController) ListFav(context *gin.Context) {
+	userId := context.Query("user_id")
+	token := context.Query("token")
+	if userId == "" || token == "" {
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		})
+		return
+	}
+	tokenUserId := validateToken(token)
+	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		})
+		return
+	}
+	if tokenUserId != UserIdParseInt {
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		})
+		return
+	}
+	b, favs := h.ChatService.ListFav(UserIdParseInt)
+	if !b {
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.FavListEmptyCode, StatusMsg: errno.FavListEmptyErr.ErrMsg},
+			FavList:  []*pb.Video{},
+		})
+		return
+	}
+	if b {
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: "查询喜欢列表成功"},
+			FavList:  favs,
+		})
 		return
 	}
 }

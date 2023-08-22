@@ -30,8 +30,8 @@ func (service *CreateUserService) Register(ctx context.Context) (*pb.DouyinUserR
 	if err = util.ValidateUser(service.UserName, service.Password); err != nil {
 		return nil, e.NewError(e.InvalidParams)
 	}
-	var user model.User
 
+	var user model.User
 	userDao := dao.NewUserDao(ctx)
 
 	_, exist, err := userDao.ExistOrNotByUserName(service.UserName)

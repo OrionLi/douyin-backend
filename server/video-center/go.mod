@@ -3,13 +3,13 @@ module video-center
 go 1.20
 
 require (
-	github.com/OrionLi/douyin-backend v1.0.5
+	github.com/OrionLi/douyin-backend v1.0.7
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.3
 	github.com/qiniu/go-sdk/v7 v7.17.0
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
 	google.golang.org/grpc v1.57.0
 	gorm.io/driver/mysql v1.5.1
@@ -41,7 +41,6 @@ require (
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect

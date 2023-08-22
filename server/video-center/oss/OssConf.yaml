@@ -1,0 +1,5 @@
+qiniu:
+  accessKey: ak
+  secretKey: sk
+  bucket: ori-tsuru-hime
+  url: http://rzhmys0lm.hn-bkt.clouddn.com/

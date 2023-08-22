@@ -1,4 +1,4 @@
-package common
+package grpcClient
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ var (
 	Conn *grpc.ClientConn
 )
 
-// grpc连接
-func Grpc_conn() *grpc.ClientConn {
+// grpc初始化
+func init() {
 	addr := "127.0.0.1"
 	port := "3001"
 	addr = addr + ":" + port
@@ -23,7 +23,7 @@ func Grpc_conn() *grpc.ClientConn {
 		log.Fatalf("did not connect: #{err}")
 	}
 	Conn = conn
-	return conn
+
 }
 
 func GetConn() *grpc.ClientConn {
