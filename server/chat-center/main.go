@@ -43,6 +43,7 @@ func initGin() {
 
 	r := gin.Default()
 	api := r.Group("/douyin/message")
+	api.Use(controller.LogMiddleware())
 	{
 		api.GET("/chat", diaryHandler.GetMessage)
 		api.POST("/action", diaryHandler.SendMessage)
