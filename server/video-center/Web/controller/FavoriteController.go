@@ -18,7 +18,7 @@ type FavoriteParam struct {
 	ActionType string `json:"action_type"`
 }
 
-func NewChatHandler(service service.FavoriteService) *FavoriteController {
+func NewFavoriteController(service service.FavoriteService) *FavoriteController {
 	return &FavoriteController{
 		ChatService: service,
 	}
