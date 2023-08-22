@@ -24,10 +24,11 @@ func GenerateToken(id uint, userName string, authority int) (string, error) {
 		Authority: authority,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
-			Issuer:    "FanOne-gin-mall",
+			Issuer:    "xz",
 		},
 	}
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	//获取token
 	token, err := tokenClaims.SignedString(jwtSecret)
 	return token, err
 }

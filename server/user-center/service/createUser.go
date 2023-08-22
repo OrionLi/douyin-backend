@@ -10,11 +10,13 @@ import (
 	"user-center/pkg/util"
 )
 
+// CreateUserService 用户创建服务请求
 type CreateUserService struct {
 	UserName string `json:"user_name" form:"user_name"`
 	Password string `json:"password" form:"password"`
 }
 
+// Register 用户注册 返回用户Id和token
 func (service *CreateUserService) Register(ctx context.Context) (*pb.DouyinUserRegisterResponse, error) {
 	var err error
 	defer func() {

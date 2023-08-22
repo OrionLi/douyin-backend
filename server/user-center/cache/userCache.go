@@ -46,6 +46,5 @@ func (userCache *RedisCache) HasUser(ctx context.Context, uId uint) (cacheData m
 		return nil, err
 	}
 	// 判断用户是否存在，如果哈希表为空，表示不存在，如果不为空，表示存在
-
 	return cacheData, nil
 }

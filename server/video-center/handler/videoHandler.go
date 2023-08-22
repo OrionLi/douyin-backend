@@ -5,6 +5,7 @@ import (
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"io"
 	"time"
+	"video-center/oss"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
 	"video-center/service"
@@ -18,20 +19,32 @@ type VideoServer struct {
 
 func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) error {
 	for {
-		request, err := server.Recv() // Receive request message
+		request, err := server.Recv()
 		if err == io.EOF {
-			break // No more requests, exit loop
+			break
 		}
 		if err != nil {
 			return err
 		}
-		//todo 解析request，解析token，获取userId，然后调用oss的上传方法，解析路径，然后存入数据库
-		fmt.Println(request)
-		//todo 封装response
-		response := &pb.DouyinPublishActionResponse{
-			// Populate response fields based on request
+		user, err := util.ParseToken(request.Token)
+		if err != nil {
+			fmt.Println(err)
+			return err
 		}
-		// todo 发送response
+		playUrl, coverUrl, err := oss.UploadVideo(context.Background(), int64(user.ID), request.Data, request.Title)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		err = service.NewVideoService(context.Background()).PublishAction(int64(user.ID), playUrl, coverUrl, request.Title)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		response := &pb.DouyinPublishActionResponse{
+			StatusCode: errno.SuccessCode,
+			StatusMsg:  &errno.Success.ErrMsg,
+		}
 		if err := server.SendAndClose(response); err != nil {
 			return err
 		}
