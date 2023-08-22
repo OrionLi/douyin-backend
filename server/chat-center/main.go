@@ -29,7 +29,7 @@ func main() {
 	// 初始化gRPC
 	go initGRPC()
 
-	go RegisterNacos()
+	//go RegisterNacos()
 
 	//go testGRPC()
 
