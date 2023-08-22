@@ -1,6 +1,12 @@
 application:
-  name: video-center
-
+  ServiceName: video-center
+  Ip: 127.0.0.1
+  Port: 8800
+nacos:
+  Ip: 127.0.0.1
+  Port: 8848
+http:
+  host: 127.0.0.1:9999
 db:
   mysql:
     host: DouyinDBA.raqtpie.xyz

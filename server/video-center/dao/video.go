@@ -9,13 +9,13 @@ import (
 
 type Video struct {
 	gorm.Model
-	Id            int64  `json:"id,omitempty"`             // 视频唯一标识
-	AuthorID      int64  `json:"author_id,omitempty"`      // 视频作者userId
-	PlayUrl       string `json:"play_url,omitempty"`       // 视频播放地址
-	CoverUrl      string `json:"cover_url,omitempty"`      // 视频封面地址
-	FavoriteCount int64  `json:"favorite_count,omitempty"` // 视频的点赞总数
-	CommentCount  int64  `json:"comment_count,omitempty"`  // 视频的评论总数
-	Title         string `json:"title,omitempty"`          // 视频标题
+	Id            int64  `json:"id,omitempty"`                                   // 视频唯一标识
+	AuthorID      int64  `json:"author_id,omitempty" gorm:"index:AuthorIdIndex"` // 视频作者userId
+	PlayUrl       string `json:"play_url,omitempty"`                             // 视频播放地址
+	CoverUrl      string `json:"cover_url,omitempty"`                            // 视频封面地址
+	FavoriteCount int64  `json:"favorite_count,omitempty"`                       // 视频的点赞总数
+	CommentCount  int64  `json:"comment_count,omitempty"`                        // 视频的评论总数
+	Title         string `json:"title,omitempty"`                                // 视频标题
 }
 
 // SaveVideo 保存video，其存储title、PlayURL、CoverURL、AuthorID

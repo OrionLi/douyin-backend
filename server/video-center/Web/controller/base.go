@@ -15,8 +15,8 @@ type PublishListParam struct {
 	Token  string `json:"token"`
 }
 type FeedParam struct {
-	LatestTime int64  `json:"latest_time"`
-	Token      string `json:"token"`
+	LatestTime int64  `json:"latest_time" form:"latest_time"`
+	Token      string `json:"token" form:"token"`
 }
 type FeedResponse struct {
 	Response

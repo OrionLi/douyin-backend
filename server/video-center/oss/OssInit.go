@@ -9,11 +9,11 @@ import (
 var Viper *viper.Viper
 
 // Init 传入包含AK和SK的文件路径,必须为yml文件 格式为qiniu.accessKey和qiniu.secretKey
-func Init(path string, fileName string) {
+func Init() {
 	v := viper.New()
-	v.AddConfigPath(path)
+	v.AddConfigPath("./oss")
 	v.SetConfigType("yaml")
-	v.SetConfigName(fileName)
+	v.SetConfigName("OssConf.yaml")
 	//设置bucket和地区
 	v.SetDefault("qiniu.bucket", "bytedance-bucket")
 	v.SetDefault("qiniu.zone", storage.ZoneHuanan)
