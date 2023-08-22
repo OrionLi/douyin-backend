@@ -6,6 +6,7 @@ require (
 	github.com/OrionLi/douyin-backend v1.0.5
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
+	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/grpc v1.57.0
 )
 

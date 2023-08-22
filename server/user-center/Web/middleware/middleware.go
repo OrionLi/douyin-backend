@@ -10,7 +10,7 @@ import (
 func JWT() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var code int
-		code = 3
+		code = 0
 		token := ctx.Query("token")
 
 		if token == "" {
@@ -24,7 +24,7 @@ func JWT() gin.HandlerFunc {
 				code = 2
 			}
 		}
-		if code != 3 {
+		if code != 0 {
 			ctx.JSON(200, gin.H{
 				"code": code,
 				"msg":  "请登录",

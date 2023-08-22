@@ -102,7 +102,7 @@ func (h *FavoriteController) ListFav(context *gin.Context) {
 	}
 	if b {
 		context.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: "查询喜欢列表成功"},
+			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
 			FavList:  favs,
 		})
 		return
