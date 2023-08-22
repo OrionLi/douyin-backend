@@ -79,6 +79,9 @@ func ListFav(ctx context.Context, userId int64) []Video {
 	for _, rel := range favs {
 		videoIDs = append(videoIDs, rel.VideoId)
 	}
+	if len(videoIDs) == 0 {
+		return []Video{}
+	}
 	var videos []Video
 	DB.WithContext(ctx).Find(&videos, videoIDs)
 	return videos
