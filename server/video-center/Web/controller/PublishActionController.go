@@ -8,19 +8,23 @@ import (
 	"net/http"
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
+	"video-center/pkg/util"
 )
 
 func PublishAction(c *gin.Context) {
 	var params PublishActionParam
 	if err := c.ShouldBind(&params); err != nil {
 		convertErr := errno.ConvertErr(err)
+		util.LogrusObj.Errorf("参数绑定错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.PostForm, convertErr.ErrMsg)
 		c.JSON(http.StatusOK, PublishListResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
 		return
 	}
 	//需要在这里判断Token的合法性，根据Token来获取UserId，然后通过查询此Id下的所有视频，找到当前的视频数据，查询其存储的路径
+	//		util.LogrusObj.Errorf("rpc调用错误 URL:%s 错误原因:%s", c.Request.URL, convertErr.ErrMsg)
 	if len(params.Token) == 0 {
+		util.LogrusObj.Errorf("Token格式错误 URL:%s Token:%s", c.Request.RequestURI, params.Token)
 		c.JSON(http.StatusOK, PublishListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 		})
@@ -30,6 +34,7 @@ func PublishAction(c *gin.Context) {
 	file, err2 := c.FormFile("data")
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
+		util.LogrusObj.Errorf("获取二进制流错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.PostForm, convertErr.ErrMsg)
 		c.JSON(http.StatusOK, PublishListResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
@@ -38,6 +43,7 @@ func PublishAction(c *gin.Context) {
 	open, err2 := file.Open()
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
+		util.LogrusObj.Errorf("OpenFile Error 错误原因:%s", convertErr.ErrMsg)
 		c.JSON(http.StatusOK, PublishListResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
@@ -65,6 +71,7 @@ func PublishAction(c *gin.Context) {
 	})
 	if err != nil {
 		convertErr := errno.ConvertErr(err)
+		util.LogrusObj.Errorf("Upload Error ErrorMSG:%s", convertErr.ErrMsg)
 		c.JSON(http.StatusOK, PublishListResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})

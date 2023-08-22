@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"video-center/dao"
+	"video-center/pkg/errno"
 )
 
 type FavoriteRPCService struct {
@@ -23,30 +24,30 @@ func (s *FavoriteRPCService) ActionFavorite(ctx context.Context, request *pb.Dou
 		err := dao.CreateFav(ctx, selfUserId, videoId)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: 1,
-				StatusMsg:  "点赞失败",
+				StatusCode: errno.FavActionErrCode,
+				StatusMsg:  errno.FavActionErr.ErrMsg,
 			}, err
 		}
 		return &pb.DouyinFavoriteActionResponse{
-			StatusCode: 0,
-			StatusMsg:  "点赞成功",
+			StatusCode: errno.SuccessCode,
+			StatusMsg:  errno.Success.ErrMsg,
 		}, nil
 	case 2:
 		err := dao.DeleteFav(ctx, selfUserId, videoId)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
-				StatusCode: 1,
-				StatusMsg:  "取消点赞失败",
+				StatusCode: errno.FavActionErrCode,
+				StatusMsg:  errno.FavActionErr.ErrMsg,
 			}, err
 		}
 		return &pb.DouyinFavoriteActionResponse{
-			StatusCode: 0,
-			StatusMsg:  "取消点赞成功",
+			StatusCode: errno.SuccessCode,
+			StatusMsg:  errno.Success.ErrMsg,
 		}, nil
 	default:
 		return &pb.DouyinFavoriteActionResponse{
-			StatusCode: 1,
-			StatusMsg:  "参数有误",
+			StatusCode: errno.ParamErrCode,
+			StatusMsg:  errno.ParamErr.ErrMsg,
 		}, nil
 	}
 }
@@ -57,13 +58,13 @@ func (s *FavoriteRPCService) GetFavoriteCount(ctx context.Context, request *pb.D
 	favCount, getFavCount, err := dao.GetFavoriteCount(ctx, userId)
 	if err != nil {
 		return &pb.DouyinFavoriteCountResponse{
-			StatusCode: 1,
-			StatusMsg:  "查询失败",
+			StatusCode: errno.FavCountErrCode,
+			StatusMsg:  errno.FavCountErr.ErrMsg,
 		}, err
 	}
 	return &pb.DouyinFavoriteCountResponse{
-		StatusCode:   0,
-		StatusMsg:    "查询成功",
+		StatusCode:   errno.SuccessCode,
+		StatusMsg:    errno.Success.ErrMsg,
 		FavCount:     favCount,
 		GetFavCount_: getFavCount,
 	}, nil
