@@ -55,3 +55,7 @@ type FavListResponse struct {
 	Response
 	FavList []*pb.Video `form:"video_list" json:"video_list"`
 }
+
+type FavActionResponse struct {
+	Response
+}
