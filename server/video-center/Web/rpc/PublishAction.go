@@ -12,10 +12,10 @@ func PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) erro
 		return err
 	}
 	recv, err := VideoStreamClient.CloseAndRecv()
+	ResetVideoStreamClient()
 	if err != nil {
 		return err
 	}
-	ResetVideoStreamClient()
 	if recv.StatusCode == 0 {
 		return nil
 	} else {

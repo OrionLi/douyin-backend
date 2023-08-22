@@ -9,6 +9,7 @@ import (
 	"time"
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
+	"video-center/pkg/util"
 )
 
 func Feed(c *gin.Context) {
@@ -16,6 +17,8 @@ func Feed(c *gin.Context) {
 	var params FeedParam
 	if err := c.ShouldBindQuery(&params); err != nil {
 		convertErr := errno.ConvertErr(err)
+		//记录日志
+		util.LogrusObj.Errorf("参数绑定错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.RequestURI, convertErr.ErrMsg)
 		c.JSON(http.StatusOK, FeedResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
@@ -31,6 +34,7 @@ func Feed(c *gin.Context) {
 	})
 	if err != nil {
 		convertErr := errno.ConvertErr(err)
+		util.LogrusObj.Errorf("rpc调用错误 URL:%s 错误原因:%s", c.Request.URL, convertErr.ErrMsg)
 		c.JSON(http.StatusOK, FeedResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
