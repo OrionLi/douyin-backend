@@ -92,6 +92,9 @@ func (h *ChatController) SendMessage(c *gin.Context) {
 
 // validateToken 验证token
 func validateToken(token string) int64 {
+	if len(token) == 0 {
+		return -1
+	}
 	parseToken, err := util.ParseToken(token)
 	if err != nil {
 		return -1
@@ -101,4 +104,12 @@ func validateToken(token string) int64 {
 		return -1
 	}
 	return int64(parseToken.ID)
+}
+
+func LogMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		request := c.Request
+		util.LogrusObj.Infof("URL:%s host:%s method:%s remoteIp:%s", request.URL, request.Host, request.Method, request.RemoteAddr)
+		c.Next()
+	}
 }
