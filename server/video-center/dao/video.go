@@ -13,8 +13,8 @@ type Video struct {
 	AuthorID      int64  `json:"author_id,omitempty" gorm:"index:AuthorIdIndex"` // 视频作者userId
 	PlayUrl       string `json:"play_url,omitempty"`                             // 视频播放地址
 	CoverUrl      string `json:"cover_url,omitempty"`                            // 视频封面地址
-	FavoriteCount int64  `json:"favorite_count,omitempty"`                       // 视频的点赞总数
-	CommentCount  int64  `json:"comment_count,omitempty"`                        // 视频的评论总数
+	FavoriteCount int64  `json:"favorite_count"`                                 // 视频的点赞总数
+	CommentCount  int64  `json:"comment_count"`                                  // 视频的评论总数
 	Title         string `json:"title,omitempty"`                                // 视频标题
 }
 

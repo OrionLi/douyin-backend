@@ -10,6 +10,8 @@ import (
 	"video-center/service"
 )
 
+// //todo 返回结果？
+// Comment: &pb.Comment{},
 func CommentAction(c *gin.Context) {
 	var param CommentActionParam
 	if err := c.ShouldBind(&param); err != err {

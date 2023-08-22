@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
+	"video-center/pkg/errno"
 	"video-center/pkg/util"
 	"video-center/service"
 )
@@ -56,6 +59,53 @@ func (h *FavoriteController) ActionFav(c *gin.Context) {
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{"code": http.StatusBadRequest, "data": nil, "msg": "参数错误"})
+		return
+	}
+}
+
+// ListFav 获取喜欢列表
+func (h *FavoriteController) ListFav(context *gin.Context) {
+	userId := context.Query("user_id")
+	token := context.Query("token")
+	println("0")
+	println("userId = ", userId)
+	println("token = ", token)
+	if userId == "" || token == "" {
+		println("1")
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		})
+		return
+	}
+	tokenUserId := validateToken(token)
+	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		println("2")
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		})
+		return
+	}
+	if tokenUserId != UserIdParseInt {
+		println("3")
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		})
+		return
+	}
+	b, favs := h.ChatService.ListFav(UserIdParseInt)
+	if !b {
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.FavListEmptyCode, StatusMsg: errno.FavListEmptyErr.ErrMsg},
+			FavList:  []*pb.Video{},
+		})
+		return
+	}
+	if b {
+		context.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: "查询喜欢列表成功"},
+			FavList:  favs,
+		})
 		return
 	}
 }

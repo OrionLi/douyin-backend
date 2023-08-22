@@ -70,3 +70,16 @@ func IsFavorite(ctx context.Context, videoId int64, userId int64) (bool, error) 
 	}
 	return result.RowsAffected > 0, nil
 }
+
+// ListFav 获取用户喜欢列表
+func ListFav(ctx context.Context, userId int64) []Video {
+	var favs []Fav
+	DB.WithContext(ctx).Where("user_id = ? ", userId).Find(&favs)
+	var videoIDs []int64
+	for _, rel := range favs {
+		videoIDs = append(videoIDs, rel.VideoId)
+	}
+	var videos []Video
+	DB.WithContext(ctx).Find(&videos, videoIDs)
+	return videos
+}
