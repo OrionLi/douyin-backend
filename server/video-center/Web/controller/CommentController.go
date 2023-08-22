@@ -18,12 +18,14 @@ func CommentAction(c *gin.Context) {
 		convertErr := errno.ConvertErr(err)
 		c.JSON(http.StatusOK, CommentActionResponse{
 			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+			Comment:  &pb.Comment{},
 		})
 		return
 	}
 	if len(param.Token) == 0 || param.ActionType == "" || param.VideoID == "" {
 		c.JSON(http.StatusOK, CommentActionResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			Comment:  &pb.Comment{},
 		})
 		return
 	}
@@ -42,6 +44,7 @@ func CommentAction(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+				Comment:  &pb.Comment{},
 			})
 			return
 		}
@@ -49,6 +52,7 @@ func CommentAction(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.CommentPostingCode, StatusMsg: errno.CommentPostingErr.ErrMsg},
+				Comment:  &pb.Comment{},
 			})
 			return
 		}
@@ -63,6 +67,7 @@ func CommentAction(c *gin.Context) {
 			// 评论失败
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.CommentPostingCode, StatusMsg: errno.CommentPostingErr.ErrMsg},
+				Comment:  &pb.Comment{},
 			})
 			return
 		}
@@ -73,6 +78,7 @@ func CommentAction(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+				Comment:  &pb.Comment{},
 			})
 			return
 		}
@@ -80,12 +86,14 @@ func CommentAction(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.DeleteCommentCode, StatusMsg: errno.DeleteCommentErr.ErrMsg},
+				Comment:  &pb.Comment{},
 			})
 			return
 		}
 		if !b {
 			c.JSON(http.StatusOK, CommentActionResponse{
 				Response: Response{StatusCode: errno.NoMyCommentCode, StatusMsg: errno.NoMyCommentErr.ErrMsg},
+				Comment:  &pb.Comment{},
 			})
 			return
 		}
@@ -97,6 +105,7 @@ func CommentAction(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, CommentActionResponse{
 		Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		Comment:  &pb.Comment{},
 	})
 }
 
@@ -106,6 +115,7 @@ func CommentList(c *gin.Context) {
 	if len(token) == 0 || videoId == "" {
 		c.JSON(http.StatusOK, CommentListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			Comment:  []*pb.Comment{},
 		})
 		return
 	}
@@ -113,6 +123,7 @@ func CommentList(c *gin.Context) {
 	if err1 != nil {
 		c.JSON(http.StatusOK, CommentListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			Comment:  []*pb.Comment{},
 		})
 		return
 	}
@@ -120,6 +131,7 @@ func CommentList(c *gin.Context) {
 	if err2 != nil || len(comments) == 0 {
 		c.JSON(http.StatusOK, CommentListResponse{
 			Response: Response{StatusCode: errno.NoCommentExistsCode, StatusMsg: errno.NoCommentExistsErr.ErrMsg},
+			Comment:  []*pb.Comment{},
 		})
 		return
 	}

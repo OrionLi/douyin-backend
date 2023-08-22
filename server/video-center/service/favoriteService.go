@@ -22,7 +22,7 @@ func (f FavoriteServiceImpl) CreateFav(videoId int64, userId int64) error {
 }
 
 func (f FavoriteServiceImpl) DeleteFav(videoId int64, userId int64) error {
-	return dao.CreateFav(f.ctx, videoId, userId)
+	return dao.DeleteFav(f.ctx, videoId, userId)
 }
 
 func (f FavoriteServiceImpl) IsFav(videoId int64, userId int64) (bool, error) {
