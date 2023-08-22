@@ -70,7 +70,36 @@ func (s *FavoriteRPCService) GetFavoriteCount(ctx context.Context, request *pb.D
 	}, nil
 }
 
-// TODO 点赞列表RPC接口
 func (s *FavoriteRPCService) GetFavoriteList(ctx context.Context, request *pb.DouyinFavoriteListRequest) (*pb.DouyinFavoriteListResponse, error) {
-	panic("implement me")
+	userId := request.GetUserId()
+	favs := dao.ListFav(ctx, userId)
+	if len(favs) == 0 {
+		return &pb.DouyinFavoriteListResponse{
+			StatusCode: errno.FavListEmptyCode,
+			StatusMsg:  errno.FavListEmptyErr.ErrMsg,
+			VideoList:  nil,
+		}, errno.NewErrno(errno.FavListEmptyCode, errno.FavListEmptyErr.ErrMsg)
+	}
+	//pb
+	var favVideoList []*pb.Video
+	for _, v := range favs {
+		//todo 得到用户ID，然后调用rpc查询用户信息
+		//var user := xxx(v.AuthorID) //然后修改Author
+		video := &pb.Video{
+			Id:            v.Id,
+			Author:        nil,
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.FavoriteCount,
+			CommentCount:  v.CommentCount,
+			IsFavorite:    true,
+			Title:         v.Title,
+		}
+		favVideoList = append(favVideoList, video)
+	}
+	return &pb.DouyinFavoriteListResponse{
+		StatusCode: 0,
+		StatusMsg:  errno.Success.ErrMsg,
+		VideoList:  favVideoList,
+	}, nil
 }

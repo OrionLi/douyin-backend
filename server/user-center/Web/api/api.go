@@ -10,10 +10,10 @@ import (
 	"web/servic"
 )
 
-func ErrorResponse(err error) serializer.Response {
-	return serializer.Response{
-		Code: 4,
-		Msg:  "错误请求",
+func ErrorResponse(err error) serializer.ErrResponse {
+	return serializer.ErrResponse{
+		StatusCode: 2,
+		StatusMsg:  "错误请求",
 	}
 }
 func UserRegister(ctx *gin.Context) {
