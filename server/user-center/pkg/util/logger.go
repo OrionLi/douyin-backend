@@ -14,6 +14,7 @@ var LogrusObj *logrus.Logger
 type MyFormatter struct {
 }
 
+// Format 自定义日志模式
 func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006/01/02 15:04:05")
 	level := entry.Level.String()
@@ -21,8 +22,10 @@ func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return []byte(fmt.Sprintf("[%s]: %s [%s]\n", level, timestamp, message)), nil
 }
 func init() {
-	src, _ := setOutPutFile()
-
+	src, err := setOutPutFile()
+	if err != nil {
+		log.Println(err)
+	}
 	if LogrusObj != nil {
 		LogrusObj.Out = src
 		return

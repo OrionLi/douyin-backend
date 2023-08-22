@@ -9,10 +9,12 @@ import (
 	userUtil "user-center/pkg/util"
 )
 
+// GetUserByIdService 获取用户信息服务请求
 type GetUserByIdService struct {
 	Id uint `json:"id" form:"id"`
 }
 
+// GetUserById 获取用户基本信息 返回Id,Name,关注总数和粉丝总数
 func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinUserResponse, error) { //todo: 添加返回结构体
 	cache := userCache.NewUserCache(ctx)
 	var err error

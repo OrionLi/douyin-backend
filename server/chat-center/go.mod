@@ -3,7 +3,7 @@ module chat-center
 go 1.20
 
 require (
-	github.com/OrionLi/douyin-backend v1.0.4
+	github.com/OrionLi/douyin-backend v1.0.5
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/gin-gonic/gin v1.9.1

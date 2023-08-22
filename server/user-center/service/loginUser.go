@@ -9,7 +9,7 @@ import (
 	"user-center/pkg/util"
 )
 
-// LoginUserService 登录用户服务
+// LoginUserService 用户登录服务请求
 type LoginUserService struct {
 	UserName string `json:"user_name" form:"user_name"`
 	Password string `json:"password" form:"password"`

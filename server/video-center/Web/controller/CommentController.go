@@ -32,6 +32,7 @@ func CommentAction(c *gin.Context) {
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: "token异常"},
 			Comment:  &pb.Comment{},
 		})
+		return
 	}
 	//判断是哪种操作？
 	if param.ActionType == "1" {
@@ -124,5 +125,4 @@ func CommentList(c *gin.Context) {
 		Response: Response{StatusCode: errno.SuccessCode, StatusMsg: "获取评论信息成功"},
 		Comment:  comments,
 	})
-
 }
