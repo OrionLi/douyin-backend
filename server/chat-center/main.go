@@ -39,7 +39,7 @@ func main() {
 func initGin() {
 	// Gin服务
 	chatService := service.NewChatService()
-	diaryHandler := controller.NewChatHandler(chatService)
+	diaryHandler := controller.NewChatController(chatService)
 
 	r := gin.Default()
 	api := r.Group("/douyin/message")

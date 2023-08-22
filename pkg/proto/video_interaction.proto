@@ -3,10 +3,11 @@ syntax = "proto3";
 package douyin.extra.first;
 option go_package = "../pb;pb";
 import "user.proto";
+import "video.proto";
 
 // 点赞接口请求
 message douyin_favorite_action_request {
-  string token = 1; // 用户鉴权token
+  int64 self_user_id = 1; // 用户id
   int64 video_id = 2; // 视频id
   int32 action_type = 3; // 1-点赞，2-取消点赞
 }
@@ -15,6 +16,31 @@ message douyin_favorite_action_request {
 message douyin_favorite_action_response {
   int32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
+}
+
+// 点赞列表接口请求
+message douyin_favorite_list_request {
+  int64 user_id = 1; // 用户id
+}
+
+// 点赞列表接口响应
+message douyin_favorite_list_response {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  repeated core.Video video_list = 3; // 用户点赞视频列表
+}
+
+// 点赞数量接口请求
+message douyin_favorite_count_request {
+  int64 user_id = 1; // 用户id
+}
+
+// 点赞数量接口响应
+message douyin_favorite_count_response {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  int32 fav_count = 3; // 点赞数量(赞过)
+  int32 get_fav_count = 4; // 获赞数量(被赞过)
 }
 
 // 评论信息
@@ -27,7 +53,7 @@ message Comment {
 
 // 评论操作请求
 message douyin_comment_action_request {
-  string token = 1; // 用户鉴权token
+  int64 self_user_id = 1; // 用户id
   int64 video_id = 2; // 视频id
   ActionType action_type = 3;
   string comment_text = 4;
@@ -49,7 +75,7 @@ message douyin_comment_action_response{
 
 // 评论列表请求
 message douyin_comment_list_request {
-  string token = 1; // 用户鉴权token
+  int64 self_user_id = 1; // 用户id
   int64 video_id = 2; // 视频id
 }
 
@@ -65,7 +91,9 @@ service comment_center {
   // 点赞操作
   rpc ActionFavorite(douyin_favorite_action_request) returns (douyin_favorite_action_response);
   // 点赞列表
-  rpc ListFavorite(douyin_favorite_action_request) returns (douyin_favorite_action_response);
+  rpc ListFavorite(douyin_favorite_list_request) returns (douyin_favorite_list_response);
+  // 点赞数量
+  rpc CountFavorite(douyin_favorite_count_request) returns (douyin_favorite_count_response);
   // 评论操作
   rpc ActionComment(douyin_comment_action_request) returns (douyin_comment_action_response);
   // 评论列表
