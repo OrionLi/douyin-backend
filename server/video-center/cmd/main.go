@@ -15,18 +15,29 @@ import (
 	"video-center/oss"
 )
 
+var ServiceName string
+var ServerIp string
+var ServerPort int64
+var NacosIp string
+var NacosPort uint64
+
 func main() {
 	conf.InitConfig()
+	ServiceName = conf.Viper.GetString("application.ServiceName")
+	ServerIp = conf.Viper.GetString("application.Ip")
+	ServerPort = conf.Viper.GetInt64("application.Port")
+	NacosIp = conf.Viper.GetString("nacos.Ip")
+	NacosPort = conf.Viper.GetUint64("nacos.Port")
 	cache.Init()
 	dao.Init()
-	oss.Init("D://d", "OssConf.yaml")
+	oss.Init()
 	RegisterNacos()
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb
 		grpc.MaxSendMsgSize(52428800))
 	pb.RegisterVideoCenterServer(server, &handler.VideoServer{})
-
-	listen, err := net.Listen("tcp", "127.0.0.1:8800")
+	Sip := fmt.Sprintf("%s:%d", ServerIp, ServerPort)
+	listen, err := net.Listen("tcp", Sip)
 	if err != nil {
 		fmt.Println("端口监听有误")
 	}
@@ -39,7 +50,6 @@ func main() {
 func RegisterNacos() {
 	// 创建clientConfig
 	clientConfig := constant.ClientConfig{
-		//NamespaceId:         "e525eafa-f7d7-4029-83d9-008937f9d468", // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
 		LogLevel:            "debug",
@@ -48,8 +58,8 @@ func RegisterNacos() {
 	// 至少一个ServerConfig
 	serverConfigs := []constant.ServerConfig{
 		{
-			IpAddr: "127.0.0.1",
-			Port:   8848,
+			IpAddr: NacosIp,
+			Port:   NacosPort,
 		},
 	}
 
@@ -64,14 +74,13 @@ func RegisterNacos() {
 		fmt.Println("clients.NewNamingClient err,", err)
 	}
 	success, err := namingClient.RegisterInstance(vo.RegisterInstanceParam{
-		Ip:          "127.0.0.1",
-		Port:        8800,
-		ServiceName: "demo.go",
+		Ip:          ServerIp,
+		Port:        uint64(ServerPort),
+		ServiceName: ServiceName,
 		Weight:      10,
 		Enable:      true,
 		Healthy:     true,
 		Ephemeral:   true,
-		Metadata:    map[string]string{"idc": "shanghai"},
 	})
 	if !success {
 		return

@@ -10,9 +10,17 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"video-center/conf"
 )
 
+var ServiceName string
+var NacosIp string
+var NacosPort uint64
+
 func Init() {
+	ServiceName = conf.Viper.GetString("application.ServiceName")
+	NacosIp = conf.Viper.GetString("nacos.Ip")
+	NacosPort = conf.Viper.GetUint64("nacos.Port")
 	initVideoRpc()
 }
 
@@ -28,13 +36,12 @@ var Conn *grpc.ClientConn
 func initVideoRpc() {
 	serverConfig := []constant.ServerConfig{
 		{
-			IpAddr: "127.0.0.1",
-			Port:   8848,
+			IpAddr: NacosIp,
+			Port:   NacosPort,
 		},
 	}
 
 	clientConfig := constant.ClientConfig{
-		//NamespaceId:         "97b46c8b-81e6-4614-80fb-4fe5553590ca", // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
 		LogLevel:            "debug",
@@ -50,7 +57,7 @@ func initVideoRpc() {
 		panic(err)
 	}
 	instances, err := namingClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
-		ServiceName: "demo.go",
+		ServiceName: ServiceName,
 	})
 	if err != nil {
 		fmt.Println(err)

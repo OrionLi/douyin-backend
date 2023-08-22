@@ -33,7 +33,7 @@ func UploadVideo(ctx context.Context, authorId int64, data []byte, title string)
 	if err != nil {
 		return "", "", err
 	}
-	return "http://" + storageURL + *Key, "http://rzhmys0lm.hn-bkt.clouddn.com/psc.jpg", nil
+	return storageURL + *Key, storageURL + "psc.jpg", nil
 }
 func md5digest(str string) string {
 	data := []byte(str)
