@@ -36,6 +36,7 @@ func main() {
 		grpc.MaxRecvMsgSize(52428800), //50Mb
 		grpc.MaxSendMsgSize(52428800))
 	pb.RegisterVideoCenterServer(server, &handler.VideoServer{})
+	pb.RegisterDouyinVideoInteractionServiceServer(server, &handler.VideoInteractionServer{})
 	Sip := fmt.Sprintf("%s:%d", ServerIp, ServerPort)
 	listen, err := net.Listen("tcp", Sip)
 	if err != nil {
