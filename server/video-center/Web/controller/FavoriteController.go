@@ -10,12 +10,11 @@ import (
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
-	"video-center/service"
 )
 
-type FavoriteController struct {
-	ChatService service.FavoriteService
-}
+//type FavoriteController struct {
+//	ChatService service.FavoriteService
+//}
 
 type FavoriteParam struct {
 	Token      string `json:"token"`
@@ -23,13 +22,13 @@ type FavoriteParam struct {
 	ActionType string `json:"action_type"`
 }
 
-func NewFavoriteController(service service.FavoriteService) *FavoriteController {
-	return &FavoriteController{
-		ChatService: service,
-	}
-}
+//func NewFavoriteController(service service.FavoriteService) *FavoriteController {
+//	return &FavoriteController{
+//		ChatService: service,
+//	}
+//}
 
-func (h *FavoriteController) ActionFav(c *gin.Context) {
+func ActionFav(c *gin.Context) {
 	var requestBody FavoriteParam
 	err := c.ShouldBindJSON(&requestBody)
 	if err != nil {
@@ -56,7 +55,7 @@ func (h *FavoriteController) ActionFav(c *gin.Context) {
 }
 
 // ListFav 获取喜欢列表
-func (h *FavoriteController) ListFav(context *gin.Context) {
+func ListFav(context *gin.Context) {
 	userId := context.Query("user_id")
 	token := context.Query("token")
 	if userId == "" || token == "" {
@@ -79,21 +78,31 @@ func (h *FavoriteController) ListFav(context *gin.Context) {
 		})
 		return
 	}
-	b, favs := h.ChatService.ListFav(UserIdParseInt)
-	if !b {
+	request := pb.DouyinFavoriteListRequest{}
+	response, err := rpc.GetFavoriteList(context, &request)
+	if response.StatusCode != 0 || err != nil {
 		context.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.FavListEmptyCode, StatusMsg: errno.FavListEmptyErr.ErrMsg},
 			FavList:  []*pb.Video{},
 		})
 		return
 	}
-	if b {
-		context.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
-			FavList:  favs,
-		})
-		return
-	}
+	context.JSON(http.StatusOK, response)
+	//b, favs := h.ChatService.ListFav(UserIdParseInt)
+	//if !b {
+	//	context.JSON(http.StatusOK, FavListResponse{
+	//		Response: Response{StatusCode: errno.FavListEmptyCode, StatusMsg: errno.FavListEmptyErr.ErrMsg},
+	//		FavList:  []*pb.Video{},
+	//	})
+	//	return
+	//}
+	//if b {
+	//	context.JSON(http.StatusOK, FavListResponse{
+	//		Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
+	//		FavList:  favs,
+	//	})
+	//	return
+	//}
 }
 
 // validateToken 验证token

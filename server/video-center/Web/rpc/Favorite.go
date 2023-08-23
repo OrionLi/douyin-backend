@@ -20,6 +20,5 @@ func GetFavoriteCount(ctx context.Context, userId int64) (*pb.DouyinFavoriteCoun
 }
 
 func GetFavoriteList(ctx context.Context, request *pb.DouyinFavoriteListRequest) (*pb.DouyinFavoriteListResponse, error) {
-	// TODO rpc-client调用
-	panic("implement me")
+	return VideoInteractionClient.ListFavorite(ctx, request)
 }

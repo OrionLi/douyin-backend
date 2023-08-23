@@ -55,36 +55,49 @@ func (v VideoInteractionServer) ActionFavorite(ctx context.Context, request *pb.
 func (v VideoInteractionServer) ListFavorite(ctx context.Context, request *pb.DouyinFavoriteListRequest) (*pb.DouyinFavoriteListResponse, error) {
 	userId := request.GetUserId()
 	// TODO service调用dao
-	favs := dao.ListFav(ctx, userId)
-	if len(favs) == 0 {
+	b, favs := service.NewFavoriteService(ctx).ListFav(userId)
+	if !b || len(favs) == 0 {
 		return &pb.DouyinFavoriteListResponse{
 			StatusCode: errno.FavListEmptyCode,
 			StatusMsg:  errno.FavListEmptyErr.ErrMsg,
 			VideoList:  nil,
 		}, errno.NewErrno(errno.FavListEmptyCode, errno.FavListEmptyErr.ErrMsg)
 	}
-	//pb
-	var favVideoList []*pb.Video
-	for _, v := range favs {
-		//todo 得到用户ID，然后调用rpc查询用户信息
-		//var user := xxx(v.AuthorID) //然后修改Author
-		video := &pb.Video{
-			Id:            v.Id,
-			Author:        nil,
-			PlayUrl:       v.PlayUrl,
-			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
-			CommentCount:  v.CommentCount,
-			IsFavorite:    true,
-			Title:         v.Title,
-		}
-		favVideoList = append(favVideoList, video)
-	}
 	return &pb.DouyinFavoriteListResponse{
 		StatusCode: 0,
 		StatusMsg:  errno.Success.ErrMsg,
-		VideoList:  favVideoList,
+		VideoList:  favs,
 	}, nil
+	//favs := dao.ListFav(ctx, userId)
+	//if len(favs) == 0 {
+	//	return &pb.DouyinFavoriteListResponse{
+	//		StatusCode: errno.FavListEmptyCode,
+	//		StatusMsg:  errno.FavListEmptyErr.ErrMsg,
+	//		VideoList:  nil,
+	//	}, errno.NewErrno(errno.FavListEmptyCode, errno.FavListEmptyErr.ErrMsg)
+	//}
+	////pb
+	//var favVideoList []*pb.Video
+	//for _, v := range favs {
+	//	//todo 得到用户ID，然后调用rpc查询用户信息
+	//	//var user := xxx(v.AuthorID) //然后修改Author
+	//	video := &pb.Video{
+	//		Id:            v.Id,
+	//		Author:        nil,
+	//		PlayUrl:       v.PlayUrl,
+	//		CoverUrl:      v.CoverUrl,
+	//		FavoriteCount: v.FavoriteCount,
+	//		CommentCount:  v.CommentCount,
+	//		IsFavorite:    true,
+	//		Title:         v.Title,
+	//	}
+	//	favVideoList = append(favVideoList, video)
+	//}
+	//return &pb.DouyinFavoriteListResponse{
+	//	StatusCode: 0,
+	//	StatusMsg:  errno.Success.ErrMsg,
+	//	VideoList:  favVideoList,
+	//}, nil
 }
 
 func (v VideoInteractionServer) CountFavorite(ctx context.Context, request *pb.DouyinFavoriteCountRequest) (*pb.DouyinFavoriteCountResponse, error) {
@@ -112,6 +125,8 @@ func (v VideoInteractionServer) ActionComment(ctx context.Context, request *pb.D
 	if actionType == 0 {
 		// 发布评论
 		commentText := request.GetCommentText()
+		service.NewCommentService(ctx).SaveComment(userId, videoId, commentText)
+		/////////////////////////////////////////////////////////////////////
 		comment := model.Comment{
 			Content:    commentText,
 			CreateDate: time.Now(),

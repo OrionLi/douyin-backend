@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -12,7 +11,6 @@ import (
 	"video-center/cache"
 	"video-center/conf"
 	"video-center/dao"
-	"video-center/service"
 )
 
 func main() {
@@ -35,10 +33,10 @@ func main() {
 	comment.POST("/action", controller.CommentAction)
 	comment.GET("/list", controller.CommentList)
 	// 点赞相关请求
-	favoriteController := controller.NewFavoriteController(service.NewFavoriteService(context.Background()))
+	//favoriteController := controller.NewFavoriteController(service.NewFavoriteService(context.Background()))
 	favorite := douyin.Group("/favorite")
-	favorite.POST("/action", favoriteController.ActionFav)
-	favorite.GET("/list", favoriteController.ListFav)
+	favorite.POST("/action", controller.ActionFav)
+	favorite.GET("/list", controller.ListFav)
 	//开启端口监听
 	if err := http.ListenAndServe(host, r); err != nil {
 		fmt.Println(err)
