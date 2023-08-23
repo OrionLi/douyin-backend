@@ -2,8 +2,8 @@ package main
 
 import (
 	"chat-center/conf"
-	"chat-center/controller"
 	"chat-center/dao"
+	"chat-center/handler"
 	"chat-center/service"
 	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
@@ -29,9 +29,7 @@ func main() {
 	// 初始化gRPC
 	go initGRPC()
 
-	//go RegisterNacos()
-
-	//go testGRPC()
+	go RegisterNacos()
 
 	select {}
 }
@@ -39,11 +37,11 @@ func main() {
 func initGin() {
 	// Gin服务
 	chatService := service.NewChatService()
-	diaryHandler := controller.NewChatController(chatService)
+	diaryHandler := handler.NewChatHandler(chatService)
 
 	r := gin.Default()
 	api := r.Group("/douyin/message")
-	api.Use(controller.LogMiddleware())
+	api.Use(handler.LogMiddleware())
 	{
 		api.GET("/chat", diaryHandler.GetMessage)
 		api.POST("/action", diaryHandler.SendMessage)
