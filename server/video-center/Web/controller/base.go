@@ -20,7 +20,7 @@ type FeedParam struct {
 }
 type FeedResponse struct {
 	Response
-	VideoList []*pb.Video `json:"video_list,omitempty"`
+	VideoList []*pb.Video `json:"video_list"`
 	NextTime  int64       `json:"next_time,omitempty"`
 }
 type PublishListResponse struct {

@@ -29,16 +29,16 @@ func main() {
 	publish := douyin.Group("/publish")
 	publish.POST("/action/", middleware.ValidationPublishActionRequest(), controller.PublishAction)
 	publish.GET("/list/", controller.PublishList)
-	douyin.GET("feed", controller.Feed)
+	douyin.GET("/feed/", controller.Feed)
 	// 评论相关请求
 	comment := douyin.Group("/comment")
 	comment.POST("/action", controller.CommentAction)
 	comment.GET("/list", controller.CommentList)
 	// 点赞相关请求
 	favoriteController := controller.NewFavoriteController(service.NewFavoriteService(context.Background()))
-	favorite := douyin.Group("/favorite")
-	favorite.POST("/action", favoriteController.ActionFav)
-	favorite.GET("/list", favoriteController.ListFav)
+	favorite := douyin.Group("/favorite/")
+	favorite.POST("/action/", favoriteController.ActionFav)
+	favorite.GET("/list/", favoriteController.ListFav)
 	//开启端口监听
 	if err := http.ListenAndServe(host, r); err != nil {
 		fmt.Println(err)
