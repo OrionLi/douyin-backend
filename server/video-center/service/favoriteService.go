@@ -11,6 +11,7 @@ type FavoriteService interface {
 	DeleteFav(videoId int64, userId int64) error
 	IsFav(videoId int64, userId int64) (bool, error)
 	ListFav(userId int64) (bool, []*pb.Video)
+	CountFav(userId int64) (int32, int32, error)
 }
 
 type FavoriteServiceImpl struct {
@@ -53,6 +54,10 @@ func (f FavoriteServiceImpl) ListFav(userId int64) (bool, []*pb.Video) {
 		favVideoList = append(favVideoList, video)
 	}
 	return true, favVideoList
+}
+
+func (f FavoriteServiceImpl) CountFav(userId int64) (int32, int32, error) {
+	return dao.GetFavoriteCount(f.ctx, userId)
 }
 
 func NewFavoriteService(context context.Context) FavoriteService {

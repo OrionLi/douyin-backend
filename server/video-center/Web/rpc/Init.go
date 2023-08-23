@@ -30,6 +30,9 @@ var VideoClient pb.VideoCenterClient
 // VideoStreamClient 流式
 var VideoStreamClient pb.VideoCenter_PublishActionClient
 
+// VideoInteractionClient 视频互动rpc端口
+var VideoInteractionClient pb.DouyinVideoInteractionServiceClient
+
 // Conn 共有连接
 var Conn *grpc.ClientConn
 
@@ -166,4 +169,9 @@ func ResetVideoStreamClient() {
 		panic(err)
 	}
 	VideoStreamClient = client
+}
+
+func NewVideoInterActionClient() {
+	client := pb.NewDouyinVideoInteractionServiceClient(Conn)
+	VideoInteractionClient = client
 }

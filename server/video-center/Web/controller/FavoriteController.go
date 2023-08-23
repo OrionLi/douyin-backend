@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"time"
+	"video-center/Web/rpc"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
 	"video-center/service"
@@ -27,7 +29,6 @@ func NewFavoriteController(service service.FavoriteService) *FavoriteController 
 	}
 }
 
-// TODO msg定义为常量
 func (h *FavoriteController) ActionFav(c *gin.Context) {
 	var requestBody FavoriteParam
 	err := c.ShouldBindJSON(&requestBody)
@@ -36,7 +37,6 @@ func (h *FavoriteController) ActionFav(c *gin.Context) {
 		return
 	}
 	userId := validateToken(requestBody.Token)
-	//var userId int64 = 1
 	if userId == -1 {
 		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.TokenErrCode, StatusMsg: errno.TokenErr.ErrMsg}})
 		return
@@ -46,26 +46,13 @@ func (h *FavoriteController) ActionFav(c *gin.Context) {
 		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
 		return
 	}
-	if requestBody.ActionType == "1" {
-		err = h.ChatService.CreateFav(videoId, userId)
-		if err != nil {
-			c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.FavActionErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
-			return
-		}
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg}})
-		return
-	} else if requestBody.ActionType == "2" {
-		err := h.ChatService.DeleteFav(videoId, userId)
-		if err != nil {
-			c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.FavActionErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
-			return
-		}
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg}})
-		return
-	} else {
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
+	actionType := util.StringToInt64(requestBody.ActionType)
+	resp, err := rpc.ActionFavorite(context.Background(), userId, videoId, int32(actionType))
+	if err != nil || resp.StatusCode != errno.SuccessCode {
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.FavActionErrCode, StatusMsg: errno.FavActionErr.ErrMsg}})
 		return
 	}
+	c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg}})
 }
 
 // ListFav 获取喜欢列表

@@ -8,6 +8,7 @@ import (
 	"video-center/dao"
 	"video-center/model"
 	"video-center/pkg/errno"
+	"video-center/service"
 )
 
 type VideoInteractionServer struct {
@@ -20,7 +21,7 @@ func (v VideoInteractionServer) ActionFavorite(ctx context.Context, request *pb.
 	actionType := request.GetActionType()
 	switch actionType {
 	case 1:
-		err := dao.CreateFav(ctx, selfUserId, videoId)
+		err := service.NewFavoriteService(ctx).CreateFav(videoId, selfUserId)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
 				StatusCode: errno.FavActionErrCode,
@@ -53,6 +54,7 @@ func (v VideoInteractionServer) ActionFavorite(ctx context.Context, request *pb.
 
 func (v VideoInteractionServer) ListFavorite(ctx context.Context, request *pb.DouyinFavoriteListRequest) (*pb.DouyinFavoriteListResponse, error) {
 	userId := request.GetUserId()
+	// TODO service调用dao
 	favs := dao.ListFav(ctx, userId)
 	if len(favs) == 0 {
 		return &pb.DouyinFavoriteListResponse{
@@ -88,7 +90,7 @@ func (v VideoInteractionServer) ListFavorite(ctx context.Context, request *pb.Do
 func (v VideoInteractionServer) CountFavorite(ctx context.Context, request *pb.DouyinFavoriteCountRequest) (*pb.DouyinFavoriteCountResponse, error) {
 	// userId: 要查询赞数量和被赞数量的用户ID
 	userId := request.GetUserId()
-	favCount, getFavCount, err := dao.GetFavoriteCount(ctx, userId)
+	favCount, getFavCount, err := service.NewFavoriteService(context.Background()).CountFav(userId)
 	if err != nil {
 		return &pb.DouyinFavoriteCountResponse{
 			StatusCode: errno.FavCountErrCode,
@@ -116,6 +118,7 @@ func (v VideoInteractionServer) ActionComment(ctx context.Context, request *pb.D
 			UserId:     userId,
 			VideoId:    videoId,
 		}
+		// TODO service调用
 		b, err := dao.SaveComment(ctx, comment)
 		if err != nil || !b {
 			return &pb.DouyinCommentActionResponse{
@@ -186,6 +189,7 @@ func (v VideoInteractionServer) ActionComment(ctx context.Context, request *pb.D
 
 func (v VideoInteractionServer) ListComment(ctx context.Context, request *pb.DouyinCommentListRequest) (*pb.DouyinCommentListResponse, error) {
 	videoId := request.GetVideoId()
+	// TODO service调用
 	comments, err := dao.CommentList(ctx, videoId)
 	if err != nil {
 		return &pb.DouyinCommentListResponse{
