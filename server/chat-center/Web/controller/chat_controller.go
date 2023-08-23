@@ -3,7 +3,7 @@ package controller
 import (
 	"chat-center/Web/rpc/client"
 	"chat-center/pkg/common"
-	"chat-center/pkg/util"
+	"chat-center/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -24,8 +24,8 @@ func GetMessage(c *gin.Context) {
 	}
 
 	// 获取参数
-	interActiveId := util.StringToInt64(c.Query("to_user_id"))
-	preMsgTime := util.StringToInt64(c.Query("pre_msg_time"))
+	interActiveId := utils.StringToInt64(c.Query("to_user_id"))
+	preMsgTime := utils.StringToInt64(c.Query("pre_msg_time"))
 	// 判断是否无法转为int64
 	if interActiveId == -1 || preMsgTime == -1 {
 		c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: http.StatusBadRequest, StatusMsg: common.ParamErrorMsg}})
@@ -59,7 +59,7 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 
-	interActiveId := util.StringToInt64(requestBody.ToUserID)
+	interActiveId := utils.StringToInt64(requestBody.ToUserID)
 	// 判断是否无法转为int64
 	if interActiveId == -1 {
 		c.JSON(http.StatusOK, common.SendMessageResponse{Response: common.Response{StatusCode: http.StatusBadRequest, StatusMsg: common.ParamErrorMsg}})
@@ -83,7 +83,7 @@ func validateToken(token string) int64 {
 	if len(token) == 0 {
 		return -1
 	}
-	parseToken, err := util.ParseToken(token)
+	parseToken, err := utils.ParseToken(token)
 	if err != nil {
 		return -1
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"chat-center/Web/controller"
 	"chat-center/Web/middleware"
+	"chat-center/Web/rpc/client"
 	"chat-center/conf"
 	"chat-center/dao"
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,8 @@ func main() {
 	conf.InitConf()
 	// 初始化数据库
 	dao.Init()
+	// 初始化grpc
+	client.InitGRPCClient()
 	// 初始化gin
 	r := gin.Default()
 	api := r.Group("/douyin/message")

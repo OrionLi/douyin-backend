@@ -2,7 +2,7 @@ package service
 
 import (
 	"chat-center/dao"
-	"chat-center/pkg/util"
+	"chat-center/pkg/utils"
 	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/sony/sonyflake"
@@ -23,7 +23,7 @@ func (c ChatServiceImpl) GetAllHistoryMessage(currentId int64, interActiveId int
 	// 查询相关记录
 	messageList, err := dao.GetAllMessagesByToUserId(currentId, interActiveId)
 	if err != nil {
-		util.LogrusObj.Error("<GetAllHistoryMessage> Get message error: ", err)
+		utils.LogrusObj.Error("<GetAllHistoryMessage> Get message error: ", err)
 		return nil, err
 	}
 	return messageList, nil
@@ -36,7 +36,7 @@ func (c ChatServiceImpl) GetMessageByPreMsgTime(currentId int64, interActiveId i
 	// Dao层中toUserId和fromUserId的顺序是反的，因为前端传参中toUserId为对方的ID，fromUserId为自己的ID
 	messageList, err := dao.GetMessageByToUserId(timeObj, currentId, interActiveId)
 	if err != nil {
-		util.LogrusObj.Error("<GetMessageByPreMsgTime> Get message error: ", err)
+		utils.LogrusObj.Error("<GetMessageByPreMsgTime> Get message error: ", err)
 		return nil, err
 	}
 	return messageList, nil
@@ -64,7 +64,7 @@ func (c ChatServiceImpl) SendMessage(currentId int64, interActiveId int64, conte
 	}
 	err = dao.SendMessage(message)
 	if err != nil {
-		util.LogrusObj.Error("<SendMessage> Send message error: ", err, " [be from]:", message)
+		utils.LogrusObj.Error("<SendMessage> Send message error: ", err, " [be from]:", message)
 		return err
 	}
 	return nil

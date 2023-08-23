@@ -2,7 +2,7 @@ package server
 
 import (
 	"chat-center/pkg/common"
-	"chat-center/pkg/util"
+	"chat-center/pkg/utils"
 	"chat-center/service"
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
@@ -37,7 +37,7 @@ func (s *ChatServer) GetMessage(_ context.Context, request *pb.DouyinMessageChat
 	} else {
 		messageList, err := service.NewChatService().GetMessageByPreMsgTime(fromUserId, toUserId, preMsgTime)
 		if err != nil {
-			util.LogrusObj.Error("<GetMessage-rpc> Get message error: ", err, " [be from req]:", request)
+			utils.LogrusObj.Error("<GetMessage-rpc> Get message error: ", err, " [be from req]:", request)
 			return &pb.DouyinMessageChatResponse{
 				StatusCode:  common.ErrorGetCode,
 				StatusMsg:   common.ErrorGetMsg,
@@ -60,7 +60,7 @@ func (s *ChatServer) SendMessage(_ context.Context, request *pb.DouyinMessageAct
 	err := service.NewChatService().SendMessage(fromUserId, toUserId, content)
 
 	if err != nil {
-		util.LogrusObj.Error("<SendMessage-rpc> Send message error: ", err, " [be from req]:", request)
+		utils.LogrusObj.Error("<SendMessage-rpc> Send message error: ", err, " [be from req]:", request)
 		return &pb.DouyinMessageActionResponse{
 			StatusCode: common.ErrorSendCode,
 			StatusMsg:  common.ErrorSendMsg,
