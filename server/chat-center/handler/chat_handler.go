@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"chat-center/model"
@@ -10,17 +10,17 @@ import (
 	"time"
 )
 
-type ChatController struct {
+type ChatHandler struct {
 	ChatService service.ChatService
 }
 
-func NewChatController(service service.ChatService) *ChatController {
-	return &ChatController{
+func NewChatHandler(service service.ChatService) *ChatHandler {
+	return &ChatHandler{
 		ChatService: service,
 	}
 }
 
-func (h *ChatController) GetMessage(c *gin.Context) {
+func (h *ChatHandler) GetMessage(c *gin.Context) {
 	currentId := validateToken(c.Query("token"))
 	if currentId == -1 {
 		c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: http.StatusForbidden, StatusMsg: common.ForbiddenMsg}})
@@ -54,7 +54,7 @@ func (h *ChatController) GetMessage(c *gin.Context) {
 	}
 }
 
-func (h *ChatController) SendMessage(c *gin.Context) {
+func (h *ChatHandler) SendMessage(c *gin.Context) {
 	var requestBody model.ActionRequest
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		c.JSON(http.StatusOK, common.SendMessageResponse{Response: common.Response{StatusCode: http.StatusBadRequest, StatusMsg: common.ParamErrorMsg}})
