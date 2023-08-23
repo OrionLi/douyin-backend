@@ -33,7 +33,6 @@ func main() {
 	comment.POST("/action", controller.CommentAction)
 	comment.GET("/list", controller.CommentList)
 	// 点赞相关请求
-	//favoriteController := controller.NewFavoriteController(service.NewFavoriteService(context.Background()))
 	favorite := douyin.Group("/favorite")
 	favorite.POST("/action", controller.ActionFav)
 	favorite.GET("/list", controller.ListFav)

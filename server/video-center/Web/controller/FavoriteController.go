@@ -12,21 +12,11 @@ import (
 	"video-center/pkg/util"
 )
 
-//type FavoriteController struct {
-//	ChatService service.FavoriteService
-//}
-
 type FavoriteParam struct {
 	Token      string `json:"token"`
 	VideoId    string `json:"video_id"`
 	ActionType string `json:"action_type"`
 }
-
-//func NewFavoriteController(service service.FavoriteService) *FavoriteController {
-//	return &FavoriteController{
-//		ChatService: service,
-//	}
-//}
 
 func ActionFav(c *gin.Context) {
 	var requestBody FavoriteParam
@@ -80,29 +70,14 @@ func ListFav(context *gin.Context) {
 	}
 	request := pb.DouyinFavoriteListRequest{}
 	response, err := rpc.GetFavoriteList(context, &request)
-	if response.StatusCode != 0 || err != nil {
+	if err != nil {
 		context.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.FavListEmptyCode, StatusMsg: errno.FavListEmptyErr.ErrMsg},
+			Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
 			FavList:  []*pb.Video{},
 		})
 		return
 	}
 	context.JSON(http.StatusOK, response)
-	//b, favs := h.ChatService.ListFav(UserIdParseInt)
-	//if !b {
-	//	context.JSON(http.StatusOK, FavListResponse{
-	//		Response: Response{StatusCode: errno.FavListEmptyCode, StatusMsg: errno.FavListEmptyErr.ErrMsg},
-	//		FavList:  []*pb.Video{},
-	//	})
-	//	return
-	//}
-	//if b {
-	//	context.JSON(http.StatusOK, FavListResponse{
-	//		Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
-	//		FavList:  favs,
-	//	})
-	//	return
-	//}
 }
 
 // validateToken 验证token
