@@ -81,6 +81,9 @@ func initVideoRpc() {
 	}
 	VideoClient = client
 	VideoStreamClient = streamClient
+
+	// VideoInteractionClient
+	VideoInteractionClient = pb.NewDouyinVideoInteractionServiceClient(Conn)
 }
 
 // StreamClient 流式client
@@ -169,9 +172,4 @@ func ResetVideoStreamClient() {
 		panic(err)
 	}
 	VideoStreamClient = client
-}
-
-func NewVideoInterActionClient() {
-	client := pb.NewDouyinVideoInteractionServiceClient(Conn)
-	VideoInteractionClient = client
 }
