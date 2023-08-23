@@ -1,26 +1,22 @@
-package handler
+package controller
 
 import (
-	"chat-center/model"
+	"chat-center/Web/rpc/client"
 	"chat-center/pkg/common"
 	"chat-center/pkg/util"
-	"chat-center/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
 )
 
-type ChatHandler struct {
-	ChatService service.ChatService
+type ActionRequest struct {
+	Token      string `json:"token"`
+	ToUserID   string `json:"to_user_id"`
+	ActionType string `json:"action_type"`
+	Content    string `json:"content"`
 }
 
-func NewChatHandler(service service.ChatService) *ChatHandler {
-	return &ChatHandler{
-		ChatService: service,
-	}
-}
-
-func (h *ChatHandler) GetMessage(c *gin.Context) {
+func GetMessage(c *gin.Context) {
 	currentId := validateToken(c.Query("token"))
 	if currentId == -1 {
 		c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: http.StatusForbidden, StatusMsg: common.ForbiddenMsg}})
@@ -36,26 +32,16 @@ func (h *ChatHandler) GetMessage(c *gin.Context) {
 		return
 	}
 
-	if preMsgTime == 0 {
-		messageList, err := h.ChatService.GetAllHistoryMessage(currentId, interActiveId)
-		if err != nil {
-			c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: http.StatusInternalServerError, StatusMsg: err.Error()}})
-			return
-		}
-		c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: common.SuccessCode, StatusMsg: common.SuccessMsg}, MessageList: messageList})
+	resp, err := client.GetMessage(currentId, interActiveId, preMsgTime)
+	if err != nil || resp.StatusCode != common.SuccessCode {
+		c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: http.StatusInternalServerError, StatusMsg: err.Error()}})
 		return
-	} else {
-		messageList, err := h.ChatService.GetMessageByPreMsgTime(currentId, interActiveId, preMsgTime)
-		if err != nil {
-			c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: http.StatusInternalServerError, StatusMsg: err.Error()}})
-			return
-		}
-		c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: common.SuccessCode, StatusMsg: common.SuccessMsg}, MessageList: messageList})
 	}
+	c.JSON(http.StatusOK, common.GetMessageResponse{Response: common.Response{StatusCode: common.SuccessCode, StatusMsg: common.SuccessMsg}, MessageList: resp.GetMessageList()})
 }
 
-func (h *ChatHandler) SendMessage(c *gin.Context) {
-	var requestBody model.ActionRequest
+func SendMessage(c *gin.Context) {
+	var requestBody ActionRequest
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		c.JSON(http.StatusOK, common.SendMessageResponse{Response: common.Response{StatusCode: http.StatusBadRequest, StatusMsg: common.ParamErrorMsg}})
 		return
@@ -84,12 +70,11 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		return
 	}
 
-	err := h.ChatService.SendMessage(currentId, interActiveId, requestBody.Content)
-	if err != nil {
+	resp, err := client.SendMessage(currentId, interActiveId, requestBody.Content)
+	if err != nil || resp.StatusCode != common.SuccessCode {
 		c.JSON(http.StatusOK, common.SendMessageResponse{Response: common.Response{StatusCode: http.StatusInternalServerError, StatusMsg: err.Error()}})
 		return
 	}
-
 	c.JSON(http.StatusOK, common.SendMessageResponse{Response: common.Response{StatusCode: common.SuccessCode, StatusMsg: common.SuccessMsg}})
 }
 
@@ -107,12 +92,4 @@ func validateToken(token string) int64 {
 		return -1
 	}
 	return int64(parseToken.ID)
-}
-
-func LogMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		request := c.Request
-		util.LogrusObj.Infof("URL:%s host:%s method:%s remoteIp:%s", request.URL, request.Host, request.Method, request.RemoteAddr)
-		c.Next()
-	}
 }

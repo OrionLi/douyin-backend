@@ -2,11 +2,11 @@ package dao
 
 import (
 	"bytes"
-	"chat-center/model"
 	"chat-center/pkg/util"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"io"
 	"log"
@@ -18,7 +18,7 @@ import (
 // GetAllMessagesByToUserId 查询指定 toUserId 的消息列表
 // toUserId : 消息接收者
 // fromUserId : 消息发送者
-func GetAllMessagesByToUserId(toUserId int64, fromUserId int64) ([]model.Message, error) {
+func GetAllMessagesByToUserId(toUserId int64, fromUserId int64) ([]*pb.Message, error) {
 
 	query := fmt.Sprintf(`{
 		"query": {
@@ -71,7 +71,7 @@ func GetAllMessagesByToUserId(toUserId int64, fromUserId int64) ([]model.Message
 // toUserId : 消息接收者
 // fromUserId : 消息发送者
 // time : 最后一次阅读消息的时间
-func GetMessageByToUserId(time time.Time, toUserId int64, fromUserId int64) ([]model.Message, error) {
+func GetMessageByToUserId(time time.Time, toUserId int64, fromUserId int64) ([]*pb.Message, error) {
 	query := fmt.Sprintf(`
 		{
 			"query": {
@@ -112,8 +112,8 @@ func GetMessageByToUserId(time time.Time, toUserId int64, fromUserId int64) ([]m
 }
 
 // GetMessageList 将 Elasticsearch 返回的 Response 转换为 message.Message 列表
-func GetMessageList(res *esapi.Response) []model.Message {
-	var messageList []model.Message
+func GetMessageList(res *esapi.Response) []*pb.Message {
+	var messageList []*pb.Message
 	var responseMap map[string]interface{}
 	if err := json.NewDecoder(res.Body).Decode(&responseMap); err != nil {
 		util.LogrusObj.Error("<GetMessage>, Error decoding JSON: ", err, " [be from]:", res)
@@ -130,7 +130,7 @@ func GetMessageList(res *esapi.Response) []model.Message {
 		content := source["content"].(string)
 		createTime := source["create_time"].(string)
 
-		messageList = append(messageList, model.Message{
+		messageList = append(messageList, &pb.Message{
 			Id:         int64(id),
 			ToUserId:   int64(toUserId),
 			FromUserId: int64(fromUserId),
@@ -142,7 +142,7 @@ func GetMessageList(res *esapi.Response) []model.Message {
 }
 
 // SendMessage 发送信息
-func SendMessage(message model.Message) error {
+func SendMessage(message *pb.Message) error {
 	docJSON, err := json.Marshal(message)
 	if err != nil {
 		log.Fatalf("Error marshaling JSON: %s", err)

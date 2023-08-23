@@ -1,6 +1,8 @@
 package common
 
-import "chat-center/model"
+import (
+	"github.com/OrionLi/douyin-backend/pkg/pb"
+)
 
 type Response struct {
 	StatusCode int32  `json:"status_code"`
@@ -9,7 +11,7 @@ type Response struct {
 
 type GetMessageResponse struct {
 	Response
-	MessageList []model.Message `json:"message_list"`
+	MessageList []*pb.Message `json:"message_list"`
 }
 
 type SendMessageResponse struct {

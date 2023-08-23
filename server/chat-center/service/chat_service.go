@@ -2,16 +2,16 @@ package service
 
 import (
 	"chat-center/dao"
-	"chat-center/model"
 	"chat-center/pkg/util"
 	"fmt"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/sony/sonyflake"
 	"time"
 )
 
 type ChatService interface {
-	GetAllHistoryMessage(currentId int64, interActiveId int64) ([]model.Message, error)
-	GetMessageByPreMsgTime(currentId int64, interActiveId int64, preMsgTime int64) ([]model.Message, error)
+	GetAllHistoryMessage(currentId int64, interActiveId int64) ([]*pb.Message, error)
+	GetMessageByPreMsgTime(currentId int64, interActiveId int64, preMsgTime int64) ([]*pb.Message, error)
 	SendMessage(currentId int64, interActiveId int64, content string) error
 }
 
@@ -19,7 +19,7 @@ type ChatServiceImpl struct{}
 
 // GetAllHistoryMessage 根据toUserId查询数据库中所有聊天记录
 // 当preMsgTime为0时，查询所有聊天记录
-func (c ChatServiceImpl) GetAllHistoryMessage(currentId int64, interActiveId int64) ([]model.Message, error) {
+func (c ChatServiceImpl) GetAllHistoryMessage(currentId int64, interActiveId int64) ([]*pb.Message, error) {
 	// 查询相关记录
 	messageList, err := dao.GetAllMessagesByToUserId(currentId, interActiveId)
 	if err != nil {
@@ -30,7 +30,7 @@ func (c ChatServiceImpl) GetAllHistoryMessage(currentId int64, interActiveId int
 }
 
 // GetMessageByPreMsgTime 根据toUserId查询数据库中所有聊天记录
-func (c ChatServiceImpl) GetMessageByPreMsgTime(currentId int64, interActiveId int64, preMsgTime int64) ([]model.Message, error) {
+func (c ChatServiceImpl) GetMessageByPreMsgTime(currentId int64, interActiveId int64, preMsgTime int64) ([]*pb.Message, error) {
 	timeObj := time.Unix(preMsgTime, 0)
 	// 查询相关记录, 从preMsgTime开始
 	// Dao层中toUserId和fromUserId的顺序是反的，因为前端传参中toUserId为对方的ID，fromUserId为自己的ID
@@ -55,7 +55,7 @@ func (c ChatServiceImpl) SendMessage(currentId int64, interActiveId int64, conte
 	}
 	now := time.Now()
 	format := now.Format("2006-01-02 15:04:05")
-	message := model.Message{
+	message := &pb.Message{
 		Id:         int64(id),
 		ToUserId:   interActiveId,
 		FromUserId: currentId,
