@@ -15,9 +15,13 @@ type RelationDao struct {
 	*gorm.DB
 }
 
+func NewRelationDao(ctx context.Context) *RelationDao {
+	return &RelationDao{NewDBClient(ctx)}
+}
+
 // followExists 检查是否已经存在关注关系
 func followExists(followID, followerID int64) (bool, error) {
-	err := db.Where("follow_id = ? and follower_id = ?", followID, followerID).First(&model.Relation{}).Error
+	err := db.Model(&model.User{}).Where("id = ? AND id IN (SELECT follow_id FROM follow WHERE follower_id = ?)", followID, followerID).First(&model.User{}).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, nil
 	} else if err != nil {
@@ -27,12 +31,12 @@ func followExists(followID, followerID int64) (bool, error) {
 }
 
 // FollowAction 关注用户
-func FollowAction(selfUserID, toUserID int64) error {
-	if selfUserID == toUserID {
+func (u *RelationDao) FollowAction(currentUserId, targetUserId int64) error {
+	if currentUserId == targetUserId {
 		return errors.New("you cannot follow yourself")
 	}
 
-	exists, err := followExists(toUserID, selfUserID)
+	exists, err := followExists(targetUserId, currentUserId)
 	if err != nil {
 		return err
 	}
@@ -40,65 +44,57 @@ func FollowAction(selfUserID, toUserID int64) error {
 		return fmt.Errorf("you have followed this user")
 	}
 
-	relation := model.Relation{
-		Follow:   toUserID,
-		Follower: selfUserID,
-	}
-	err = db.Create(&relation).Error
+	err = u.Model(&model.User{Model: gorm.Model{ID: uint(currentUserId)}}).Association("Follows").Append(&model.User{Model: gorm.Model{ID: uint(targetUserId)}}) // 添加到关注列表
 	if err != nil {
 		return err
 	}
 
-	go CacheChangeUserCount(selfUserID, 1, "follow")
-	go CacheChangeUserCount(toUserID, 1, "follower")
+	go CacheChangeUserCount(currentUserId, 1, "follow")
+	go CacheChangeUserCount(targetUserId, 1, "follower")
 
 	return nil
 }
 
 // UnFollowAction 取消关注用户
-func UnFollowAction(selfUserID, toUserID int64) error {
-	err := db.Where("follow_id = ? and follower_id = ?", toUserID, selfUserID).Delete(&model.Relation{}).Error
+func (u *RelationDao) UnFollowAction(currentUserId, targetUserId int64) error {
+	err := u.Model(&model.User{Model: gorm.Model{ID: uint(currentUserId)}}).Association("Follows").Delete(&model.User{Model: gorm.Model{ID: uint(targetUserId)}}) // 从关注列表中删除
 	if err != nil {
 		return err
 	}
 
-	go CacheChangeUserCount(selfUserID, -1, "follow")
-	go CacheChangeUserCount(toUserID, -1, "follower")
+	go CacheChangeUserCount(currentUserId, -1, "follow")
+	go CacheChangeUserCount(targetUserId, -1, "follower")
 
 	return nil
 }
 
 // GetFollowList 获取我关注的博主
-func GetFollowList(userID int64) ([]*model.Relation, error) {
-	relationList := make([]*model.Relation, 0)
-	err := db.Where("follower_id = ?", userID).Find(&relationList).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return relationList, nil
-	} else if err != nil {
+func (u *RelationDao) GetFollowList(userID int64) ([]*model.User, error) {
+	var user model.User
+	err := u.Preload("Follows").First(&user, userID).Error
+	if err != nil {
 		return nil, err
 	}
-	return relationList, nil
+	return user.Follows, nil
 }
 
 // GetFollowerList 获取关注我的粉丝
-func GetFollowerList(userID int64) ([]*model.Relation, error) {
-	relationList := make([]*model.Relation, 0)
-	err := db.Where("follow_id = ?", userID).Find(&relationList).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return relationList, nil
-	} else if err != nil {
+func (u *RelationDao) GetFollowerList(userID int64) ([]*model.User, error) {
+	var user model.User
+	err := u.Preload("Fans").First(&user, userID).Error
+	if err != nil {
 		return nil, err
 	}
-	return relationList, nil
+	return user.Fans, nil
 }
 
 // IsFollow 判断是否已经关注过某用户
-func IsFollow(selfUserID, toUserID int64) (bool, error) {
-	if selfUserID == toUserID {
+func (u *RelationDao) IsFollow(currentUserId, targetUserId int64) (bool, error) {
+	if currentUserId == targetUserId {
 		return true, nil
 	}
 
-	exists, err := followExists(toUserID, selfUserID)
+	exists, err := followExists(targetUserId, currentUserId)
 	if err != nil {
 		return false, err
 	}
@@ -107,7 +103,6 @@ func IsFollow(selfUserID, toUserID int64) (bool, error) {
 
 // CacheChangeUserCount 更新缓存中用户的关注或粉丝数量
 func CacheChangeUserCount(userID int64, count int, category string) {
-	// 假设缓存使用 Redis 存储，使用第三方库进行操作，这里仅作示例
 	cache := redis.NewClient(&redis.Options{
 		Addr:     "r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379", // Redis 服务器地址
 		Password: "Rh2004==",                                           // Redis 密码
