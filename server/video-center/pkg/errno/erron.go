@@ -19,6 +19,9 @@ const (
 	DeleteCommentCode          = 10010 // 删除评论失败
 	NoMyCommentCode            = 10011 // 不是自己的评论
 	NoCommentExistsCode        = 10012 // 视频或评论不存在
+	FavListEmptyCode           = 10013 // 喜欢列表为空
+	FavActionErrCode           = 10014 // 点赞操作失败
+	FavCountErrCode            = 10015 // 获取点赞数量失败
 )
 
 type Errno struct {
@@ -50,6 +53,9 @@ var (
 	DeleteCommentErr       = NewErrno(DeleteCommentCode, "Failed to delete comment")
 	NoMyCommentErr         = NewErrno(NoMyCommentCode, "Not your comment")
 	NoCommentExistsErr     = NewErrno(NoCommentExistsCode, "Comment does not exist")
+	FavListEmptyErr        = NewErrno(FavListEmptyCode, "Like the list to be empty")
+	FavActionErr           = NewErrno(FavActionErrCode, "Like operation failed")
+	FavCountErr            = NewErrno(FavCountErrCode, "Failed to get number of likes")
 )
 
 func ConvertErr(err error) Errno {

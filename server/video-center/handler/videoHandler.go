@@ -18,6 +18,7 @@ type VideoServer struct {
 }
 
 func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) error {
+
 	for {
 		request, err := server.Recv()
 		if err == io.EOF {
@@ -26,7 +27,9 @@ func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) e
 		if err != nil {
 			return err
 		}
+		util.LogrusObj.Infof("accept PublishAction Request token:%s title: %s", request.Token, request.Title)
 		user, err := util.ParseToken(request.Token)
+
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -36,11 +39,14 @@ func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) e
 			fmt.Println(err)
 			return err
 		}
+		util.LogrusObj.Infof("generate PlayURL: %s AND CoverURL %s", playUrl, coverUrl)
+		util.LogrusObj.Infof("Save Urls into DB")
 		err = service.NewVideoService(context.Background()).PublishAction(int64(user.ID), playUrl, coverUrl, request.Title)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
+		util.LogrusObj.Infof("return PublishActionResponse")
 		response := &pb.DouyinPublishActionResponse{
 			StatusCode: errno.SuccessCode,
 			StatusMsg:  &errno.Success.ErrMsg,
@@ -55,6 +61,7 @@ func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) e
 func (s *VideoServer) PublishList(ctx context.Context, req *pb.DouyinPublishListRequest) (*pb.DouyinPublishListResponse, error) {
 	resp := new(pb.DouyinPublishListResponse)
 	//判断Token
+	util.LogrusObj.Infof("PublishListRequest Token:%s UserId%d:", req.Token, req.UserId)
 	token := req.Token
 	if len(token) == 0 {
 		resp.StatusCode = errno.ParamErrCode
@@ -73,6 +80,7 @@ func (s *VideoServer) PublishList(ctx context.Context, req *pb.DouyinPublishList
 		resp.StatusMsg = &errno.TokenErr.ErrMsg
 		return resp, nil
 	}
+	util.LogrusObj.Infof("Token Validated UserId:%d", req.UserId)
 	//Token验证成功之后，根据UserId返回
 	list, err := service.NewVideoService(ctx).PublishList(req.UserId)
 	if err != nil {
@@ -81,6 +89,7 @@ func (s *VideoServer) PublishList(ctx context.Context, req *pb.DouyinPublishList
 		resp.StatusMsg = &convertErr.ErrMsg
 		return resp, nil
 	}
+	util.LogrusObj.Infof("Return PublishListResponse")
 	//正常返回
 	resp.StatusCode = errno.SuccessCode
 	resp.StatusMsg = &errno.Success.ErrMsg
@@ -94,6 +103,7 @@ func (s *VideoServer) Feed(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.
 	var userId int64
 	userId = 0
 	//判断token,并获取userId
+	util.LogrusObj.Infof("FeedRequest Token:%s lastest_time%d:", *req.Token, req.LatestTime)
 	if len(req.GetToken()) != 0 {
 		token, err := util.ParseToken(req.GetToken())
 		if err != nil {
