@@ -26,7 +26,7 @@ func (s *CommentService) SaveComment(LoginUserId int64, videoId int64, content s
 		UserId:     LoginUserId,
 		VideoId:    videoId,
 	}
-	b, err := dao.SaveComment(comment)
+	b, err := dao.SaveComment(s.ctx, comment)
 	if err != nil {
 		return false, &pb.Comment{}, err
 	}
@@ -42,7 +42,7 @@ func (s *CommentService) SaveComment(LoginUserId int64, videoId int64, content s
 
 // DeleteComment 删除评论
 func (s *CommentService) DeleteComment(LoginUserId int64, videoId int64, commentId int64) (bool, *pb.Comment, error) {
-	isComment, err := dao.IsUserComment(LoginUserId, commentId, videoId)
+	isComment, err := dao.IsUserComment(s.ctx, LoginUserId, commentId, videoId)
 	if err != nil {
 		return false, &pb.Comment{}, err
 	}
@@ -51,7 +51,7 @@ func (s *CommentService) DeleteComment(LoginUserId int64, videoId int64, comment
 			VideoId: videoId,
 			ID:      commentId,
 		}
-		b, err := dao.DeleteComment(comment)
+		b, err := dao.DeleteComment(s.ctx, comment)
 		if err != nil || !b {
 			return false, &pb.Comment{}, err
 		}
@@ -69,7 +69,7 @@ func (s *CommentService) DeleteComment(LoginUserId int64, videoId int64, comment
 
 // ListComment 查看所有评论
 func (s *CommentService) ListComment(videoId int64) ([]*pb.Comment, error) {
-	comments, err := dao.CommentList(videoId)
+	comments, err := dao.CommentList(s.ctx, videoId)
 	if err != nil {
 		return []*pb.Comment{}, err
 	}

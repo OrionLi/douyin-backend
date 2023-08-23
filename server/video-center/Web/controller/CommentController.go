@@ -10,8 +10,6 @@ import (
 	"video-center/service"
 )
 
-// //todo 返回结果？
-// Comment: &pb.Comment{},
 func CommentAction(c *gin.Context) {
 	var param CommentActionParam
 	if err := c.ShouldBind(&param); err != err {
@@ -33,7 +31,7 @@ func CommentAction(c *gin.Context) {
 	user, err := util.ParseToken(param.Token)
 	if err != nil {
 		c.JSON(http.StatusOK, CommentActionResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: "token异常"},
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:  &pb.Comment{},
 		})
 		return
@@ -59,7 +57,7 @@ func CommentAction(c *gin.Context) {
 		if b {
 			// 评论成功
 			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{errno.SuccessCode, "发布评论成功！"},
+				Response: Response{errno.SuccessCode, errno.Success.ErrMsg},
 				Comment:  comment,
 			})
 			return
@@ -98,7 +96,7 @@ func CommentAction(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusOK, CommentActionResponse{
-			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: "删除评论成功！"},
+			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
 			Comment:  comment,
 		})
 		return
@@ -136,7 +134,7 @@ func CommentList(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, CommentListResponse{
-		Response: Response{StatusCode: errno.SuccessCode, StatusMsg: "获取评论信息成功"},
+		Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
 		Comment:  comments,
 	})
 }

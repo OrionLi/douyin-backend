@@ -1,9 +1,8 @@
 package serializer
 
-type Response struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data"`
+type ErrResponse struct {
+	StatusCode int32  `json:"status_code"`
+	StatusMsg  string `json:"status_msg,omitempty"`
 }
 type User struct {
 	ID              int64  `json:"id"`
