@@ -241,9 +241,9 @@ type DouyinFavoriteListResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`     // 返回状态描述
-	VideoList  []*Video `protobuf:"bytes,3,rep,name=video_list,json=videoList,proto3" json:"video_list,omitempty"`     // 用户点赞视频列表
+	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"`       // 状态码，0-成功，其他值-失败
+	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg"`           // 返回状态描述
+	VideoList  []*Video `protobuf:"bytes,3,rep,name=video_list,json=videoList,proto3" json:"video_list,omitempty"` // 用户点赞视频列表
 }
 
 func (x *DouyinFavoriteListResponse) Reset() {
@@ -577,8 +577,8 @@ type DouyinCommentActionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int64    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
-	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
+	StatusCode int64    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"`
+	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg"`
 	Comment    *Comment `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`
 }
 
@@ -697,8 +697,8 @@ type DouyinCommentListResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode  int64      `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`   // 状态码，0-成功，其他值-失败
-	StatusMsg   string     `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`       //string or null 返回状态描述
+	StatusCode  int64      `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"`             // 状态码，0-成功，其他值-失败
+	StatusMsg   string     `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg"`                 //string or null 返回状态描述
 	CommentList []*Comment `protobuf:"bytes,3,rep,name=comment_list,json=commentList,proto3" json:"comment_list,omitempty"` //array[object (Comment) {4}] or null 评论列表
 }
 

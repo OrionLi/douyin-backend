@@ -69,8 +69,9 @@ func ListFav(context *gin.Context) {
 		return
 	}
 	request := pb.DouyinFavoriteListRequest{}
-	response, err := rpc.GetFavoriteList(context, &request)
-	if err != nil {
+	response, err2 := rpc.GetFavoriteList(context, &request)
+	if err2 != nil {
+		println("调用rpc失败")
 		context.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
 			FavList:  []*pb.Video{},

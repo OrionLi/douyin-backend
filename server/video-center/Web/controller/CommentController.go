@@ -59,6 +59,7 @@ func CommentAction(c *gin.Context) {
 			})
 		}
 		c.JSON(http.StatusOK, response)
+		return
 	}
 	if param.ActionType == "2" {
 		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
@@ -85,6 +86,7 @@ func CommentAction(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusOK, response)
+		return
 	}
 	c.JSON(http.StatusOK, CommentActionResponse{
 		Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},

@@ -153,7 +153,6 @@ func (v VideoInteractionServer) ActionComment(ctx context.Context, request *pb.D
 
 func (v VideoInteractionServer) ListComment(ctx context.Context, request *pb.DouyinCommentListRequest) (*pb.DouyinCommentListResponse, error) {
 	videoId := request.GetVideoId()
-	// TODO service调用
 	comments, err := service.NewCommentService(ctx).ListComment(videoId)
 	if err != nil {
 		return &pb.DouyinCommentListResponse{
