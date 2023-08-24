@@ -17,3 +17,5 @@
 [info]: 2023/08/24 10:26:08 [URL:/douyin/message/chat?token=123&to_user_id=1&pre_msg_time=0 host:localhost:9421 method:GET remoteIp:[::1]:65145]
 [info]: 2023/08/24 10:26:46 [URL:/douyin/message/action host:localhost:9421 method:POST remoteIp:[::1]:65191]
 [info]: 2023/08/24 10:26:50 [URL:/douyin/message/chat?token=123&to_user_id=1&pre_msg_time=0 host:localhost:9421 method:GET remoteIp:[::1]:65191]
+[info]: 2023/08/24 13:05:42 [URL:/douyin/message/chat?token=123&to_user_id=1&pre_msg_time=0 host:localhost:9421 method:GET remoteIp:[::1]:63591]
+[info]: 2023/08/24 13:06:47 [URL:/douyin/message/chat?token=123&to_user_id=1&pre_msg_time=0 host:localhost:9421 method:GET remoteIp:[::1]:63730]
