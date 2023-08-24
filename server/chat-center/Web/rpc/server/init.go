@@ -2,7 +2,6 @@ package server
 
 import (
 	"chat-center/conf"
-	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
@@ -38,44 +37,39 @@ func InitGRPCServer() {
 func RegisterNacos() {
 	// 创建clientConfig
 	clientConfig := constant.ClientConfig{
-		NamespaceId:         conf.NacosNamespaceId, // 如果需要支持多namespace，我们可以创建多个client,它们有不同的NamespaceId。当namespace是public时，此处填空字符串。
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
-		LogDir:              "/tmp/nacos/log",
-		CacheDir:            "/tmp/nacos/cache",
 		LogLevel:            "debug",
 	}
 
 	// 创建ServerConfig
 	serverConfigs := []constant.ServerConfig{
 		{
-			IpAddr:      conf.NacosAddress,
-			ContextPath: "/nacos",
-			Port:        uint64(conf.NacosPort),
-			Scheme:      "http",
+			IpAddr: conf.NacosAddress,
+			Port:   uint64(conf.NacosPort),
 		},
 	}
 
 	// 创建服务发现客户端
-	nacosClient, err := clients.CreateNamingClient(map[string]interface{}{
-		"serverConfigs": serverConfigs,
-		"clientConfig":  clientConfig,
-	})
+	nacosClient, err := clients.NewNamingClient(
+		vo.NacosClientParam{
+			ClientConfig:  &clientConfig,
+			ServerConfigs: serverConfigs,
+		})
+
+	if err != nil {
+		log.Fatalf("failed to create Nacos client: %v", err)
+	}
 
 	// 注册 gRPC 服务到 Nacos
 	instance := &vo.RegisterInstanceParam{
-		Ip:   conf.GRPCAddress, // 设置你的服务器的 IP 地址
-		Port: uint64(conf.GRPCPort),
-		Metadata: map[string]string{
-			"protocol":            "grpc",
-			"healthCheckType":     "TCP", // 使用 TCP 健康检查
-			"healthCheckPort":     fmt.Sprintf("%d", uint64(conf.GRPCPort)),
-			"healthCheckPath":     "",    // 空路径
-			"healthCheckInterval": "10s", // 健康检查间隔
-		},
-		ClusterName: "default",
-		ServiceName: conf.NacosServerName,
-		GroupName:   conf.NacosGroup,
+		Ip:          conf.GRPCAddress, // 设置你的服务器的 IP 地址
+		Port:        uint64(conf.GRPCPort),
+		ServiceName: conf.NacosServerName, // 设置服务的名称
+		GroupName:   conf.NacosGroup,      // 设置服务的分组
+		Weight:      10,                   // 权重为10
+		Enable:      true,                 // 设置实例为可用状态
+		Healthy:     true,                 // 设置实例为健康状态
 	}
 
 	_, err = nacosClient.RegisterInstance(*instance)

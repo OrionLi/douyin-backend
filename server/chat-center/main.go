@@ -13,7 +13,7 @@ func main() {
 	// 初始化配置
 	conf.InitConf()
 	// 初始化grpc
-	client.InitGRPCClient()
+	client.Init()
 	defer client.ClosConn()
 	// 初始化gin
 	r := gin.Default()
