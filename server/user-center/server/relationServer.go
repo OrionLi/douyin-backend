@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"user-center/constant"
 	"user-center/dao"
-	"user-center/model"
 	"user-center/pkg/e"
 	"user-center/pkg/util"
+	"user-center/service"
 )
 
 type RelationService struct {
@@ -65,7 +65,7 @@ func (c RelationService) RelationAction(ctx context.Context, req *pb.RelationAct
 
 // GetRelationFollowList 获取被关注者列表
 func (c RelationService) GetRelationFollowList(ctx context.Context, req *pb.GetRelationFollowListReq) (*pb.GetRelationFollowListRsp, error) {
-	list, err := RelationFollowList(ctx, req.UserId, 1)
+	list, err := service.RelationFollowList(ctx, req.UserId, 1)
 	if err != nil {
 		log.Errorf(ctx, "GetRelationFollowList error, err:%v", err)
 		return nil, e.NewError(e.ErrorAborted)
@@ -77,39 +77,11 @@ func (c RelationService) GetRelationFollowList(ctx context.Context, req *pb.GetR
 
 // GetRelationFollowerList 获取粉丝列表
 func (c RelationService) GetRelationFollowerList(ctx context.Context, req *pb.GetRelationFollowerListReq) (*pb.GetRelationFollowerListRsp, error) {
-	list, err := RelationFollowList(ctx, req.UserId, 2)
+	list, err := service.RelationFollowList(ctx, req.UserId, 2)
 	if err != nil {
 		return nil, e.NewError(e.ErrorAborted)
 	}
 	return &pb.GetRelationFollowerListRsp{
 		FollowerList: list,
 	}, nil
-}
-
-// RelationFollowList  获取关注列表
-func RelationFollowList(ctx context.Context, userID, relationType int64) ([]int64, error) {
-	var (
-		relationList []*model.User
-		err          error
-	)
-	if relationType == 1 {
-		// 获取关注者
-		relationList, err = dao.NewRelationDao(ctx).GetFollowList(userID)
-	} else {
-		// 获取被关注者
-		relationList, err = dao.NewRelationDao(ctx).GetFollowerList(userID)
-	}
-	if err != nil {
-		return nil, err
-	}
-	if len(relationList) == 0 {
-		return []int64{}, nil
-	}
-	log.Infof(nil, "relationList: %v", relationList)
-	resp := make([]int64, 0)
-	for _, user := range relationList {
-		resp = append(resp, int64(user.ID))
-	}
-
-	return resp, nil
 }
