@@ -5,7 +5,6 @@ import (
 	"chat-center/Web/middleware"
 	"chat-center/Web/rpc/client"
 	"chat-center/conf"
-	"chat-center/dao"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -13,10 +12,9 @@ import (
 func main() {
 	// 初始化配置
 	conf.InitConf()
-	// 初始化数据库
-	dao.Init()
 	// 初始化grpc
 	client.InitGRPCClient()
+	defer client.ClosConn()
 	// 初始化gin
 	r := gin.Default()
 	api := r.Group("/douyin/message")

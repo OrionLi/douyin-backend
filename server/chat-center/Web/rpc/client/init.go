@@ -19,11 +19,18 @@ func InitGRPCClient() {
 	if err != nil {
 		log.Fatalf("connect failed: %v", err)
 	}
-	defer conn.Close()
-
 	Conn = conn
 }
 
 func GetMsgConn() *grpc.ClientConn {
 	return Conn
+}
+
+func ClosConn() {
+	if Conn != nil {
+		err := Conn.Close()
+		if err != nil {
+			panic(err)
+		}
+	}
 }
