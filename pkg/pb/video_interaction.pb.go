@@ -137,8 +137,8 @@ type DouyinFavoriteActionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`     // 返回状态描述
+	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg"`     // 返回状态描述
 }
 
 func (x *DouyinFavoriteActionResponse) Reset() {
@@ -241,9 +241,9 @@ type DouyinFavoriteListResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`     // 返回状态描述
-	VideoList  []*Video `protobuf:"bytes,3,rep,name=video_list,json=videoList,proto3" json:"video_list,omitempty"`     // 用户点赞视频列表
+	StatusCode int32    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg"`     // 返回状态描述
+	VideoList  []*Video `protobuf:"bytes,3,rep,name=video_list,json=videoList,proto3" json:"video_list"`     // 用户点赞视频列表
 }
 
 func (x *DouyinFavoriteListResponse) Reset() {
@@ -425,10 +425,10 @@ type Comment struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id         int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                  // 评论id
-	User       *User  `protobuf:"bytes,2,opt,name=user,proto3" json:"user,omitempty"`                               // 评论用户信息
-	Content    string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                         // 评论内容
-	CreateDate string `protobuf:"bytes,4,opt,name=create_date,json=createDate,proto3" json:"create_date,omitempty"` // 评论发布日期，格式 mm-dd
+	Id         int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id"`                                  // 评论id
+	User       *User  `protobuf:"bytes,2,opt,name=user,proto3" json:"user"`                               // 评论用户信息
+	Content    string `protobuf:"bytes,3,opt,name=content,proto3" json:"content"`                         // 评论内容
+	CreateDate string `protobuf:"bytes,4,opt,name=create_date,json=createDate,proto3" json:"create_date"` // 评论发布日期，格式 mm-dd
 }
 
 func (x *Comment) Reset() {
@@ -577,9 +577,9 @@ type DouyinCommentActionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode int64    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
-	StatusMsg  int64    `protobuf:"varint,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
-	Comment    *Comment `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`
+	StatusCode int64    `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"`
+	StatusMsg  string   `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg"`
+	Comment    *Comment `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment"`
 }
 
 func (x *DouyinCommentActionResponse) Reset() {
@@ -621,11 +621,11 @@ func (x *DouyinCommentActionResponse) GetStatusCode() int64 {
 	return 0
 }
 
-func (x *DouyinCommentActionResponse) GetStatusMsg() int64 {
+func (x *DouyinCommentActionResponse) GetStatusMsg() string {
 	if x != nil {
 		return x.StatusMsg
 	}
-	return 0
+	return ""
 }
 
 func (x *DouyinCommentActionResponse) GetComment() *Comment {
@@ -697,9 +697,9 @@ type DouyinCommentListResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode  int64      `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`   // 状态码，0-成功，其他值-失败
-	StatusMsg   string     `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`       //string or null 返回状态描述
-	CommentList []*Comment `protobuf:"bytes,3,rep,name=comment_list,json=commentList,proto3" json:"comment_list,omitempty"` //array[object (Comment) {4}] or null 评论列表
+	StatusCode  int64      `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"`   // 状态码，0-成功，其他值-失败
+	StatusMsg   string     `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg"`       //string or null 返回状态描述
+	CommentList []*Comment `protobuf:"bytes,3,rep,name=comment_list,json=commentList,proto3" json:"comment_list"` //array[object (Comment) {4}] or null 评论列表
 }
 
 func (x *DouyinCommentListResponse) Reset() {
@@ -829,7 +829,7 @@ var file_video_interaction_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x5f, 0x72, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x73,
 	0x74, 0x61, 0x74, 0x75, 0x73, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03,
 	0x52, 0x0a, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x1d, 0x0a, 0x0a,
-	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x5f, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03,
+	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x5f, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x09, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x4d, 0x73, 0x67, 0x12, 0x35, 0x0a, 0x07, 0x63,
 	0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x64,
 	0x6f, 0x75, 0x79, 0x69, 0x6e, 0x2e, 0x65, 0x78, 0x74, 0x72, 0x61, 0x2e, 0x66, 0x69, 0x72, 0x73,

@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"video-center/Web/rpc"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
-	"video-center/service"
 )
 
 func CommentAction(c *gin.Context) {
@@ -27,7 +27,6 @@ func CommentAction(c *gin.Context) {
 		})
 		return
 	}
-	//todo 用户token验证
 	user, err := util.ParseToken(param.Token)
 	if err != nil {
 		c.JSON(http.StatusOK, CommentActionResponse{
@@ -46,29 +45,21 @@ func CommentAction(c *gin.Context) {
 			})
 			return
 		}
-		b, comment, err := service.NewCommentService(c).SaveComment(int64(user.ID), videoId, param.CommentText)
+		request := pb.DouyinCommentActionRequest{
+			SelfUserId:  int64(user.ID),
+			VideoId:     videoId,
+			ActionType:  0, //保存
+			CommentText: param.CommentText,
+		}
+		response, err := rpc.ActionComment(c, &request)
 		if err != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.CommentPostingCode, StatusMsg: errno.CommentPostingErr.ErrMsg},
+				Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
 				Comment:  &pb.Comment{},
 			})
-			return
 		}
-		if b {
-			// 评论成功
-			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{errno.SuccessCode, errno.Success.ErrMsg},
-				Comment:  comment,
-			})
-			return
-		} else {
-			// 评论失败
-			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.CommentPostingCode, StatusMsg: errno.CommentPostingErr.ErrMsg},
-				Comment:  &pb.Comment{},
-			})
-			return
-		}
+		c.JSON(http.StatusOK, response)
+		return
 	}
 	if param.ActionType == "2" {
 		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
@@ -80,25 +71,21 @@ func CommentAction(c *gin.Context) {
 			})
 			return
 		}
-		b, comment, err := service.NewCommentService(c).DeleteComment(int64(user.ID), videoId, commentID)
-		if err != nil {
+		request := pb.DouyinCommentActionRequest{
+			SelfUserId: int64(user.ID),
+			VideoId:    videoId,
+			ActionType: 1, //删除
+			CommentId:  commentID,
+		}
+		response, err2 := rpc.ActionComment(c, &request)
+		if err2 != nil {
 			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.DeleteCommentCode, StatusMsg: errno.DeleteCommentErr.ErrMsg},
+				Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
 				Comment:  &pb.Comment{},
 			})
 			return
 		}
-		if !b {
-			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.NoMyCommentCode, StatusMsg: errno.NoMyCommentErr.ErrMsg},
-				Comment:  &pb.Comment{},
-			})
-			return
-		}
-		c.JSON(http.StatusOK, CommentActionResponse{
-			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
-			Comment:  comment,
-		})
+		c.JSON(http.StatusOK, response)
 		return
 	}
 	c.JSON(http.StatusOK, CommentActionResponse{
@@ -125,16 +112,19 @@ func CommentList(c *gin.Context) {
 		})
 		return
 	}
-	comments, err2 := service.NewCommentService(c).ListComment(videoID)
-	if err2 != nil || len(comments) == 0 {
+	parseToken, err1 := util.ParseToken(token)
+	if err1 != nil {
 		c.JSON(http.StatusOK, CommentListResponse{
-			Response: Response{StatusCode: errno.NoCommentExistsCode, StatusMsg: errno.NoCommentExistsErr.ErrMsg},
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:  []*pb.Comment{},
 		})
 		return
 	}
-	c.JSON(http.StatusOK, CommentListResponse{
-		Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
-		Comment:  comments,
-	})
+
+	request := pb.DouyinCommentListRequest{
+		SelfUserId: int64(parseToken.ID),
+		VideoId:    videoID,
+	}
+	response, _ := rpc.ListComment(c, &request)
+	c.JSON(http.StatusOK, response)
 }
