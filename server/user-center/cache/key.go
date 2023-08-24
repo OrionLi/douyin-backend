@@ -1,11 +1,12 @@
 package cache
 
 import (
+	"fmt"
 	"user-center/pkg/util"
 )
 
 /*
-用于规范key的格式
+用于规范缓存键的格式
 */
 
 func GenFollowUserCacheKey(userId, followUserId uint) string {
@@ -13,4 +14,8 @@ func GenFollowUserCacheKey(userId, followUserId uint) string {
 }
 func GenUserInfoCacheKey(userId uint) string {
 	return "user_info_" + util.UintToStr(userId)
+}
+
+func CacheChangeUserCountKey(userID int64, category string) string {
+	return fmt.Sprintf("user:%d:%s", userID, category)
 }

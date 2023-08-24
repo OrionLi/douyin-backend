@@ -9,6 +9,8 @@ import (
 	"user-center/constant"
 	"user-center/dao"
 	"user-center/model"
+	"user-center/pkg/e"
+	"user-center/pkg/util"
 )
 
 type RelationService struct {
@@ -23,8 +25,8 @@ func (c RelationService) IsFollowDict(ctx context.Context, req *pb.IsFollowDictR
 		// UserIdList 可能是我关注的人
 		isFollow, err := dao.NewRelationDao(ctx).IsFollow(unit.SelfUserId, unit.UserIdList)
 		if err != nil {
-			log.Errorf(ctx, "IsFollowDict err: %v", err)
-			return nil, err
+			util.LogrusObj.Errorf("IsFollowDict err: %v", err)
+			return nil, e.NewError(e.ErrorAborted)
 		}
 		isFollowKey := strconv.FormatInt(unit.SelfUserId, 10) + "_" + strconv.FormatInt(unit.UserIdList, 10)
 		isFollowDict[isFollowKey] = isFollow
@@ -44,13 +46,13 @@ func (c RelationService) RelationAction(ctx context.Context, req *pb.RelationAct
 		// 关注
 		err := dao.NewRelationDao(ctx).FollowAction(req.SelfUserId, req.ToUserId)
 		if err != nil {
-			return nil, err
+			return nil, e.NewError(e.ErrorAborted)
 		}
 	} else {
 		log.Infof(ctx, "unfollow action id:%v,toid:%v", req.SelfUserId, req.ToUserId)
 		err := dao.NewRelationDao(ctx).UnFollowAction(req.SelfUserId, req.ToUserId)
 		if err != nil {
-			return nil, err
+			return nil, e.NewError(e.ErrorAborted)
 		}
 	}
 	return &pb.RelationActionRsp{
@@ -66,7 +68,7 @@ func (c RelationService) GetRelationFollowList(ctx context.Context, req *pb.GetR
 	list, err := RelationFollowList(ctx, req.UserId, 1)
 	if err != nil {
 		log.Errorf(ctx, "GetRelationFollowList error, err:%v", err)
-		return nil, err
+		return nil, e.NewError(e.ErrorAborted)
 	}
 	return &pb.GetRelationFollowListRsp{
 		FollowList: list,
@@ -77,7 +79,7 @@ func (c RelationService) GetRelationFollowList(ctx context.Context, req *pb.GetR
 func (c RelationService) GetRelationFollowerList(ctx context.Context, req *pb.GetRelationFollowerListReq) (*pb.GetRelationFollowerListRsp, error) {
 	list, err := RelationFollowList(ctx, req.UserId, 2)
 	if err != nil {
-		return nil, err
+		return nil, e.NewError(e.ErrorAborted)
 	}
 	return &pb.GetRelationFollowerListRsp{
 		FollowerList: list,

@@ -34,8 +34,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		id := service.Id
 		name := cacheData["Name"]
 
-		followCount := userUtil.StrToUint(cacheData["FollowCount"])
-		fanCount := userUtil.StrToUint(cacheData["FanCount"])
+		followCount := userUtil.StrToInt64(cacheData["FollowCount"])
+		fanCount := userUtil.StrToInt64(cacheData["FanCount"])
 		return &pb.DouyinUserResponse{User: &pb.User{
 			Id:            int64(id),
 			Name:          name,

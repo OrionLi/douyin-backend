@@ -2,13 +2,8 @@ package cache
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
 	"time"
 )
-
-type RedisCache struct {
-	*redis.Client
-}
 
 func NewUserCache(ctx context.Context) *RedisCache {
 	return &RedisCache{NewRedisClient(ctx)}
