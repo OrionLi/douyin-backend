@@ -3,12 +3,11 @@ package grpcClient
 import (
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
-	"web/common"
 )
 
 func UserRegister(ctx context.Context, username, password string) (*pb.DouyinUserRegisterResponse, error) {
 
-	conn := common.GetConn()
+	conn := GetConn()
 
 	clientUser := pb.NewUserServiceClient(conn)
 	pb.NewRelationServiceClient(conn)
@@ -22,7 +21,7 @@ func UserRegister(ctx context.Context, username, password string) (*pb.DouyinUse
 
 func UserLogin(ctx context.Context, username, password string) (*pb.DouyinUserLoginResponse, error) {
 
-	conn := common.GetConn()
+	conn := GetConn()
 
 	clientUser := pb.NewUserServiceClient(conn)
 	resp, err := clientUser.Login(ctx, &pb.DouyinUserLoginRequest{
@@ -34,7 +33,7 @@ func UserLogin(ctx context.Context, username, password string) (*pb.DouyinUserLo
 
 func GetUserById(ctx context.Context, uId uint) (*pb.DouyinUserResponse, error) {
 
-	conn := common.GetConn()
+	conn := GetConn()
 	clientUser := pb.NewUserServiceClient(conn)
 	resp, err := clientUser.GetUserById(ctx, &pb.DouyinUserRequest{UserId: int64(uId)})
 	return resp, err
@@ -42,7 +41,7 @@ func GetUserById(ctx context.Context, uId uint) (*pb.DouyinUserResponse, error) 
 
 func IsFollow(ctx context.Context, uId, followId uint) (*pb.IsFollowResponse, error) {
 
-	conn := common.GetConn()
+	conn := GetConn()
 
 	clientUser := pb.NewUserServiceClient(conn)
 	resp, err := clientUser.IsFollow(ctx, &pb.IsFollowRequest{
