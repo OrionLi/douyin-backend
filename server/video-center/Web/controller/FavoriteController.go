@@ -45,40 +45,44 @@ func ActionFav(c *gin.Context) {
 }
 
 // ListFav 获取喜欢列表
-func ListFav(context *gin.Context) {
-	userId := context.Query("user_id")
-	token := context.Query("token")
+func ListFav(c *gin.Context) {
+	userId := c.Query("user_id")
+	token := c.Query("token")
 	if userId == "" || token == "" {
-		context.JSON(http.StatusOK, FavListResponse{
+		c.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			FavList:  []*pb.Video{},
 		})
 		return
 	}
 	tokenUserId := validateToken(token)
 	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
-		context.JSON(http.StatusOK, FavListResponse{
+		c.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
-		})
-		return
-	}
-	if tokenUserId != UserIdParseInt {
-		context.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
-		})
-		return
-	}
-	request := pb.DouyinFavoriteListRequest{}
-	response, err2 := rpc.GetFavoriteList(context, &request)
-	if err2 != nil {
-		println("调用rpc失败")
-		context.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
 			FavList:  []*pb.Video{},
 		})
 		return
 	}
-	context.JSON(http.StatusOK, response)
+	if tokenUserId != UserIdParseInt {
+		c.JSON(http.StatusOK, FavListResponse{
+			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			FavList:  []*pb.Video{},
+		})
+		return
+	}
+	request := pb.DouyinFavoriteListRequest{UserId: tokenUserId}
+	response, _ := rpc.GetFavoriteList(c, &request)
+	if response == nil {
+		c.JSON(http.StatusOK, &pb.DouyinFavoriteListResponse{
+			StatusCode: errno.FavListEmptyCode,
+			StatusMsg:  errno.FavListEmptyErr.ErrMsg,
+			VideoList:  []*pb.Video{},
+		})
+		return
+	}
+	println(response)
+	c.JSON(http.StatusOK, response)
 }
 
 // validateToken 验证token

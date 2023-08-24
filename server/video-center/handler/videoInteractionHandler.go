@@ -52,7 +52,7 @@ func (v VideoInteractionServer) ActionFavorite(ctx context.Context, request *pb.
 func (v VideoInteractionServer) ListFavorite(ctx context.Context, request *pb.DouyinFavoriteListRequest) (*pb.DouyinFavoriteListResponse, error) {
 	userId := request.GetUserId()
 	b, favs := service.NewFavoriteService(ctx).ListFav(userId)
-	if !b || len(favs) == 0 {
+	if !b {
 		return &pb.DouyinFavoriteListResponse{
 			StatusCode: errno.FavListEmptyCode,
 			StatusMsg:  errno.FavListEmptyErr.ErrMsg,

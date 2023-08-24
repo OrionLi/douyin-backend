@@ -125,13 +125,6 @@ func CommentList(c *gin.Context) {
 		SelfUserId: int64(parseToken.ID),
 		VideoId:    videoID,
 	}
-	response, err2 := rpc.ListComment(c, &request)
-	if err2 != nil {
-		c.JSON(http.StatusOK, CommentListResponse{
-			Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
-			Comment:  []*pb.Comment{},
-		})
-		return
-	}
+	response, _ := rpc.ListComment(c, &request)
 	c.JSON(http.StatusOK, response)
 }
