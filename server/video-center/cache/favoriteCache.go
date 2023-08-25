@@ -12,13 +12,34 @@ import (
 
 var FavoriteUpdateSetKey = "fav_update_set"
 
+const maxRetries = 30
+const retryInterval = 300 * time.Millisecond
+
 // ActionFavoriteCache 点赞缓存
 func ActionFavoriteCache(videoId int64, actionType int32) error {
 	lockKey := fmt.Sprintf("lock:fav:vid:%d", videoId)
 	favoriteKey := fmt.Sprintf("favorite:%d", videoId)
 	lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 3*time.Second)
-	if err != nil || !lock {
+	if err != nil {
 		return err
+	}
+	if !lock {
+		var retryCount int
+		for retryCount < maxRetries {
+			lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 3*time.Second)
+			if err != nil {
+				return err
+			}
+			if lock {
+				break // 成功获取锁，退出重试循环
+			}
+			// 获取锁失败，等待一段时间后重试
+			time.Sleep(retryInterval)
+			retryCount++
+		}
+		if retryCount == maxRetries {
+			return errors.New("failed to acquire lock after multiple retries")
+		}
 	}
 	defer RedisUnlock(fmt.Sprintf(lockKey, videoId))
 	// 查询 Redis 中的值
