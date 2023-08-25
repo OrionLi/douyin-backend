@@ -32,8 +32,10 @@ func main() {
 	cache.Init()
 	dao.Init()
 	oss.Init()
+	service.UpdateFavoriteCacheToMySQL()
 	go service.UpdateFavoriteCacheToMySQLAtRegularTime()
-	defer service.UpdateFavoriteCacheToMySQLAtRegularTime()
+	// FIXME 此处defer调用并不能生效，程序结束前不会调用此函数
+	defer service.UpdateFavoriteCacheToMySQL()
 	RegisterNacos()
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb

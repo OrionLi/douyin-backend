@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/go-redis/redis/v8"
-	"log"
 	"time"
 	"video-center/cache"
 	"video-center/dao"
@@ -109,19 +108,36 @@ func (f FavoriteServiceImpl) CountFav(userId int64) (int32, int32, error) {
 }
 
 // UpdateMySQLFavoriteCount 更新到MySQL
-func UpdateMySQLFavoriteCount(videoID int64, favoriteCount int64) {
-	err := dao.UpdateFavoriteCountByVideoId(videoID, favoriteCount)
+func UpdateMySQLFavoriteCount(videoId int64, favoriteCount int64) {
+	err := dao.UpdateFavoriteCountByVideoId(videoId, favoriteCount)
 	if err != nil {
-		util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoID, "err:", err)
+		util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoId, "err:", err)
 	}
-	err = cache.DeleteVideoIdFromFavoriteUpdateSet(videoID)
+	err = cache.DeleteVideoIdFromFavoriteUpdateSet(videoId)
 	if err != nil {
-		util.LogrusObj.Error("<Favorite Count Update failed> : Failed to delete video id in Redis", "videoId:", videoID, "err:", err)
+		util.LogrusObj.Error("<Favorite Count Update failed> : Failed to delete video id in Redis", "videoId:", videoId, "err:", err)
+	}
+}
+
+func UpdateFavoriteCacheToMySQL() {
+	favoriteUpdateSet, err := cache.GetMemberFromFavoriteUpdateSet()
+	if err != nil {
+		util.LogrusObj.Error("<Favorite Count Update failed>", ": Get list fail", err)
+	}
+	// 处理每个视频ID
+	for _, videoIdStr := range favoriteUpdateSet {
+		videoId := util.StringToInt64(videoIdStr)
+		count, err := cache.GetFavoriteCountCache(videoId)
+		if err != nil {
+			util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoId, "err:", err)
+		}
+		go UpdateMySQLFavoriteCount(videoId, count)
 	}
 }
 
 // UpdateFavoriteCacheToMySQLAtRegularTime 更新到MySQL
 func UpdateFavoriteCacheToMySQLAtRegularTime() {
+	util.LogrusObj.Info("goroutine:UpdateToMySQL is running", time.Now())
 	interval := 12 * time.Hour // 设置定时任务的时间间隔
 	// 创建一个定时器
 	ticker := time.NewTicker(interval)
@@ -129,20 +145,9 @@ func UpdateFavoriteCacheToMySQLAtRegularTime() {
 	for {
 		select {
 		case <-ticker.C:
-			favoriteUpdateSet, err := cache.GetMemberFromFavoriteUpdateSet()
-			if err != nil {
-				util.LogrusObj.Error("<Favorite Count Update failed>", ": Get list fail", err)
-			}
-			// 处理每个视频ID
-			for _, videoIdStr := range favoriteUpdateSet {
-				videoId := util.StringToInt64(videoIdStr)
-				count, err := cache.GetFavoriteCountCache(videoId)
-				if err != nil {
-					util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoId, "err:", err)
-				}
-				go UpdateMySQLFavoriteCount(videoId, count)
-			}
-			log.Println("UpdateToMySQL task executed at", time.Now())
+			util.LogrusObj.Info("UpdateToMySQL task start at", time.Now())
+			UpdateFavoriteCacheToMySQL()
+			util.LogrusObj.Info("UpdateToMySQL task end at", time.Now())
 		}
 	}
 }
