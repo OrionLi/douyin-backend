@@ -12,10 +12,10 @@ db:
     host: DouyinDBA.raqtpie.xyz
     port: 3306
     username: DouyinDBA
-    password: nibainimane
+    password:
     database: DouyinDB
     charset: utf8mb4
   redis:
     host: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379
     db: 0
-    passwd: Rh2004==
+    passwd:
