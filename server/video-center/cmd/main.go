@@ -8,6 +8,9 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"video-center/cache"
 	"video-center/conf"
 	"video-center/dao"
@@ -32,11 +35,10 @@ func main() {
 	cache.Init()
 	dao.Init()
 	oss.Init()
+	RegisterNacos()
+	BeforeExit()
 	service.UpdateFavoriteCacheToMySQL()
 	go service.UpdateFavoriteCacheToMySQLAtRegularTime()
-	// FIXME 此处defer调用并不能生效，程序结束前不会调用此函数
-	defer service.UpdateFavoriteCacheToMySQL()
-	RegisterNacos()
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb
 		grpc.MaxSendMsgSize(52428800))
@@ -95,4 +97,16 @@ func RegisterNacos() {
 	} else {
 		fmt.Println("namingClient.RegisterInstance Success") // 输出注册成功信息
 	}
+}
+
+// BeforeExit 服务器关闭前的最后操作
+func BeforeExit() {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-signalChan
+		fmt.Printf("Received signal %s, performing final tasks...\n", sig)
+		service.UpdateFavoriteCacheToMySQL()
+		os.Exit(0)
+	}()
 }
