@@ -23,26 +23,39 @@ type FavoriteServiceImpl struct {
 }
 
 // CreateFav 创建点赞记录
-// TODO 考虑当redis宕机时，如何保证数据一致性
 func (f FavoriteServiceImpl) CreateFav(videoId int64, userId int64) error {
 	// TODO 验证是否已经点赞 此项应在压测通过后实现
 	// HACK IsFav() 验证 重复点赞问题
+	tx := dao.DB.Begin()
 	err := dao.CreateFav(f.ctx, videoId, userId)
 	if err != nil {
 		return err
 	}
-	return cache.ActionFavoriteCache(videoId, 1)
+	err = cache.ActionFavoriteCache(videoId, 1)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
 // DeleteFav 删除点赞记录
 func (f FavoriteServiceImpl) DeleteFav(videoId int64, userId int64) error {
 	// TODO 验证是否未点赞 此项应在压测通过后实现
 	// HACK IsFav() 验证 未点赞试图取消点赞问题
+	tx := dao.DB.Begin()
 	err := dao.DeleteFav(f.ctx, videoId, userId)
 	if err != nil {
 		return err
 	}
-	return cache.ActionFavoriteCache(videoId, 2)
+	err = cache.ActionFavoriteCache(videoId, 2)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
 // IsFav 判断是否点赞

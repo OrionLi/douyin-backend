@@ -10,10 +10,9 @@ import (
 	"video-center/pkg/util"
 )
 
-var FavoriteUpdateSetKey = "fav_update_set"
-
-const maxRetries = 30
-const retryInterval = 300 * time.Millisecond
+const FavoriteUpdateSetKey = "fav_update_set"
+const maxRetries = 15
+const retryInterval = 100 * time.Millisecond
 
 // ActionFavoriteCache 点赞缓存
 func ActionFavoriteCache(videoId int64, actionType int32) error {
@@ -24,7 +23,9 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 		return err
 	}
 	if !lock {
+		// FIXME 重试机制优化
 		var retryCount int
+		var retryDelay = retryInterval
 		for retryCount < maxRetries {
 			lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 3*time.Second)
 			if err != nil {
@@ -34,7 +35,8 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 				break // 成功获取锁，退出重试循环
 			}
 			// 获取锁失败，等待一段时间后重试
-			time.Sleep(retryInterval)
+			time.Sleep(retryDelay)
+			retryDelay *= 2
 			retryCount++
 		}
 		if retryCount == maxRetries {
