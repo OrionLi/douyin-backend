@@ -93,10 +93,15 @@ func (f FavoriteServiceImpl) CountFav(userId int64) (int32, int32, error) {
 	for _, video := range VideoList {
 		count, err := cache.GetFavoriteCountCache(video.Id)
 		if err != nil {
-			if err != redis.Nil {
+			if err == redis.Nil {
+				count = video.FavoriteCount
+				err := cache.SetFavoriteCountCache(video.Id, count)
+				if err != nil {
+					util.LogrusObj.Error("<Favorite Count In Redis Update failed> ", "videoId:", video.Id, "err:", err)
+				}
+			} else {
 				return 0, 0, err
 			}
-			count = video.FavoriteCount
 		}
 		receivedFavoriteCount += count
 	}

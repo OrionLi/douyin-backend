@@ -48,7 +48,7 @@ func GetFavoriteCount(ctx context.Context, userId int64) (int32, error) {
 // GetSingleVideoFavoriteCount 获取单个视频点赞数量
 func GetSingleVideoFavoriteCount(ctx context.Context, videoId int64) (int32, error) {
 	var favCount int32
-	result := DB.WithContext(ctx).Table("videos").Where("video_id = ?", videoId).Select("favorite_count").Scan(&favCount)
+	result := DB.WithContext(ctx).Table("videos").Where("id = ?", videoId).Select("favorite_count").Scan(&favCount)
 	if result.Error != nil {
 		return 0, result.Error
 	}

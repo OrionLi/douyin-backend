@@ -32,7 +32,7 @@ func main() {
 	cache.Init()
 	dao.Init()
 	oss.Init()
-	service.UpdateFavoriteCacheToMySQLAtRegularTime()
+	go service.UpdateFavoriteCacheToMySQLAtRegularTime()
 	defer service.UpdateFavoriteCacheToMySQLAtRegularTime()
 	RegisterNacos()
 	server := grpc.NewServer(

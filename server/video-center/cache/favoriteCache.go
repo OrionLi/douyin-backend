@@ -30,8 +30,9 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 				return err
 			}
 			favoriteCount = int64(count)
+		} else {
+			return err
 		}
-		return err
 	}
 	switch actionType {
 	case 1:
@@ -46,6 +47,12 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 	// 更新集合
 	RedisClient.SAdd(context.Background(), FavoriteUpdateSetKey, videoId)
 	return nil
+}
+
+// SetFavoriteCountCache 设置缓存中的某个视频点赞数量
+func SetFavoriteCountCache(videoId int64, favoriteCount int64) error {
+	favoriteKey := fmt.Sprintf("favorite:%d", videoId)
+	return RedisClient.Set(context.Background(), favoriteKey, favoriteCount, 7*24*time.Hour).Err()
 }
 
 // GetFavoriteCountCache 获取缓存中的某个视频点赞数量
