@@ -3,6 +3,8 @@ package dao
 import (
 	"context"
 	"gorm.io/gorm"
+	"video-center/cache"
+	"video-center/pkg/util"
 )
 
 type Fav struct {
@@ -35,26 +37,12 @@ func IsFavorite(ctx context.Context, videoId int64, userId int64) (bool, error) 
 	return result.RowsAffected > 0, nil
 }
 
-// GetFavoriteCount 获取用户点赞数量
+// GetFavoriteCount 获取用户点赞数量(给别人的赞)
 func GetFavoriteCount(ctx context.Context, userId int64) (int32, error) {
 	var favCount int64
 	result := DB.WithContext(ctx).Model(&Fav{}).Where("user_id = ?", userId).Count(&favCount)
 	if result.Error != nil {
 		return 0, result.Error
-	}
-	return int32(favCount), nil
-}
-
-// GetReceivedFavoriteCount 获取用户收到的点赞数量
-func GetReceivedFavoriteCount(ctx context.Context, userId int64) (int32, error) {
-	var video []Video
-	result := DB.WithContext(ctx).Table("videos").Where("author_id = ?", userId).Select("favorite_count").Find(&video)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-	var favCount int64
-	for _, v := range video {
-		favCount += v.FavoriteCount
 	}
 	return int32(favCount), nil
 }
@@ -70,12 +58,15 @@ func GetSingleVideoFavoriteCount(ctx context.Context, videoId int64) (int32, err
 }
 
 // UpdateMySQLFavoriteCount 异步更新mysql中的值
-func UpdateMySQLFavoriteCount(videoID int64, favoriteCount int64, done chan<- error) {
+func UpdateMySQLFavoriteCount(videoID int64, favoriteCount int64) {
 	err := DB.Model(&Video{}).Where("id = ?", videoID).Update("favorite_count", favoriteCount).Error
 	if err != nil {
-		done <- err
+		util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoID, "err:", err)
 	}
-	done <- nil
+	err = cache.DeleteVideoIdFromFavoriteUpdateSet(videoID)
+	if err != nil {
+		util.LogrusObj.Error("<Favorite Count Update failed> : Failed to delete video id in Redis", "videoId:", videoID, "err:", err)
+	}
 }
 
 // ListFav 获取用户喜欢列表

@@ -70,22 +70,27 @@ func (f FavoriteServiceImpl) ListFav(userId int64) (bool, []*pb.Video) {
 	return true, favVideoList
 }
 
+// CountFav 获取用户点赞数量, 收到的点赞数量
 // TODO 是否考虑缓存穿透问题
 func (f FavoriteServiceImpl) CountFav(userId int64) (int32, int32, error) {
 	favoriteCount, err := dao.GetFavoriteCount(f.ctx, userId)
 	if err != nil {
 		return 0, 0, err
 	}
-	receivedFavoriteCount, err := cache.GetFavoriteCountCache(userId)
+	VideoList, err := dao.QueryVideoListByAuthorId(f.ctx, userId)
 	if err != nil {
-		if err != redis.Nil {
-			return 0, 0, err
-		}
-		count, err := dao.GetReceivedFavoriteCount(f.ctx, userId)
+		return 0, 0, err
+	}
+	var receivedFavoriteCount int64
+	for _, video := range VideoList {
+		count, err := cache.GetFavoriteCountCache(video.Id)
 		if err != nil {
-			return 0, 0, err
+			if err != redis.Nil {
+				return 0, 0, err
+			}
+			count = video.FavoriteCount
 		}
-		return favoriteCount, count, nil
+		receivedFavoriteCount += count
 	}
 	return favoriteCount, int32(receivedFavoriteCount), nil
 }

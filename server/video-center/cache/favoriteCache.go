@@ -5,10 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"log"
 	"time"
 	"video-center/dao"
 	"video-center/pkg/util"
 )
+
+var FavoriteUpdateSetKey = "fav_update_set"
 
 func ActionFavoriteCache(videoId int64, actionType int32) error {
 	lockKey := fmt.Sprintf("lock:fav:vid:%d", videoId)
@@ -38,21 +41,47 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 	default:
 		return errors.New("actionType error")
 	}
-	RedisClient.Set(context.Background(), favoriteKey, favoriteCount, 3*time.Minute)
-	updateDone := make(chan error)
-	// FIXME 异步更新 MySQL 中的值，此过程可能会有并发问题，考虑更改为定时更新
-	go dao.UpdateMySQLFavoriteCount(videoId, favoriteCount, updateDone)
-	// 等待异步更新完成，如果有错误，返回错误
-	if err := <-updateDone; err != nil {
-		util.LogrusObj.Error("<Redis-FavoriteAction>, Async Update MySQL failed", err)
-		return err
-	}
+	RedisClient.Set(context.Background(), favoriteKey, favoriteCount, -1)
+	RedisClient.SAdd(context.Background(), FavoriteUpdateSetKey, videoId)
 	return nil
 }
 
+// GetFavoriteCountCache 获取缓存中的某个视频点赞数量
 func GetFavoriteCountCache(videoId int64) (int64, error) {
 	favoriteKey := fmt.Sprintf("favorite:%d", videoId)
 	return RedisClient.Get(context.Background(), favoriteKey).Int64()
+}
+
+// DeleteVideoIdFromFavoriteUpdateSet 从更新集合中删除某个视频ID
+func DeleteVideoIdFromFavoriteUpdateSet(videoId int64) error {
+	return RedisClient.SRem(context.Background(), FavoriteUpdateSetKey, videoId).Err()
+}
+
+// UpdateFavoriteCacheToMySQLAtRegularTime 更新到MySQL
+func UpdateFavoriteCacheToMySQLAtRegularTime() {
+	interval := 12 * time.Hour // 设置定时任务的时间间隔
+	// 创建一个定时器
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			favoriteUpdateSet, err := RedisClient.SMembers(context.Background(), FavoriteUpdateSetKey).Result()
+			if err != nil {
+				util.LogrusObj.Error("<Favorite Count Update failed>", ": Get list fail", err)
+			}
+			// 处理每个视频ID
+			for _, videoIdStr := range favoriteUpdateSet {
+				videoId := util.StringToInt64(videoIdStr)
+				count, err := GetFavoriteCountCache(videoId)
+				if err != nil {
+					util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoId, "err:", err)
+				}
+				go dao.UpdateMySQLFavoriteCount(videoId, count)
+			}
+			log.Println("UpdateToMySQL task executed at", time.Now())
+		}
+	}
 }
 
 // RedisLock redis分布式锁

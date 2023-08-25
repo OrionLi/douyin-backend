@@ -31,6 +31,7 @@ func main() {
 	cache.Init()
 	dao.Init()
 	oss.Init()
+	cache.UpdateFavoriteCacheToMySQLAtRegularTime()
 	RegisterNacos()
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb
