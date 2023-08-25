@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"time"
@@ -29,9 +30,23 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 		}
 		favoriteCount = int64(count)
 	}
-	favoriteCount++
+	switch actionType {
+	case 1:
+		favoriteCount++
+	case 2:
+		favoriteCount--
+	default:
+		return errors.New("actionType error")
+	}
 	RedisClient.Set(context.Background(), favoriteKey, favoriteCount, 3*time.Minute)
-	// TODO 异步更新mysql中的值
+	updateDone := make(chan error)
+	// FIXME 异步更新 MySQL 中的值，此过程可能会有并发问题，考虑更改为定时更新
+	go dao.UpdateMySQLFavoriteCount(videoId, favoriteCount, updateDone)
+	// 等待异步更新完成，如果有错误，返回错误
+	if err := <-updateDone; err != nil {
+		util.LogrusObj.Error("<Redis-FavoriteAction>, Async Update MySQL failed", err)
+		return err
+	}
 	return nil
 }
 

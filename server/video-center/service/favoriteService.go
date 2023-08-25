@@ -23,13 +23,21 @@ type FavoriteServiceImpl struct {
 func (f FavoriteServiceImpl) CreateFav(videoId int64, userId int64) error {
 	// TODO 验证是否已经点赞 此项应在压测通过后实现
 	// HACK IsFav() 验证 重复点赞问题
-	return dao.CreateFav(f.ctx, videoId, userId)
+	err := dao.CreateFav(f.ctx, videoId, userId)
+	if err != nil {
+		return err
+	}
+	return cache.ActionFavoriteCache(videoId, 1)
 }
 
 func (f FavoriteServiceImpl) DeleteFav(videoId int64, userId int64) error {
 	// TODO 验证是否未点赞 此项应在压测通过后实现
 	// HACK IsFav() 验证 未点赞试图取消点赞问题
-	return dao.DeleteFav(f.ctx, videoId, userId)
+	err := dao.DeleteFav(f.ctx, videoId, userId)
+	if err != nil {
+		return err
+	}
+	return cache.ActionFavoriteCache(videoId, 2)
 }
 
 func (f FavoriteServiceImpl) IsFav(videoId int64, userId int64) (bool, error) {
@@ -62,7 +70,7 @@ func (f FavoriteServiceImpl) ListFav(userId int64) (bool, []*pb.Video) {
 	return true, favVideoList
 }
 
-// HACK 是否考虑缓存穿透问题
+// TODO 是否考虑缓存穿透问题
 func (f FavoriteServiceImpl) CountFav(userId int64) (int32, int32, error) {
 	favoriteCount, err := dao.GetFavoriteCount(f.ctx, userId)
 	if err != nil {
