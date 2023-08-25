@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"log"
 	"time"
 	"video-center/dao"
 	"video-center/pkg/util"
@@ -13,6 +12,7 @@ import (
 
 var FavoriteUpdateSetKey = "fav_update_set"
 
+// ActionFavoriteCache 点赞缓存
 func ActionFavoriteCache(videoId int64, actionType int32) error {
 	lockKey := fmt.Sprintf("lock:fav:vid:%d", videoId)
 	favoriteKey := fmt.Sprintf("favorite:%d", videoId)
@@ -24,14 +24,14 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 	// 查询 Redis 中的值
 	favoriteCount, err := GetFavoriteCountCache(videoId)
 	if err != nil {
-		if err != redis.Nil {
-			return err
+		if err == redis.Nil {
+			count, err := dao.GetSingleVideoFavoriteCount(context.Background(), videoId)
+			if err != nil {
+				return err
+			}
+			favoriteCount = int64(count)
 		}
-		count, err := dao.GetSingleVideoFavoriteCount(context.Background(), videoId)
-		if err != nil {
-			return err
-		}
-		favoriteCount = int64(count)
+		return err
 	}
 	switch actionType {
 	case 1:
@@ -41,7 +41,9 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 	default:
 		return errors.New("actionType error")
 	}
-	RedisClient.Set(context.Background(), favoriteKey, favoriteCount, -1)
+	// 更新缓存
+	RedisClient.Set(context.Background(), favoriteKey, favoriteCount, 7*24*time.Hour)
+	// 更新集合
 	RedisClient.SAdd(context.Background(), FavoriteUpdateSetKey, videoId)
 	return nil
 }
@@ -57,31 +59,9 @@ func DeleteVideoIdFromFavoriteUpdateSet(videoId int64) error {
 	return RedisClient.SRem(context.Background(), FavoriteUpdateSetKey, videoId).Err()
 }
 
-// UpdateFavoriteCacheToMySQLAtRegularTime 更新到MySQL
-func UpdateFavoriteCacheToMySQLAtRegularTime() {
-	interval := 12 * time.Hour // 设置定时任务的时间间隔
-	// 创建一个定时器
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
-	for {
-		select {
-		case <-ticker.C:
-			favoriteUpdateSet, err := RedisClient.SMembers(context.Background(), FavoriteUpdateSetKey).Result()
-			if err != nil {
-				util.LogrusObj.Error("<Favorite Count Update failed>", ": Get list fail", err)
-			}
-			// 处理每个视频ID
-			for _, videoIdStr := range favoriteUpdateSet {
-				videoId := util.StringToInt64(videoIdStr)
-				count, err := GetFavoriteCountCache(videoId)
-				if err != nil {
-					util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoId, "err:", err)
-				}
-				go dao.UpdateMySQLFavoriteCount(videoId, count)
-			}
-			log.Println("UpdateToMySQL task executed at", time.Now())
-		}
-	}
+// GetMemberFromFavoriteUpdateSet 获取更新集合中的所有视频ID
+func GetMemberFromFavoriteUpdateSet() ([]string, error) {
+	return RedisClient.SMembers(context.Background(), FavoriteUpdateSetKey).Result()
 }
 
 // RedisLock redis分布式锁

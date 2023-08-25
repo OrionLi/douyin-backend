@@ -13,6 +13,7 @@ import (
 	"video-center/dao"
 	"video-center/handler"
 	"video-center/oss"
+	"video-center/service"
 )
 
 var ServiceName string
@@ -31,7 +32,8 @@ func main() {
 	cache.Init()
 	dao.Init()
 	oss.Init()
-	cache.UpdateFavoriteCacheToMySQLAtRegularTime()
+	service.UpdateFavoriteCacheToMySQLAtRegularTime()
+	defer service.UpdateFavoriteCacheToMySQLAtRegularTime()
 	RegisterNacos()
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb

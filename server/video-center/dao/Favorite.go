@@ -3,8 +3,6 @@ package dao
 import (
 	"context"
 	"gorm.io/gorm"
-	"video-center/cache"
-	"video-center/pkg/util"
 )
 
 type Fav struct {
@@ -57,16 +55,9 @@ func GetSingleVideoFavoriteCount(ctx context.Context, videoId int64) (int32, err
 	return favCount, nil
 }
 
-// UpdateMySQLFavoriteCount 异步更新mysql中的值
-func UpdateMySQLFavoriteCount(videoID int64, favoriteCount int64) {
-	err := DB.Model(&Video{}).Where("id = ?", videoID).Update("favorite_count", favoriteCount).Error
-	if err != nil {
-		util.LogrusObj.Error("<Favorite Count Update failed> ", "videoId:", videoID, "err:", err)
-	}
-	err = cache.DeleteVideoIdFromFavoriteUpdateSet(videoID)
-	if err != nil {
-		util.LogrusObj.Error("<Favorite Count Update failed> : Failed to delete video id in Redis", "videoId:", videoID, "err:", err)
-	}
+// UpdateFavoriteCountByVideoId 更新mysql中的值
+func UpdateFavoriteCountByVideoId(videoID int64, favoriteCount int64) error {
+	return DB.Model(&Video{}).Where("id = ?", videoID).Update("favorite_count", favoriteCount).Error
 }
 
 // ListFav 获取用户喜欢列表
