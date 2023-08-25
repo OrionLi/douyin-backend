@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
-	"video-center/dao"
 	"video-center/pkg/errno"
 	"video-center/service"
 )
@@ -30,7 +29,7 @@ func (v VideoInteractionServer) ActionFavorite(ctx context.Context, request *pb.
 			StatusMsg:  errno.Success.ErrMsg,
 		}, nil
 	case 2:
-		err := dao.DeleteFav(ctx, selfUserId, videoId)
+		err := service.NewFavoriteService(ctx).DeleteFav(selfUserId, videoId)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
 				StatusCode: errno.FavActionErrCode,

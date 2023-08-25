@@ -71,19 +71,38 @@ func IsFavorite(ctx context.Context, videoId int64, userId int64) (bool, error) 
 	return result.RowsAffected > 0, nil
 }
 
-// GetFavoriteCount 获取用户点赞数量和被点赞数量
-func GetFavoriteCount(ctx context.Context, userId int64) (int32, int32, error) {
+// GetFavoriteCount 获取用户点赞数量
+func GetFavoriteCount(ctx context.Context, userId int64) (int32, error) {
 	var favCount int64
-	var getFavCount int64
 	result := DB.WithContext(ctx).Model(&Fav{}).Where("user_id = ?", userId).Count(&favCount)
 	if result.Error != nil {
-		return 0, 0, result.Error
+		return 0, result.Error
 	}
-	result = DB.WithContext(ctx).Model(&Video{}).Where("author_id = ?", userId).Count(&getFavCount)
+	return int32(favCount), nil
+}
+
+// GetReceivedFavoriteCount 获取用户收到的点赞数量
+func GetReceivedFavoriteCount(ctx context.Context, userId int64) (int32, error) {
+	var video []Video
+	result := DB.Table("videos").Where("author_id = ?", userId).Select("favorite_count").Find(&video)
 	if result.Error != nil {
-		return 0, 0, result.Error
+		return 0, result.Error
 	}
-	return int32(favCount), int32(getFavCount), nil
+	var favCount int64
+	for _, v := range video {
+		favCount += v.FavoriteCount
+	}
+	return int32(favCount), nil
+}
+
+// GetSingleVideoFavoriteCount 获取单个视频点赞数量
+func GetSingleVideoFavoriteCount(ctx context.Context, videoId int64) (int32, error) {
+	var favCount int32
+	result := DB.Table("videos").Where("video_id = ?", videoId).Select("favorite_count").Scan(&favCount)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return favCount, nil
 }
 
 // ListFav 获取用户喜欢列表

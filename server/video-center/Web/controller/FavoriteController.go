@@ -22,7 +22,7 @@ func ActionFav(c *gin.Context) {
 	var requestBody FavoriteParam
 	err := c.ShouldBindJSON(&requestBody)
 	if err != nil {
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: errno.ParamErr.ErrMsg}})
+		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
 		return
 	}
 	userId := validateToken(requestBody.Token)
