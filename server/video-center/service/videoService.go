@@ -68,15 +68,28 @@ func (s *VideoService) PublishAction(authorId int64, playURL string, coverURL st
 	return nil
 }
 func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video, error) {
-	videoList, err := dao.QueryVideosByCurrentTime(s.ctx, lastTime, 0, 30)
+	videos := make([]*pb.Video, 0)
+	//查询缓存，如果存在则直接返回缓存内容
+	VideoCacheKey := fmt.Sprintf("Feed:%dUID:%d", lastTime, userId)
+	list, err2 := cache.RedisGetVideoList(s.ctx, VideoCacheKey)
+	if err2 != nil { //不存在，则查询数据库
+		l, err := dao.QueryVideosByCurrentTime(s.ctx, lastTime, 0, 30)
+		if err != nil {
+			return videos, err
+		}
+		//存入缓存中
+		for _, video := range l {
+			list = append(list, *video)
+		}
+		err3 := cache.RedisSetVideoList(s.ctx, VideoCacheKey, list)
+		if err3 != nil {
+			return videos, err3
+		}
+	}
 	var isFav bool
 	isFav = false
-	videos := make([]*pb.Video, 0)
-	if err != nil {
-		return videos, err
-	}
 	//如果登录了传入userId，否则传0表示没有登录
-	for _, v := range videoList {
+	for _, v := range list {
 		if userId != 0 { //！=0表示已登录，查询是否是作者的粉丝s
 			favorite, err := dao.IsFavorite(context.Background(), v.Id, userId) //查看是否点赞
 			if err != nil {
