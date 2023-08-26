@@ -5,24 +5,19 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"time"
+	"video-center/dao"
 )
 
 func RedisSetKey(ctx context.Context, key string, value interface{}) error {
 	if _, err := RedisClient.Get(ctx, key).Result(); err != redis.Nil {
-		fmt.Println("Redis client set successfully...")
+		fmt.Printf("Key is existed %s\n", key)
 	}
 	err := RedisClient.Set(ctx, key, value, 3*time.Minute).Err()
 	if err != nil {
 		panic(err)
 	}
-	if _, ok := value.(string); ok {
-		err = RedisClient.Set(ctx, value.(string), key, 3*time.Minute).Err()
-	}
-	if err != nil {
-		panic(err)
-	}
 
-	fmt.Println("Redis client set successfully...")
+	fmt.Printf("Redis client set successfully...%s\n", key)
 	return nil
 }
 
@@ -37,6 +32,30 @@ func RedisGetKey(ctx context.Context, key string) (string, error) {
 		panic(err)
 	}
 
-	fmt.Println("Redis client get successfully...")
+	fmt.Printf("Redis client get successfully... %s\n", key)
 	return value, nil
+}
+
+func RedisSetVideoList(ctx context.Context, key string, videoList dao.VideoArray) error {
+	if _, err := RedisClient.Get(ctx, key).Result(); err != redis.Nil {
+		fmt.Printf("Key is existed %s\n", key)
+	}
+	err := RedisClient.Set(ctx, key, &videoList, 3*time.Minute).Err()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Redis client set successfully...%s\n", key)
+	return nil
+}
+func RedisGetVideoList(ctx context.Context, key string) (dao.VideoArray, error) {
+	videos := dao.VideoArray{}
+	err := RedisClient.Get(ctx, key).Scan(&videos)
+	if err == redis.Nil {
+		return videos, err
+	}
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Redis client get successfully... %s\n", key)
+	return videos, nil
 }
