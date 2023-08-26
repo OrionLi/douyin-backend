@@ -1,5 +1,8 @@
 package main
 
-func main() {
+import "gateway/conf"
 
+func main() {
+	conf.Init()
+	NewRouter()
 }
