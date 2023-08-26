@@ -1,7 +1,27 @@
 package controller
 
-import "github.com/OrionLi/douyin-backend/pkg/pb"
+import (
+	"github.com/OrionLi/douyin-backend/pkg/pb"
+)
 
+type Video struct {
+	id            int64
+	user          User
+	playUrl       string
+	coverUrl      string
+	favoriteCount int64
+	commentCount  int64
+	isFavorite    bool
+	title         string
+}
+
+type User struct {
+	Id            int64
+	Name          string
+	FollowCount   int64
+	FollowerCount int64
+	IsFollow      bool
+}
 type Response struct {
 	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg,omitempty"`
@@ -20,12 +40,12 @@ type FeedParam struct {
 }
 type FeedResponse struct {
 	Response
-	VideoList []*pb.Video `json:"video_list,omitempty"`
-	NextTime  int64       `json:"next_time,omitempty"`
+	VideoList []*Video `json:"video_list,omitempty"`
+	NextTime  int64    `json:"next_time,omitempty"`
 }
 type PublishListResponse struct {
 	Response
-	VideoList []*pb.Video `json:"video_list,omitempty"`
+	VideoList []*Video `json:"video_list,omitempty"`
 }
 type PublishActionResponse struct {
 	Response
@@ -53,7 +73,7 @@ type CommentListResponse struct {
 }
 type FavListResponse struct {
 	Response
-	FavList []*pb.Video `form:"video_list" json:"video_list"`
+	FavList []*Video `form:"video_list" json:"video_list"`
 }
 
 type FavActionResponse struct {

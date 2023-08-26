@@ -1,11 +1,13 @@
 package controller
 
 import (
+	context2 "context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"time"
+	"video-center/Web/rpc"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
 	"video-center/service"
@@ -93,17 +95,43 @@ func (h *FavoriteController) ListFav(context *gin.Context) {
 		return
 	}
 	b, favs := h.ChatService.ListFav(UserIdParseInt)
+	videoList := make([]*Video, 0)
+	for _, video := range favs {
+		info, err := rpc.GetUserInfo(context2.Background(), &pb.DouyinUserRequest{UserId: video.Author.Id})
+		if err != nil {
+			util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &token)
+			continue
+		}
+		user := User{
+			Id:            info.Id,
+			Name:          info.Name,
+			FollowerCount: info.FollowerCount,
+			FollowCount:   info.FollowCount,
+			IsFollow:      false,
+		}
+		v := Video{
+			id:            video.Id,
+			user:          user,
+			coverUrl:      video.CoverUrl,
+			playUrl:       video.PlayUrl,
+			favoriteCount: video.FavoriteCount,
+			commentCount:  video.CommentCount,
+			isFavorite:    video.IsFavorite,
+			title:         video.Title,
+		}
+		videoList = append(videoList, &v)
+	}
 	if !b {
 		context.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.FavListEmptyCode, StatusMsg: errno.FavListEmptyErr.ErrMsg},
-			FavList:  []*pb.Video{},
+			FavList:  []*Video{},
 		})
 		return
 	}
 	if b {
 		context.JSON(http.StatusOK, FavListResponse{
 			Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
-			FavList:  favs,
+			FavList:  videoList,
 		})
 		return
 	}

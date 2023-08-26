@@ -22,6 +22,7 @@ func Init() {
 	NacosIp = conf.Viper.GetString("nacos.Ip")
 	NacosPort = conf.Viper.GetUint64("nacos.Port")
 	initVideoRpc()
+	initUserRpc()
 }
 
 // VideoClient 非流式
@@ -30,9 +31,13 @@ var VideoClient pb.VideoCenterClient
 // VideoStreamClient 流式
 var VideoStreamClient pb.VideoCenter_PublishActionClient
 
+// UserClient 获取User的基本信息
+var UserClient pb.UserServiceClient
+
 // Conn 共有连接
 var Conn *grpc.ClientConn
 
+// 初始化VideoRpc
 func initVideoRpc() {
 	serverConfig := []constant.ServerConfig{
 		{
@@ -69,6 +74,7 @@ func initVideoRpc() {
 	client := pb.NewVideoCenterClient(conn)
 	//创建流式client
 	streamClient, err := NewVideoStreamClient(conn)
+
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -78,6 +84,41 @@ func initVideoRpc() {
 	}
 	VideoClient = client
 	VideoStreamClient = streamClient
+}
+
+// 初始化UserRpc
+func initUserRpc() {
+	serverConfig := []constant.ServerConfig{
+		{
+			IpAddr: NacosIp,
+			Port:   NacosPort,
+		},
+	}
+
+	clientConfig := constant.ClientConfig{
+		TimeoutMs:           5000,
+		NotLoadCacheAtStart: true,
+		LogLevel:            "debug",
+	}
+
+	namingClient, err := clients.NewNamingClient(
+		vo.NacosClientParam{
+			ClientConfig:  &clientConfig,
+			ServerConfigs: serverConfig,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+	instances, err := namingClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
+		ServiceName: "User-Center", //todo 发现UserCenter服务的名称
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	UserClient = pb.NewUserServiceClient(conn)
 }
 
 // StreamClient 流式client
