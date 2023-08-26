@@ -2,6 +2,8 @@ package dao
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"gorm.io/gorm"
 	"math/rand"
 	"time"
@@ -16,6 +18,17 @@ type Video struct {
 	FavoriteCount int64  `json:"favorite_count,omitempty"`                       // 视频的点赞总数
 	CommentCount  int64  `json:"comment_count,omitempty"`                        // 视频的评论总数
 	Title         string `json:"title,omitempty"`                                // 视频标题
+}
+type VideoArray []Video
+
+func (v *VideoArray) MarshalBinary() (data []byte, err error) {
+	fmt.Println("MarshalBinary")
+	return json.Marshal(v)
+}
+func (v *VideoArray) UnmarshalBinary(data []byte) error {
+	fmt.Println("UnmarshalBinary")
+	return json.Unmarshal(data, v)
+
 }
 
 // SaveVideo 保存video，其存储title、PlayURL、CoverURL、AuthorID
