@@ -15,6 +15,7 @@ import (
 	"video-center/conf"
 	"video-center/dao"
 	"video-center/handler"
+	"video-center/mq"
 	"video-center/oss"
 	"video-center/service"
 )
@@ -35,6 +36,8 @@ func main() {
 	cache.Init()
 	dao.Init()
 	oss.Init()
+	mq.Init()
+	mq.ConsumerFavorite()
 	RegisterNacos()
 	BeforeExit()
 	service.UpdateFavoriteCacheToMySQL()
