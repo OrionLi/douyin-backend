@@ -1,8 +1,13 @@
 package main
 
-import "gateway/conf"
+import (
+	"gateway/conf"
+	"gateway/grpcClient"
+)
 
 func main() {
+	grpcClient.UserClientInit()
 	conf.Init()
-	NewRouter()
+	NewRouter().Run(":3010")
+
 }

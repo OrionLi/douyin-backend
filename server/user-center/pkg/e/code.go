@@ -3,8 +3,8 @@ package e
 import "google.golang.org/grpc/codes"
 
 const (
-	Error = codes.Unknown
-
+	Success                = codes.OK
+	Error                  = codes.Unknown
 	InvalidParams          = codes.InvalidArgument
 	ErrorExistUserNotFound = codes.NotFound
 	ErrorExistUser         = codes.AlreadyExists

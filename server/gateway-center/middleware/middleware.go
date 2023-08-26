@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"gateway/pkg/e"
 	"github.com/gin-gonic/gin"
 	"time"
 
@@ -9,27 +10,27 @@ import (
 
 func JWT() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var code int
-		code = 0
+		code := e.Success
+
 		token := ctx.Query("token")
 
 		if token == "" {
-			code = 404
+			code = e.ErrorAuthToken
 		} else {
 			claims, err := util.ParseToken(token)
 			// 将id存入上下文
 			ctx.Set("UserId", claims.ID)
 			if err != nil {
 
-				code = 1
+				code = e.Error
 			} else if time.Now().Unix() > claims.ExpiresAt {
-				code = 2
+				code = e.ErrorAuthCheckTokenTimeout
 			}
 		}
-		if code != 0 {
+		if code != e.Success {
 			ctx.JSON(200, gin.H{
-				"code": code,
-				"msg":  "请登录",
+				"status_code": code,
+				"status_msg":  e.GetMsg(code),
 			})
 			ctx.Abort()
 			return

@@ -12,14 +12,11 @@ type CustomError struct {
 }
 
 var MsgFlags = map[codes.Code]string{
-	Success:                "success",
-	Error:                  "fail",
-	ErrorAborted:           "操作失败",
-	InvalidParams:          "参数错误",
-	ErrorExistUser:         "该用户名已存在",
-	ErrorExistUserNotFound: "用户不存在",
-	ErrorNotCompare:        "密码错误",
-	ErrorAuthToken:         "token 认证失败",
+	Success:                    "success",
+	Error:                      "fail",
+	InvalidParams:              "参数错误",
+	ErrorAuthToken:             "token 认证失败",
+	ErrorAuthCheckTokenTimeout: "token时效已过，请重新登录",
 }
 
 //GstMag 获取状态码对应信息

@@ -1,89 +1,158 @@
 package controller
 
 import (
+	"fmt"
 	"gateway/grpcClient"
+	"gateway/pkg/e"
 	"gateway/response"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/status"
+	"net/http"
 	"strconv"
 )
 
+// todo: 封装json接口
 // 用户登录
 func UserLogin(ctx *gin.Context) {
+	code := e.Success
 	var err error
 	userName := ctx.Query("username")
 	password := ctx.Query("password")
 	if len(userName) > 32 || len(password) > 32 { // 最长32位字符
 		// todo: 添加返回
+		code = e.InvalidParams
+		ctx.JSON(http.StatusOK, response.DouyinUserLoginResponse{
+			StatusCode: int32(code),
+			StatusMsg:  e.GetMsg(code),
+		})
 		return
 	}
 	// todo: 添加grpc调用
-	_, err = grpcClient.UserLogin(ctx, userName, password)
+	resp, err := grpcClient.UserLogin(ctx, userName, password)
 
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
 			// 获取错误码和错误信息
-			_ = int64(st.Code())
-			_ = st.Message()
-			// todo: 添加返回
+			code = st.Code()
+			msg := st.Message()
+
+			ctx.JSON(http.StatusOK, response.DouyinUserLoginResponse{
+				StatusCode: int32(code),
+				StatusMsg:  msg,
+			})
 			return
 		}
 		// todo: 添加返回
-
+		code = e.Error
+		ctx.JSON(http.StatusOK, response.DouyinUserLoginResponse{
+			StatusCode: int32(code),
+			StatusMsg:  e.GetMsg(code),
+		})
+		return
 	}
-
-	// todo: 添加返回
+	ctx.JSON(http.StatusOK, response.DouyinUserLoginResponse{
+		StatusCode: int32(code),
+		StatusMsg:  e.GetMsg(code),
+		UserID:     resp.UserId,
+		Token:      resp.Token,
+	})
 
 }
 
 func UserRegister(ctx *gin.Context) {
+	code := e.Success
 	var err error
 	userName := ctx.Query("username")
 	password := ctx.Query("password")
 	if len(userName) > 32 || len(password) > 32 { // 最长32位字符
 		// todo: 添加返回
+		code = e.InvalidParams
+		ctx.JSON(http.StatusOK, response.DouyinUserRegisterResponse{
+			StatusCode: int32(code),
+			StatusMsg:  e.GetMsg(code),
+		})
 		return
 	}
 
 	// todo: 添加grpc调用
-	_, err = grpcClient.UserRegister(ctx, userName, password)
+	resp, err := grpcClient.UserRegister(ctx, userName, password)
 
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
 			// 获取错误码和错误信息
-			_ = int32(st.Code())
-			_ = st.Message()
-			// todo: 添加返回
+			code = st.Code()
+			msg := st.Message()
+
+			ctx.JSON(http.StatusOK, response.DouyinUserRegisterResponse{
+				StatusCode: int32(code),
+				StatusMsg:  msg,
+			})
 			return
 		}
 		// todo: 添加返回
-
+		code = e.Error
+		ctx.JSON(http.StatusOK, response.DouyinUserRegisterResponse{
+			StatusCode: int32(code),
+			StatusMsg:  e.GetMsg(code),
+		})
+		return
 	}
 	// todo: 添加返回
+	ctx.JSON(http.StatusOK, response.DouyinUserRegisterResponse{
+		StatusCode: int32(code),
+		StatusMsg:  e.GetMsg(code),
+		UserID:     resp.UserId,
+		Token:      resp.Token,
+	})
+	return
 }
 
 // 获取用户信息
 func GetUser(ctx *gin.Context) {
-
+	code := e.Success
 	var err error
 	userId := ctx.Query("user_id")
-	uids, _ := ctx.Get("UserId")
-
-	uid := uids.(int64)
+	myId, _ := ctx.Get("UserId")
+	mId := myId.(uint)
+	uId, err := strconv.Atoi(userId)
 	if err != nil {
 		// todo: 添加返回
+		fmt.Println(err)
+		code = e.InvalidParams
+		ctx.JSON(http.StatusOK, response.DouyinUserResponse{
+			StatusCode: int32(code),
+			StatusMsg:  e.GetMsg(code),
+		})
 		return
 	}
+	user, err := GetUserInfo(ctx, mId, uint(uId), " ")
+	if err != nil {
+		if st, ok := status.FromError(err); ok {
+			// 获取错误码和错误信息
+			code = st.Code()
+			msg := st.Message()
 
-	if strconv.FormatInt(uid, 10) != userId {
+			ctx.JSON(http.StatusOK, response.DouyinUserResponse{
+				StatusCode: int32(code),
+				StatusMsg:  msg,
+			})
+			return
+		}
 		// todo: 添加返回
+		code = e.Error
+		ctx.JSON(http.StatusOK, response.DouyinUserResponse{
+			StatusCode: int32(code),
+			StatusMsg:  e.GetMsg(code),
+		})
 		return
 	}
-	// 从userGrpc微服务获取信息
-
-	// 从videoGrpc微服务获取信息
-
 	// todo: 添加返回
+	ctx.JSON(http.StatusOK, response.DouyinUserResponse{
+		StatusCode: int32(code),
+		StatusMsg:  e.GetMsg(code),
+		User:       user,
+	})
+	return
 }
 
 func GetUserInfo(ctx *gin.Context, myId, uId uint, token string) (*response.UserInfo, error) {
