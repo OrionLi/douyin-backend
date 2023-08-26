@@ -49,27 +49,28 @@ func PublishList(c *gin.Context) {
 	}
 	videoList := make([]*Video, 0)
 	for _, video := range videos {
-		info, err := rpc.GetUserInfo(context.Background(), &pb.DouyinUserRequest{UserId: video.Author.Id})
-		if err != nil {
-			util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
-			continue
-		}
-		user := User{
-			Id:            info.Id,
-			Name:          info.Name,
-			FollowerCount: info.FollowerCount,
-			FollowCount:   info.FollowCount,
-			IsFollow:      false,
-		}
+		//todo 封装User信息
+		//info, err := rpc.GetUserInfo(context.Background(), &pb.DouyinUserRequest{UserId: video.Author.Id})
+		//if err != nil {
+		//	util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
+		//	continue
+		//}
+		//user := User{
+		//	Id:            info.Id,
+		//	Name:          info.Name,
+		//	FollowerCount: info.FollowerCount,
+		//	FollowCount:   info.FollowCount,
+		//	IsFollow:      false,
+		//}
 		v := Video{
-			id:            video.Id,
-			user:          user,
-			coverUrl:      video.CoverUrl,
-			playUrl:       video.PlayUrl,
-			favoriteCount: video.FavoriteCount,
-			commentCount:  video.CommentCount,
-			isFavorite:    video.IsFavorite,
-			title:         video.Title,
+			Id:            video.Id,
+			User:          User{},
+			CoverUrl:      video.CoverUrl,
+			PlayUrl:       video.PlayUrl,
+			FavoriteCount: video.FavoriteCount,
+			CommentCount:  video.CommentCount,
+			IsFavorite:    video.IsFavorite,
+			Title:         video.Title,
 		}
 		videoList = append(videoList, &v)
 	}
