@@ -1,6 +1,8 @@
-package controller
+package baseResponse
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 )
 
@@ -22,6 +24,18 @@ type User struct {
 	FollowerCount int64  `json:"followerCount"`
 	IsFollow      bool   `json:"isFollow"`
 }
+type VideoArray []Video
+
+func (v *VideoArray) MarshalBinary() (data []byte, err error) {
+	fmt.Println("MarshalBinary")
+	return json.Marshal(v)
+}
+func (v *VideoArray) UnmarshalBinary(data []byte) error {
+	fmt.Println("UnmarshalBinary")
+	return json.Unmarshal(data, v)
+
+}
+
 type Response struct {
 	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg,omitempty"`
@@ -40,8 +54,8 @@ type FeedParam struct {
 }
 type FeedResponse struct {
 	Response
-	VideoList []*Video `json:"video_list,omitempty"`
-	NextTime  int64    `json:"next_time,omitempty"`
+	VideoList VideoArray `json:"video_list,omitempty"`
+	NextTime  int64      `json:"next_time,omitempty"`
 }
 type PublishListResponse struct {
 	Response

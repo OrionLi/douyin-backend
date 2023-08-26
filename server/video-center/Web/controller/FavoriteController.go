@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"video-center/Web/pkg/baseResponse"
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
@@ -22,26 +23,26 @@ func ActionFav(c *gin.Context) {
 	var requestBody FavoriteParam
 	err := c.ShouldBindJSON(&requestBody)
 	if err != nil {
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
 		return
 	}
 	userId := validateToken(requestBody.Token)
 	if userId == -1 {
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.TokenErrCode, StatusMsg: errno.TokenErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.Response{StatusCode: errno.TokenErrCode, StatusMsg: errno.TokenErr.ErrMsg}})
 		return
 	}
 	videoId := util.StringToInt64(requestBody.VideoId)
 	if videoId == -1 {
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
 		return
 	}
 	actionType := util.StringToInt64(requestBody.ActionType)
 	resp, err := rpc.ActionFavorite(context.Background(), userId, videoId, int32(actionType))
 	if err != nil || resp.StatusCode != errno.SuccessCode {
-		c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.FavActionErrCode, StatusMsg: errno.FavActionErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.Response{StatusCode: errno.FavActionErrCode, StatusMsg: errno.FavActionErr.ErrMsg}})
 		return
 	}
-	c.JSON(http.StatusOK, FavActionResponse{Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg}})
+	c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg}})
 }
 
 // ListFav 获取喜欢列表
@@ -49,8 +50,8 @@ func ListFav(c *gin.Context) {
 	userId := c.Query("user_id")
 	token := c.Query("token")
 	if userId == "" || token == "" {
-		c.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.FavListResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			FavList:  []*pb.Video{},
 		})
 		return
@@ -58,15 +59,15 @@ func ListFav(c *gin.Context) {
 	tokenUserId := validateToken(token)
 	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.FavListResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			FavList:  []*pb.Video{},
 		})
 		return
 	}
 	if tokenUserId != UserIdParseInt {
-		c.JSON(http.StatusOK, FavListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.FavListResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			FavList:  []*pb.Video{},
 		})
 		return
