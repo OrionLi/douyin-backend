@@ -2,7 +2,10 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"video-center/cache"
+	"video-center/pkg/util"
 
 	"video-center/dao"
 )
@@ -23,6 +26,20 @@ func (s *VideoService) PublishList(authorId int64) ([]*pb.Video, error) {
 		return nil, err
 	}
 	for _, v := range videoList {
+		//查询缓存，更新fav缓存 有变化则改动
+		favKey := fmt.Sprintf("favorite:%d", v.Id)
+		value, err := cache.RedisGetKey(s.ctx, favKey)
+		if err != nil {
+			util.LogrusObj.Errorf("Cache Error Key:%s ErrorCause:%s", favKey, err.Error())
+		}
+		toUint := util.StrToUint(value)
+		if toUint != v.FavoriteCount {
+			//更新Fav缓存
+			err := cache.RedisSetKey(s.ctx, favKey, v.FavoriteCount)
+			if err != nil {
+				util.LogrusObj.Errorf("Cache Error Key:%s errorCause:%s", favKey, err.Error())
+			}
+		}
 		videos = append(videos, &pb.Video{
 			Id: v.Id,
 			Author: &pb.User{
@@ -66,6 +83,24 @@ func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video,
 				isFav = false
 			}
 			isFav = favorite
+		}
+		//查询缓存，更新fav缓存 有变化则改动
+		favKey := fmt.Sprintf("favorite:%d", v.Id)
+		value, err := cache.RedisGetKey(s.ctx, favKey)
+		if err != nil {
+			util.LogrusObj.Errorf("Cache Error Key:%s ErrorCause:%s", favKey, err.Error())
+			err := cache.RedisSetKey(s.ctx, favKey, v.FavoriteCount)
+			if err != nil {
+				util.LogrusObj.Errorf("Cache Error Key:%s errorCause:%s", favKey, err.Error())
+			}
+		}
+		toUint := util.StrToUint(value)
+		if toUint != v.FavoriteCount {
+			//更新Fav缓存
+			err := cache.RedisSetKey(s.ctx, favKey, v.FavoriteCount)
+			if err != nil {
+				util.LogrusObj.Errorf("Cache Error Key:%s errorCause:%s", favKey, err.Error())
+			}
 		}
 		videos = append(videos, &pb.Video{
 			Id: v.Id,
