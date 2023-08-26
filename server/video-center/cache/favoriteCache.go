@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"time"
+	"video-center/dao"
+	"video-center/pkg/util"
 )
 
 const FavoriteUpdateSetKey = "fav_update_set"
@@ -13,15 +16,37 @@ const FavoriteUpdateSetKey = "fav_update_set"
 // 通过原子性操作解决并发问题
 func ActionFavoriteCache(videoId int64, actionType int32) error {
 	favoriteKey := fmt.Sprintf("favorite:%d", videoId)
+	_, err := RedisClient.Get(context.Background(), favoriteKey).Int64()
+	if err != nil {
+		if err == redis.Nil {
+			lock, err := RedisLock(fmt.Sprintf("fav:lock:vid:%d", videoId), 5*time.Second)
+			defer RedisUnlock(fmt.Sprintf("fav:lock:vid:%d", videoId))
+			if err != nil {
+				return err
+			}
+			// 获得锁则设置键值对，其余请求等待
+			if lock {
+				count, err := dao.GetSingleVideoFavoriteCount(context.Background(), videoId)
+				if err != nil {
+					return err
+				}
+				// 设置缓存
+				err = SetFavoriteCountCache(videoId, int64(count))
+			} else {
+				time.Sleep(100 * time.Millisecond)
+			}
+		} else {
+			return err
+		}
+	}
 	switch actionType {
 	case 1:
-		// 使用 RedisClient 执行 INCR 命令
-		_, err := RedisClient.Incr(context.Background(), favoriteKey).Result()
+		err := RedisClient.Incr(context.Background(), favoriteKey).Err()
 		if err != nil {
 			return err
 		}
 	case 2:
-		_, err := RedisClient.Decr(context.Background(), favoriteKey).Result()
+		err := RedisClient.Decr(context.Background(), favoriteKey).Err()
 		if err != nil {
 			return err
 		}
@@ -53,4 +78,22 @@ func DeleteVideoIdFromFavoriteUpdateSet(videoId int64) error {
 // GetMemberFromFavoriteUpdateSet 获取更新集合中的所有视频ID
 func GetMemberFromFavoriteUpdateSet() ([]string, error) {
 	return RedisClient.SMembers(context.Background(), FavoriteUpdateSetKey).Result()
+}
+
+// RedisLock redis分布式锁
+func RedisLock(lockKey string, lockTimeout time.Duration) (bool, error) {
+	lockAcquired, err := RedisClient.SetNX(context.Background(), lockKey, "lock-true", lockTimeout).Result()
+	if err != nil {
+		return false, err
+	}
+
+	return lockAcquired, nil
+}
+
+// RedisUnlock redis分布式锁解锁
+func RedisUnlock(lockKey string) {
+	_, err := RedisClient.Del(context.Background(), lockKey).Result()
+	if err != nil {
+		util.LogrusObj.Error("<Redis-FavoriteAction>, Unlock failed", err)
+	}
 }
