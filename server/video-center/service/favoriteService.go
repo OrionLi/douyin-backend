@@ -3,11 +3,14 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/go-redis/redis/v8"
+	"github.com/streadway/amqp"
 	"time"
 	"video-center/cache"
 	"video-center/dao"
+	"video-center/mq"
 	"video-center/pkg/util"
 )
 
@@ -32,23 +35,22 @@ func (f FavoriteServiceImpl) CreateFav(videoId int64, userId int64) error {
 	if favFlag {
 		return errors.New("already favorite")
 	}
-	tx := dao.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	// 在事务中执行数据库操作
-	if err := dao.CreateFav(f.ctx, videoId, userId); err != nil {
-		tx.Rollback()
+	message := fmt.Sprintf("%d:%d", videoId, userId)
+	err = mq.RabbitChannel.Publish(
+		"douyinFavMQ",
+		"create",
+		true,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(message),
+		},
+	)
+	if err != nil {
+		util.LogrusObj.Error("RabbitChannel.QueueDeclare create_fav send error ", err, "message: ", message)
 		return err
 	}
-	// 在事务中执行缓存操作
 	if err := cache.ActionFavoriteCache(videoId, 1); err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 	return nil
@@ -63,21 +65,22 @@ func (f FavoriteServiceImpl) DeleteFav(videoId int64, userId int64) error {
 	if !favFlag {
 		return errors.New("not favorite")
 	}
-	tx := dao.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	if err := dao.DeleteFav(f.ctx, videoId, userId); err != nil {
-		tx.Rollback()
+	message := fmt.Sprintf("%d:%d", videoId, userId)
+	err = mq.RabbitChannel.Publish(
+		"douyinFavMQ",
+		"delete",
+		true,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(message),
+		},
+	)
+	if err != nil {
+		util.LogrusObj.Error("RabbitChannel.QueueDeclare fav_delete send error ", err, "message: ", message)
 		return err
 	}
 	if err := cache.ActionFavoriteCache(videoId, 2); err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 	return nil
