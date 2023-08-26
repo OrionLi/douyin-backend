@@ -2,6 +2,6 @@ qiniu:
   accessKey: ak
   secretKey: sk
   bucket: ori-tsuru-hime
-  url: rzhmys0lm.hn-bkt.clouddn.com/
+  url: http://rzhmys0lm.hn-bkt.clouddn.com/
 ffmpet:
   Path: D:\wg\ffmpeg.exe

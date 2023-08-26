@@ -22,6 +22,7 @@ func Init() {
 	NacosIp = conf.Viper.GetString("nacos.Ip")
 	NacosPort = conf.Viper.GetUint64("nacos.Port")
 	initVideoRpc()
+	InitUserClient()
 }
 
 // VideoClient 非流式
@@ -32,6 +33,8 @@ var VideoStreamClient pb.VideoCenter_PublishActionClient
 
 // VideoInteractionClient 视频互动rpc端口
 var VideoInteractionClient pb.DouyinVideoInteractionServiceClient
+
+var UserClient pb.UserServiceClient
 
 // Conn 共有连接
 var Conn *grpc.ClientConn
@@ -84,6 +87,49 @@ func initVideoRpc() {
 
 	// VideoInteractionClient
 	VideoInteractionClient = pb.NewDouyinVideoInteractionServiceClient(Conn)
+}
+func InitUserClient() {
+	serverConfig := []constant.ServerConfig{
+		{
+			IpAddr: NacosIp,
+			Port:   NacosPort,
+		},
+	}
+
+	clientConfig := constant.ClientConfig{
+		TimeoutMs:           5000,
+		NotLoadCacheAtStart: true,
+		LogLevel:            "debug",
+	}
+
+	namingClient, err := clients.NewNamingClient(
+		vo.NacosClientParam{
+			ClientConfig:  &clientConfig,
+			ServerConfigs: serverConfig,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+	instances, err := namingClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
+		ServiceName: "UserServer",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	Conn = conn
+	//创建非流式client
+	client := pb.NewUserServiceClient(conn)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+	UserClient = client
 }
 
 // StreamClient 流式client
