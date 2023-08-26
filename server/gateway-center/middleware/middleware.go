@@ -17,6 +17,8 @@ func JWT() gin.HandlerFunc {
 			code = 404
 		} else {
 			claims, err := util.ParseToken(token)
+			// 将id存入上下文
+			ctx.Set("UserId", claims.ID)
 			if err != nil {
 
 				code = 1
@@ -32,6 +34,7 @@ func JWT() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+
 		ctx.Next()
 	}
 }

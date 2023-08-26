@@ -14,7 +14,9 @@ func NewRouter() *gin.Engine {
 		authed := g.Group("/") //需要token认证保护
 		authed.Use(middleware.JWT())
 		{
-			// 登录后的操作
+			/*
+				可通过ctx.get("id")来获取user_id
+			*/
 			authed.GET("user/")
 		}
 
