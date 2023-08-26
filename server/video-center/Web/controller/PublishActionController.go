@@ -6,18 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"net/http"
+	"video-center/Web/pkg/baseResponse"
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
 )
 
 func PublishAction(c *gin.Context) {
-	var params PublishActionParam
+	var params baseResponse.PublishActionParam
 	if err := c.ShouldBind(&params); err != nil {
 		convertErr := errno.ConvertErr(err)
 		util.LogrusObj.Errorf("参数绑定错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.PostForm, convertErr.ErrMsg)
-		c.JSON(http.StatusOK, PublishListResponse{
-			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			Response: baseResponse.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
 		return
 	}
@@ -25,8 +26,8 @@ func PublishAction(c *gin.Context) {
 	//		util.LogrusObj.Errorf("rpc调用错误 URL:%s 错误原因:%s", c.Request.URL, convertErr.ErrMsg)
 	if len(params.Token) == 0 {
 		util.LogrusObj.Errorf("Token格式错误 URL:%s Token:%s", c.Request.RequestURI, params.Token)
-		c.JSON(http.StatusOK, PublishListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 		})
 		return
 	}
@@ -35,8 +36,8 @@ func PublishAction(c *gin.Context) {
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
 		util.LogrusObj.Errorf("获取二进制流错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.PostForm, convertErr.ErrMsg)
-		c.JSON(http.StatusOK, PublishListResponse{
-			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			Response: baseResponse.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
 		return
 	}
@@ -44,8 +45,8 @@ func PublishAction(c *gin.Context) {
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
 		util.LogrusObj.Errorf("OpenFile Error 错误原因:%s", convertErr.ErrMsg)
-		c.JSON(http.StatusOK, PublishListResponse{
-			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			Response: baseResponse.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
 		return
 	}
@@ -59,8 +60,8 @@ func PublishAction(c *gin.Context) {
 	}(open)
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
-		c.JSON(http.StatusOK, PublishListResponse{
-			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			Response: baseResponse.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
 		return
 	}
@@ -72,12 +73,12 @@ func PublishAction(c *gin.Context) {
 	if err != nil {
 		convertErr := errno.ConvertErr(err)
 		util.LogrusObj.Errorf("Upload Error ErrorMSG:%s", convertErr.ErrMsg)
-		c.JSON(http.StatusOK, PublishListResponse{
-			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			Response: baseResponse.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 		})
 		return
 	}
-	c.JSON(http.StatusOK, PublishListResponse{
-		Response: Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
+	c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+		Response: baseResponse.Response{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg},
 	})
 }
