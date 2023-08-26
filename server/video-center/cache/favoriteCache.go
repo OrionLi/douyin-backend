@@ -11,23 +11,22 @@ import (
 )
 
 const FavoriteUpdateSetKey = "fav_update_set"
-const maxRetries = 15
-const retryInterval = 100 * time.Millisecond
+const retryInterval = 5 * time.Millisecond
+const maxRetryInterval = 50 * time.Millisecond
 
 // ActionFavoriteCache 点赞缓存
 func ActionFavoriteCache(videoId int64, actionType int32) error {
 	lockKey := fmt.Sprintf("lock:fav:vid:%d", videoId)
 	favoriteKey := fmt.Sprintf("favorite:%d", videoId)
-	lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 3*time.Second)
+	lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 1*time.Second)
 	if err != nil {
 		return err
 	}
 	if !lock {
 		// FIXME 重试机制优化
-		var retryCount int
 		var retryDelay = retryInterval
-		for retryCount < maxRetries {
-			lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 3*time.Second)
+		for {
+			lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 1*time.Second)
 			if err != nil {
 				return err
 			}
@@ -36,11 +35,9 @@ func ActionFavoriteCache(videoId int64, actionType int32) error {
 			}
 			// 获取锁失败，等待一段时间后重试
 			time.Sleep(retryDelay)
-			retryDelay *= 2
-			retryCount++
-		}
-		if retryCount == maxRetries {
-			return errors.New("failed to acquire lock after multiple retries")
+			if retryDelay < maxRetryInterval {
+				retryDelay += 10 * time.Millisecond
+			}
 		}
 	}
 	defer RedisUnlock(fmt.Sprintf(lockKey, videoId))
