@@ -5,32 +5,33 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"video-center/Web/pkg/baseResponse"
 	"video-center/Web/rpc"
 	"video-center/pkg/errno"
 	"video-center/pkg/util"
 )
 
 func CommentAction(c *gin.Context) {
-	var param CommentActionParam
+	var param baseResponse.CommentActionParam
 	if err := c.ShouldBind(&param); err != err {
 		convertErr := errno.ConvertErr(err)
-		c.JSON(http.StatusOK, CommentActionResponse{
-			Response: Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+			Response: baseResponse.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 			Comment:  &pb.Comment{},
 		})
 		return
 	}
 	if len(param.Token) == 0 || param.ActionType == "" || param.VideoID == "" {
-		c.JSON(http.StatusOK, CommentActionResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:  &pb.Comment{},
 		})
 		return
 	}
 	user, err := util.ParseToken(param.Token)
 	if err != nil {
-		c.JSON(http.StatusOK, CommentActionResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:  &pb.Comment{},
 		})
 		return
@@ -39,8 +40,8 @@ func CommentAction(c *gin.Context) {
 	if param.ActionType == "1" {
 		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+				Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 				Comment:  &pb.Comment{},
 			})
 			return
@@ -53,8 +54,8 @@ func CommentAction(c *gin.Context) {
 		}
 		response, err := rpc.ActionComment(c, &request)
 		if err != nil {
-			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
+			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+				Response: baseResponse.Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
 				Comment:  &pb.Comment{},
 			})
 		}
@@ -65,8 +66,8 @@ func CommentAction(c *gin.Context) {
 		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
 		commentID, err := strconv.ParseInt(param.CommentID, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+				Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 				Comment:  &pb.Comment{},
 			})
 			return
@@ -79,8 +80,8 @@ func CommentAction(c *gin.Context) {
 		}
 		response, err2 := rpc.ActionComment(c, &request)
 		if err2 != nil {
-			c.JSON(http.StatusOK, CommentActionResponse{
-				Response: Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
+			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+				Response: baseResponse.Response{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
 				Comment:  &pb.Comment{},
 			})
 			return
@@ -88,8 +89,8 @@ func CommentAction(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	c.JSON(http.StatusOK, CommentActionResponse{
-		Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+	c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+		Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 		Comment:  &pb.Comment{},
 	})
 }
@@ -98,24 +99,24 @@ func CommentList(c *gin.Context) {
 	token := c.Query("token")
 	videoId := c.Query("video_id")
 	if len(token) == 0 || videoId == "" {
-		c.JSON(http.StatusOK, CommentListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:  []*pb.Comment{},
 		})
 		return
 	}
 	videoID, err1 := strconv.ParseInt(videoId, 10, 64)
 	if err1 != nil {
-		c.JSON(http.StatusOK, CommentListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:  []*pb.Comment{},
 		})
 		return
 	}
 	parseToken, err1 := util.ParseToken(token)
 	if err1 != nil {
-		c.JSON(http.StatusOK, CommentListResponse{
-			Response: Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
+			Response: baseResponse.Response{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:  []*pb.Comment{},
 		})
 		return

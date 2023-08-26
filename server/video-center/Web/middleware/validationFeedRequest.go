@@ -7,18 +7,18 @@ import (
 	"regexp"
 	"strings"
 	"unicode/utf8"
-	"video-center/Web/controller"
+	"video-center/Web/pkg/baseResponse"
 	"video-center/pkg/errno"
 )
 
 // ValidationPublishActionRequest 简单的对请求数据进行检验
 func ValidationPublishActionRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var params controller.PublishActionParam
+		var params baseResponse.PublishActionParam
 		if err := c.ShouldBind(&params); err != nil {
 			convertErr := errno.ConvertErr(err)
-			c.JSON(http.StatusOK, controller.FeedResponse{
-				Response: controller.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+			c.JSON(http.StatusOK, baseResponse.FeedResponse{
+				Response: baseResponse.Response{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
 			})
 			return
 		}
@@ -27,8 +27,8 @@ func ValidationPublishActionRequest() gin.HandlerFunc {
 		parts := strings.Split(params.Token, ".")
 		if len(parts) != 3 {
 			newErrno := errno.NewErrno(errno.TokenErrCode, "无效的Token")
-			c.JSON(http.StatusOK, controller.FeedResponse{
-				Response: controller.Response{StatusCode: int32(newErrno.ErrCode), StatusMsg: newErrno.ErrMsg},
+			c.JSON(http.StatusOK, baseResponse.FeedResponse{
+				Response: baseResponse.Response{StatusCode: int32(newErrno.ErrCode), StatusMsg: newErrno.ErrMsg},
 			})
 			return
 		}
@@ -36,8 +36,8 @@ func ValidationPublishActionRequest() gin.HandlerFunc {
 		//校验Title
 		if !isValidTitle(params.Title) {
 			newErrno := errno.NewErrno(errno.ParamErrCode, errno.ParamErr.ErrMsg)
-			c.JSON(http.StatusOK, controller.FeedResponse{
-				Response: controller.Response{StatusCode: int32(newErrno.ErrCode), StatusMsg: newErrno.ErrMsg},
+			c.JSON(http.StatusOK, baseResponse.FeedResponse{
+				Response: baseResponse.Response{StatusCode: int32(newErrno.ErrCode), StatusMsg: newErrno.ErrMsg},
 			})
 			return
 		}
