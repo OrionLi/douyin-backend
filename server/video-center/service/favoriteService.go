@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/go-redis/redis/v8"
 	"time"
@@ -24,37 +25,61 @@ type FavoriteServiceImpl struct {
 
 // CreateFav 创建点赞记录
 func (f FavoriteServiceImpl) CreateFav(videoId int64, userId int64) error {
-	// TODO 验证是否已经点赞 此项应在压测通过后实现
-	// HACK IsFav() 验证 重复点赞问题
-	tx := dao.DB.Begin()
-	err := dao.CreateFav(f.ctx, videoId, userId)
+	favFlag, err := f.IsFav(videoId, userId)
 	if err != nil {
 		return err
 	}
-	err = cache.ActionFavoriteCache(videoId, 1)
-	if err != nil {
+	if favFlag {
+		return errors.New("already favorite")
+	}
+	tx := dao.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	// 在事务中执行数据库操作
+	if err := dao.CreateFav(f.ctx, videoId, userId); err != nil {
 		tx.Rollback()
 		return err
 	}
-	tx.Commit()
+	// 在事务中执行缓存操作
+	if err := cache.ActionFavoriteCache(videoId, 1); err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
 	return nil
 }
 
 // DeleteFav 删除点赞记录
 func (f FavoriteServiceImpl) DeleteFav(videoId int64, userId int64) error {
-	// TODO 验证是否未点赞 此项应在压测通过后实现
-	// HACK IsFav() 验证 未点赞试图取消点赞问题
-	tx := dao.DB.Begin()
-	err := dao.DeleteFav(f.ctx, videoId, userId)
+	favFlag, err := f.IsFav(videoId, userId)
 	if err != nil {
 		return err
 	}
-	err = cache.ActionFavoriteCache(videoId, 2)
-	if err != nil {
+	if !favFlag {
+		return errors.New("not favorite")
+	}
+	tx := dao.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	if err := dao.DeleteFav(f.ctx, videoId, userId); err != nil {
 		tx.Rollback()
 		return err
 	}
-	tx.Commit()
+	if err := cache.ActionFavoriteCache(videoId, 2); err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -91,7 +116,6 @@ func (f FavoriteServiceImpl) ListFav(userId int64) (bool, []*pb.Video) {
 }
 
 // CountFav 获取用户点赞数量, 收到的点赞数量
-// TODO 是否考虑缓存穿透问题
 func (f FavoriteServiceImpl) CountFav(userId int64) (int32, int32, error) {
 	favoriteCount, err := dao.GetFavoriteCount(f.ctx, userId)
 	if err != nil {

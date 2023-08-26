@@ -11,64 +11,50 @@ import (
 )
 
 const FavoriteUpdateSetKey = "fav_update_set"
-const maxRetries = 15
-const retryInterval = 100 * time.Millisecond
 
 // ActionFavoriteCache 点赞缓存
+// 通过原子性操作解决并发问题
 func ActionFavoriteCache(videoId int64, actionType int32) error {
-	lockKey := fmt.Sprintf("lock:fav:vid:%d", videoId)
 	favoriteKey := fmt.Sprintf("favorite:%d", videoId)
-	lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 3*time.Second)
-	if err != nil {
-		return err
-	}
-	if !lock {
-		// FIXME 重试机制优化
-		var retryCount int
-		var retryDelay = retryInterval
-		for retryCount < maxRetries {
-			lock, err := RedisLock(fmt.Sprintf(lockKey, videoId), 3*time.Second)
-			if err != nil {
-				return err
-			}
-			if lock {
-				break // 成功获取锁，退出重试循环
-			}
-			// 获取锁失败，等待一段时间后重试
-			time.Sleep(retryDelay)
-			retryDelay *= 2
-			retryCount++
-		}
-		if retryCount == maxRetries {
-			return errors.New("failed to acquire lock after multiple retries")
-		}
-	}
-	defer RedisUnlock(fmt.Sprintf(lockKey, videoId))
-	// 查询 Redis 中的值
-	favoriteCount, err := GetFavoriteCountCache(videoId)
+	_, err := RedisClient.Get(context.Background(), favoriteKey).Int64()
 	if err != nil {
 		if err == redis.Nil {
-			count, err := dao.GetSingleVideoFavoriteCount(context.Background(), videoId)
+			lock, err := RedisLock(fmt.Sprintf("fav:lock:vid:%d", videoId), 5*time.Second)
+			defer RedisUnlock(fmt.Sprintf("fav:lock:vid:%d", videoId))
 			if err != nil {
 				return err
 			}
-			favoriteCount = int64(count)
+			// 获得锁则设置键值对，其余请求等待
+			if lock {
+				count, err := dao.GetSingleVideoFavoriteCount(context.Background(), videoId)
+				if err != nil {
+					return err
+				}
+				// 设置缓存
+				err = SetFavoriteCountCache(videoId, int64(count))
+			} else {
+				time.Sleep(100 * time.Millisecond)
+			}
 		} else {
 			return err
 		}
 	}
 	switch actionType {
 	case 1:
-		favoriteCount++
+		err := RedisClient.Incr(context.Background(), favoriteKey).Err()
+		if err != nil {
+			return err
+		}
 	case 2:
-		favoriteCount--
+		err := RedisClient.Decr(context.Background(), favoriteKey).Err()
+		if err != nil {
+			return err
+		}
 	default:
 		return errors.New("actionType error")
 	}
-	// 更新缓存
-	RedisClient.Set(context.Background(), favoriteKey, favoriteCount, 7*24*time.Hour)
 	// 更新集合
-	RedisClient.SAdd(context.Background(), FavoriteUpdateSetKey, videoId)
+	go RedisClient.SAdd(context.Background(), FavoriteUpdateSetKey, videoId)
 	return nil
 }
 
