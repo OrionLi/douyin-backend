@@ -40,7 +40,7 @@ func GetUserById(ctx *gin.Context) {
 	//获取token中的id
 	claims, _ := util.ParseToken(token)
 
-	res := servic.GetUserById(ctx, claims.ID, uint(uId))
+	res := servic.GetUserById(ctx, claims.ID, uint(uId), token)
 	ctx.JSON(http.StatusOK, res)
 
 }

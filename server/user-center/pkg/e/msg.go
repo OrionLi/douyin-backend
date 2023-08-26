@@ -13,6 +13,7 @@ type CustomError struct {
 
 var MsgFlags = map[codes.Code]string{
 	Error:                  "fail",
+	ErrorAborted:           "操作失败",
 	InvalidParams:          "参数错误",
 	ErrorExistUser:         "该用户名已存在",
 	ErrorExistUserNotFound: "用户不存在",
@@ -29,6 +30,8 @@ func GetMsg(code codes.Code) string {
 	}
 	return msg
 }
+
+// NewError Grpc错误封装
 func NewError(code codes.Code) error {
 	c := &CustomError{
 		Code: code,

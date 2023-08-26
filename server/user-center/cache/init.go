@@ -17,6 +17,10 @@ var (
 	redisOnce sync.Once
 )
 
+type RedisCache struct {
+	*redis.Client
+}
+
 func Redis(redisDb, redisAddr, redisPw, redisDbName string) error {
 	RedisDb = redisDb
 	RedisAddr = redisAddr

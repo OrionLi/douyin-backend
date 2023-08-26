@@ -33,7 +33,7 @@ func (s *CommentService) SaveComment(LoginUserId int64, videoId int64, content s
 	if !b {
 		return false, &pb.Comment{}, nil
 	}
-	//todo 通过用户ID查询用户然信息后封装
+	//TODO 通过用户ID查询用户然信息后封装
 	user := pb.User{Id: LoginUserId}
 
 	commentApi := model.ConvertToCommentApi(comment, &user)
@@ -41,28 +41,35 @@ func (s *CommentService) SaveComment(LoginUserId int64, videoId int64, content s
 }
 
 // DeleteComment 删除评论
+// bool评论是否是自己发布的
 func (s *CommentService) DeleteComment(LoginUserId int64, videoId int64, commentId int64) (bool, *pb.Comment, error) {
-	isComment, err := dao.IsUserComment(s.ctx, LoginUserId, commentId, videoId)
+	ExistComment, isUserComment, comment, err := dao.IsUserComment(s.ctx, LoginUserId, commentId, videoId)
 	if err != nil {
 		return false, &pb.Comment{}, err
 	}
-	if isComment {
-		comment := model.Comment{
-			VideoId: videoId,
-			ID:      commentId,
-		}
-		b, err := dao.DeleteComment(s.ctx, comment)
-		if err != nil || !b {
-			return false, &pb.Comment{}, err
-		}
-		//该评论存在而且正确删除
-		//todo 通过ID查询用户信息
-		user := pb.User{Id: LoginUserId}
+	if ExistComment {
+		//评论存在
+		if isUserComment {
+			//是自己的评论
+			b, err := dao.DeleteComment(s.ctx, comment)
+			if err != nil || !b {
+				//删除出错
+				return false, &pb.Comment{}, err
+			}
+			//该评论存在而且正确删除
+			//TODO 通过ID查询用户信息
+			user := pb.User{Id: LoginUserId}
 
-		commentApi := model.ConvertToCommentApi(comment, &user)
-		return true, &commentApi, nil
+			commentApi := model.ConvertToCommentApi(comment, &user)
+			return true, &commentApi, nil
+		} else {
+			//不是自己的评论
+			return false, &pb.Comment{
+				Content: comment.Content,
+			}, nil
+		}
 	} else {
-		//该评论不是你的
+		//评论不存在
 		return false, &pb.Comment{}, nil
 	}
 }

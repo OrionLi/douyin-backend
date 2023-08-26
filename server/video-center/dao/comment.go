@@ -58,14 +58,18 @@ func CommentList(ctx context.Context, videoId int64) ([]model.Comment, error) {
 }
 
 // IsUserComment 该评论是否为用户发布的 是返回true
-func IsUserComment(ctx context.Context, userId int64, commentId int64, videoId int64) (bool, error) {
+// 是否找到评论 评论是否为该用户的
+func IsUserComment(ctx context.Context, userId int64, commentId int64, videoId int64) (bool, bool, model.Comment, error) {
 	var comment model.Comment
 	// 查询数据库，找到指定的评论
-	if err := DB.WithContext(ctx).Where("id = ? AND user_id = ? AND video_id = ?", commentId, userId, videoId).First(&comment).Error; err != nil {
+	if err := DB.WithContext(ctx).Where("id = ?  AND video_id = ?", commentId, videoId).First(&comment).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return false, nil // 没有找到匹配的评论
+			return false, false, comment, nil // 没有找到匹配的评论
 		}
-		return false, err // 查询出错
+		return true, false, comment, err // 查询出错
 	}
-	return true, nil // 找到匹配的评论并验证通过
+	if comment.UserId == userId {
+		return true, true, comment, nil // 找到匹配的评论并验证通过
+	}
+	return true, false, comment, nil
 }
