@@ -24,6 +24,19 @@ var (
 	RedisDbName string
 )
 
+// nacos配置项
+var (
+	NacosAddress string
+	NacosPort    int
+)
+
+// 各个微服务的服务名
+var (
+	ChatCenterServiceName  string
+	UserCenterServiceName  string
+	VideoCenterServiceName string
+)
+
 // Init 初始化配置文件与引擎
 func Init() error {
 
@@ -50,6 +63,15 @@ func Init() error {
 	redisAddr = viper.GetString("redis.RedisAddr")
 	RedisPw, _ = os.LookupEnv("REDIS_PASSWORD")
 	RedisDbName = viper.GetString("redis.RedisDbName")
+
+	// 解析 Nacos 配置
+	NacosAddress = viper.GetString("nacos.Ip")
+	NacosPort = viper.GetInt("nacos.Port")
+
+	// 解析各个微服务的服务名
+	ChatCenterServiceName = viper.GetString("application.chat-center.ServiceName")
+	UserCenterServiceName = viper.GetString("application.user-center.ServiceName")
+	VideoCenterServiceName = viper.GetString("application.video-center.ServiceName")
 
 	//mysql连接信息
 	conn := strings.Join([]string{DbUser, ":", DbPassword, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8mb4&parseTime=true"}, "")

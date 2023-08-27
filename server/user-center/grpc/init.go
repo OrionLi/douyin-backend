@@ -1,8 +1,7 @@
-package grpcClient
+package grpc
 
 import (
 	"fmt"
-	"gateway-center/conf"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
@@ -10,12 +9,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
+	"user-center/conf"
 )
 
 var (
-	ChatClient             pb.DouyinMessageServiceClient
-	UserClient             pb.UserServiceClient
-	RelationClient         pb.RelationServiceClient
 	VideoClient            pb.VideoCenterClient
 	VideoInteractionClient pb.DouyinVideoInteractionServiceClient
 	VideoStreamClient      pb.VideoCenter_PublishActionClient
@@ -50,34 +47,8 @@ func Init() {
 	}
 
 	// 获取 gRPC 服务实例信息
+
 	instances, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
-		ServiceName: conf.ChatCenterServiceName,
-	})
-	if err != nil {
-		log.Fatalf("Failed to get chat-service instances: %v", err)
-	}
-
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("connect failed: %v", err)
-	}
-	ChatClient = pb.NewDouyinMessageServiceClient(conn)
-	//
-	// 获取 gRPC 服务实例信息
-	inst, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
-		ServiceName: conf.UserCenterServiceName,
-	})
-	if err != nil {
-		log.Fatalf("Failed to get chat-service instances: %v", err)
-	}
-
-	Userconn, err := grpc.Dial(fmt.Sprintf("%s:%d", inst.Ip, inst.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("connect failed: %v", err)
-	}
-	UserClient = pb.NewUserServiceClient(Userconn)
-
-	instances, err = nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
 		ServiceName: conf.VideoCenterServiceName,
 	})
 	if err != nil {
@@ -89,10 +60,5 @@ func Init() {
 	}
 	VideoClient = pb.NewVideoCenterClient(VideoConn)
 	VideoInteractionClient = pb.NewDouyinVideoInteractionServiceClient(VideoConn)
-	//初始化VideoStreamClient
-	client, err := NewVideoStreamClient(VideoConn)
-	if err != nil {
-		log.Fatalf("Failed to get video-stream-service instances: %v", err)
-	}
-	VideoStreamClient = client
+
 }

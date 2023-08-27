@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	userCache "user-center/cache"
 	"user-center/dao"
-	"user-center/pb"
 	e2 "user-center/pkg/e"
 	userUtil "user-center/pkg/util"
 )
