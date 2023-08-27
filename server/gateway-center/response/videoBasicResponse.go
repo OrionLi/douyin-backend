@@ -90,6 +90,7 @@ type FavListResponse struct {
 	FavList []*pb.Video `form:"video_list" json:"video_list"`
 }
 
-type FavActionResponse struct {
-	VBResponse
+type DouyinFavoriteActionResponse struct {
+	StatusCode int32  `json:"status_code"`
+	StatusMsg  string `json:"status_msg,omitempty"`
 }

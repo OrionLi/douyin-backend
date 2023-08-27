@@ -7,37 +7,37 @@ import (
 )
 
 func NewRouter() *gin.Engine {
-	r := gin.Default()
-	g := r.Group("/douyin")
+	router := gin.Default()
+	group := router.Group("/douyin")
 	{
-		g.POST("user/register/", controller.UserRegister)
-		g.POST("user/login/", controller.UserLogin)
-		authed := g.Group("/") //需要token认证保护
+		// JWT认证中间件
+		authed := group.Group("/") //需要token认证保护
 		authed.Use(middleware.JWT())
 		{
-			/*
-				可通过ctx.get("id")来获取user_id
-			*/
+			//可通过ctx.get("id")来获取user_id
 			authed.GET("user/", controller.GetUser)
 		}
-		feed := g.Group("/feed")
-		{
-			feed.GET("/", controller.Feed)
-		}
-	}
-	//video模块路由
-	v := g.Group("/publish")
-	//TODO 视频流相关请求
-	v.POST("/action/", controller.PublishAction)
-	v.GET("/list/", controller.PublishList)
-	// 评论相关请求
-	comment := v.Group("/comment")
-	comment.POST("/action", controller.CommentAction)
-	comment.GET("/list", controller.CommentList)
-	// 点赞相关请求
-	favorite := v.Group("/favorite")
-	favorite.POST("/action", controller.ActionFav)
-	favorite.GET("/list", controller.ListFav)
 
-	return r
+		// chat模块路由
+		group.POST("/message/action/", controller.SendMessage)
+		group.GET("/message/chat/", controller.GetMessage)
+
+		// user模块路由
+		group.POST("/user/register/", controller.UserRegister)
+		group.POST("/user/login/", controller.UserLogin)
+		// TODO 用户信息、用户关系相关请求
+		// video模块路由
+		// TODO 视频流相关请求
+		group.POST("/publish/action/", controller.PublishAction)
+		group.GET("/feed/", controller.Feed)
+		group.GET("/publish/list/", controller.PublishList)
+
+		group.GET("/favorite/action/", controller.ActionFav)
+		group.GET("/favorite/list/", controller.ListFav)
+		group.GET("/comment/action/", controller.CommentAction)
+		group.GET("/comment/list/", controller.CommentList)
+
+	}
+
+	return router
 }

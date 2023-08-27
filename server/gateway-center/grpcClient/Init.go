@@ -45,25 +45,25 @@ func Init() {
 			ServerConfigs: serverConfigs,
 		})
 
-	//if err != nil {
-	//	log.Fatalf("Failed to create Nacos client: %v", err)
-	//}
-	//
-	//// 获取 gRPC 服务实例信息
-	//instances, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
-	//	ServiceName: conf.ChatCenterServiceName,
-	//})
-	//if err != nil {
-	//	log.Fatalf("Failed to get chat-service instances: %v", err)
-	//}
-	//
-	//conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	//if err != nil {
-	//	log.Fatalf("connect failed: %v", err)
-	//}
-	//ChatClient = pb.NewDouyinMessageServiceClient(conn)
+	if err != nil {
+		log.Fatalf("Failed to create Nacos client: %v", err)
+	}
 
+	// 获取 gRPC 服务实例信息
 	instances, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
+		ServiceName: conf.ChatCenterServiceName,
+	})
+	if err != nil {
+		log.Fatalf("Failed to get chat-service instances: %v", err)
+	}
+
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("connect failed: %v", err)
+	}
+	ChatClient = pb.NewDouyinMessageServiceClient(conn)
+
+	instances, err = nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
 		ServiceName: conf.VideoCenterServiceName,
 	})
 	if err != nil {

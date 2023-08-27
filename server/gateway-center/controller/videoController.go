@@ -27,8 +27,6 @@ func PublishAction(c *gin.Context) {
 		return
 	}
 	fmt.Println(params.Token)
-	//middleWare已校验
-	_ = validateToken(params.Token)
 	//绑定二进制数据
 	file, err2 := c.FormFile("data")
 	if err2 != nil {
@@ -166,7 +164,7 @@ func Feed(c *gin.Context) {
 	}
 	isLogin := false
 	isFollow := false
-	userId := validateToken(params.Token)
+	userId := grpcClient.ValidateToken(params.Token)
 	if userId != -1 {
 		isLogin = true
 	}
@@ -234,26 +232,19 @@ type FavoriteParam struct {
 
 // CommentAction 评论操作
 func CommentAction(c *gin.Context) {
+	userIdAny, _ := c.Get("UserId")
+	userId := userIdAny.(int64)
 	var param baseResponse.CommentActionParam
 	if err := c.ShouldBind(&param); err != err {
-		convertErr := e.ConvertErr(err)
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    &pb.Comment{},
 		})
 		return
 	}
-	if len(param.Token) == 0 || param.ActionType == "" || param.VideoID == "" {
+	if param.ActionType == "" || param.VideoID == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
-			Comment:    &pb.Comment{},
-		})
-		return
-	}
-	user, err := util.ParseToken(param.Token)
-	if err != nil {
-		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    &pb.Comment{},
 		})
 		return
@@ -263,13 +254,13 @@ func CommentAction(c *gin.Context) {
 		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 				Comment:    &pb.Comment{},
 			})
 			return
 		}
 		request := pb.DouyinCommentActionRequest{
-			SelfUserId:  int64(user.ID),
+			SelfUserId:  userId,
 			VideoId:     videoId,
 			ActionType:  0, //保存
 			CommentText: param.CommentText,
@@ -289,13 +280,13 @@ func CommentAction(c *gin.Context) {
 		commentID, err := strconv.ParseInt(param.CommentID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 				Comment:    &pb.Comment{},
 			})
 			return
 		}
 		request := pb.DouyinCommentActionRequest{
-			SelfUserId: int64(user.ID),
+			SelfUserId: userId,
 			VideoId:    videoId,
 			ActionType: 1, //删除
 			CommentId:  commentID,
@@ -312,18 +303,19 @@ func CommentAction(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-		VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+		VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 		Comment:    &pb.Comment{},
 	})
 }
 
 // CommentList 评论列表
 func CommentList(c *gin.Context) {
-	token := c.Query("token")
+	userIdAny, _ := c.Get("UserId")
+	userId := userIdAny.(int64)
 	videoId := c.Query("video_id")
-	if len(token) == 0 || videoId == "" {
+	if videoId == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    []*pb.Comment{},
 		})
 		return
@@ -331,22 +323,14 @@ func CommentList(c *gin.Context) {
 	videoID, err1 := strconv.ParseInt(videoId, 10, 64)
 	if err1 != nil {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
-			Comment:    []*pb.Comment{},
-		})
-		return
-	}
-	parseToken, err1 := util.ParseToken(token)
-	if err1 != nil {
-		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    []*pb.Comment{},
 		})
 		return
 	}
 
 	request := pb.DouyinCommentListRequest{
-		SelfUserId: int64(parseToken.ID),
+		SelfUserId: userId,
 		VideoId:    videoID,
 	}
 	response, _ := grpcClient.ListComment(c, &request)
@@ -355,59 +339,51 @@ func CommentList(c *gin.Context) {
 
 // ActionFav 点赞操作
 func ActionFav(c *gin.Context) {
-	var requestBody FavoriteParam
-	err := c.ShouldBindJSON(&requestBody)
-	if err != nil {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)}})
-		return
-	}
-	userId := validateToken(requestBody.Token)
-	if userId == -1 {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.TokenErr, StatusMsg: e.GetMsg(e.TokenErr)}})
-		return
-	}
-	videoId := util.StringToInt64(requestBody.VideoId)
+	userIdAny, _ := c.Get("UserId")
+	userId := userIdAny.(int64)
+	videoId := util.StringToInt64(c.Query("video_id"))
 	if videoId == -1 {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)}})
+		c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)})
 		return
 	}
-	actionType := util.StringToInt64(requestBody.ActionType)
+	actionType := util.StringToInt64(c.Query("action_type"))
 	resp, err := grpcClient.ActionFavorite(context.Background(), userId, videoId, int32(actionType))
 	if err != nil || resp.StatusCode != e.Success {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.FavActionErr, StatusMsg: e.GetMsg(e.FavListEmpty)}})
+		c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.Error, StatusMsg: e.GetMsg(e.Error)})
 		return
 	}
-	c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)}})
+	c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)})
 }
 
 // ListFav 获取喜欢列表
 func ListFav(c *gin.Context) {
 	userId := c.Query("user_id")
-	token := c.Query("token")
-	if userId == "" || token == "" {
+	userIdAny, _ := c.Get("UserId")
+	userIdToken := userIdAny.(int64)
+	if userId == "" {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			FavList:    []*pb.Video{},
 		})
 		return
 	}
-	tokenUserId := validateToken(token)
+
 	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			FavList:    []*pb.Video{},
 		})
 		return
 	}
-	if tokenUserId != UserIdParseInt {
+	if userIdToken != UserIdParseInt {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			FavList:    []*pb.Video{},
 		})
 		return
 	}
-	request := pb.DouyinFavoriteListRequest{UserId: tokenUserId}
+	request := pb.DouyinFavoriteListRequest{UserId: userIdToken}
 	response, _ := grpcClient.GetFavoriteList(c, &request)
 	if response == nil {
 		c.JSON(http.StatusOK, &pb.DouyinFavoriteListResponse{
