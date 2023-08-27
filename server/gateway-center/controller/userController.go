@@ -147,9 +147,9 @@ func GetUserInfo(ctx *gin.Context, myId, uId uint, token string) (*response.User
 		BackgroundImage: "https://th.bing.com/th/id/R.476b455c002094fac528b20cf23db88c?rik=iEHmrlVbrFcATw&pid=ImgRaw&r=0",
 		Signature:       "test",
 		//需从video模块获取
-		TotalFavorited: "", //获赞数
+		TotalFavorited: int64(favoriteCount.GetFavCount_), //获赞数
 		WorkCount:      0,
-		FavoriteCount:  int64(favoriteCount.GetFavCount_),
+		FavoriteCount:  int64(favoriteCount.FavCount),
 	}
 	return &user, nil
 }

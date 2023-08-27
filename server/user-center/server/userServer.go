@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"user-center/pb"
 	"user-center/service"
 )
 
@@ -17,7 +17,12 @@ func NewUserRPCServer() *UserRPCServer {
 // GetUserById 通过id获取用户基本信息
 func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserRequest) (*pb.DouyinUserResponse, error) {
 	userReq := service.GetUserByIdService{Id: uint(req.GetUserId())}
-	return userReq.GetUserById(ctx)
+	isFollow := service.IsFollowService{
+		UserId:       uint(req.GetUserId()),
+		FollowUserId: uint(req.GetFollowId()),
+	}
+	count:=&
+	return
 }
 
 // Register 用户注册

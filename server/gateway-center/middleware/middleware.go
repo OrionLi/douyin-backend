@@ -2,10 +2,9 @@ package middleware
 
 import (
 	"gateway-center/pkg/e"
+	"gateway-center/util"
 	"github.com/gin-gonic/gin"
 	"time"
-
-	"gateway-center/util"
 )
 
 func JWT() gin.HandlerFunc {
