@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gateway/conf"
-	"gateway/grpcClient"
+	"gateway-center/conf"
+	"gateway-center/grpcClient"
 )
 
 func main() {
