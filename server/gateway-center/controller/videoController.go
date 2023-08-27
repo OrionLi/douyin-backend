@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 // FavoriteParam 点赞请求参数
@@ -23,6 +22,8 @@ type FavoriteParam struct {
 
 // CommentAction 评论操作
 func CommentAction(c *gin.Context) {
+	userIdAny, _ := c.Get("UserId")
+	userId := userIdAny.(int64)
 	var param baseResponse.CommentActionParam
 	if err := c.ShouldBind(&param); err != err {
 		convertErr := errno.ConvertErr(err)
@@ -32,15 +33,7 @@ func CommentAction(c *gin.Context) {
 		})
 		return
 	}
-	if len(param.Token) == 0 || param.ActionType == "" || param.VideoID == "" {
-		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
-			Comment:    &pb.Comment{},
-		})
-		return
-	}
-	user, err := util.ParseToken(param.Token)
-	if err != nil {
+	if param.ActionType == "" || param.VideoID == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
 			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:    &pb.Comment{},
@@ -58,7 +51,7 @@ func CommentAction(c *gin.Context) {
 			return
 		}
 		request := pb.DouyinCommentActionRequest{
-			SelfUserId:  int64(user.ID),
+			SelfUserId:  userId,
 			VideoId:     videoId,
 			ActionType:  0, //保存
 			CommentText: param.CommentText,
@@ -84,7 +77,7 @@ func CommentAction(c *gin.Context) {
 			return
 		}
 		request := pb.DouyinCommentActionRequest{
-			SelfUserId: int64(user.ID),
+			SelfUserId: userId,
 			VideoId:    videoId,
 			ActionType: 1, //删除
 			CommentId:  commentID,
@@ -108,9 +101,10 @@ func CommentAction(c *gin.Context) {
 
 // CommentList 评论列表
 func CommentList(c *gin.Context) {
-	token := c.Query("token")
+	userIdAny, _ := c.Get("UserId")
+	userId := userIdAny.(int64)
 	videoId := c.Query("video_id")
-	if len(token) == 0 || videoId == "" {
+	if videoId == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
 			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			Comment:    []*pb.Comment{},
@@ -125,17 +119,9 @@ func CommentList(c *gin.Context) {
 		})
 		return
 	}
-	parseToken, err1 := util.ParseToken(token)
-	if err1 != nil {
-		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
-			Comment:    []*pb.Comment{},
-		})
-		return
-	}
 
 	request := pb.DouyinCommentListRequest{
-		SelfUserId: int64(parseToken.ID),
+		SelfUserId: userId,
 		VideoId:    videoID,
 	}
 	response, _ := grpcClient.ListComment(c, &request)
@@ -163,15 +149,16 @@ func ActionFav(c *gin.Context) {
 // ListFav 获取喜欢列表
 func ListFav(c *gin.Context) {
 	userId := c.Query("user_id")
-	token := c.Query("token")
-	if userId == "" || token == "" {
+	userIdAny, _ := c.Get("UserId")
+	userIdToken := userIdAny.(int64)
+	if userId == "" {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
 			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			FavList:    []*pb.Video{},
 		})
 		return
 	}
-	tokenUserId := validateToken(token)
+
 	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
@@ -180,14 +167,14 @@ func ListFav(c *gin.Context) {
 		})
 		return
 	}
-	if tokenUserId != UserIdParseInt {
+	if userIdToken != UserIdParseInt {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
 			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
 			FavList:    []*pb.Video{},
 		})
 		return
 	}
-	request := pb.DouyinFavoriteListRequest{UserId: tokenUserId}
+	request := pb.DouyinFavoriteListRequest{UserId: userIdToken}
 	response, _ := grpcClient.GetFavoriteList(c, &request)
 	if response == nil {
 		c.JSON(http.StatusOK, &pb.DouyinFavoriteListResponse{
@@ -199,17 +186,4 @@ func ListFav(c *gin.Context) {
 	}
 	println(response)
 	c.JSON(http.StatusOK, response)
-}
-
-// validateToken 验证token
-func validateToken(token string) int64 {
-	parseToken, err := util.ParseToken(token)
-	if err != nil {
-		return -1
-	}
-	// 判断 token 是否过期
-	if parseToken.ExpiresAt < time.Now().Unix() {
-		return -1
-	}
-	return int64(parseToken.ID)
 }
