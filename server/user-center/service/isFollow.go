@@ -5,7 +5,7 @@ import (
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"user-center/cache"
 	"user-center/dao"
-	"user-center/pkg/e"
+	e2 "user-center/pkg/e"
 	userUtil "user-center/pkg/util"
 )
 
@@ -34,13 +34,13 @@ func (service *IsFollowService) IsFollow(ctx context.Context) (*pb.IsFollowRespo
 	//查找缓存中是否存在
 	exist, err := userDao.IsFollow(service.UserId, service.FollowUserId)
 	if err != nil {
-		return nil, e.NewError(e.Error)
+		return nil, e2.NewError(e2.Error)
 	}
 	if exist == true {
 		//将关系存入缓存
 		err = userCache.AddFollow(ctx, service.UserId, service.FollowUserId)
 		if err != nil {
-			return nil, e.NewError(e.Error)
+			return nil, e2.NewError(e2.Error)
 		}
 		return &pb.IsFollowResponse{IsFollow: true}, nil
 	}

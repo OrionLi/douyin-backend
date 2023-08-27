@@ -2,9 +2,9 @@ package controller
 
 import (
 	"fmt"
-	"gateway/grpcClient"
-	"gateway/pkg/e"
-	"gateway/response"
+	"gateway-center/grpcClient"
+	"gateway-center/pkg/e"
+	"gateway-center/response"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/status"
 	"net/http"
@@ -33,12 +33,10 @@ func UserLogin(ctx *gin.Context) {
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
 			// 获取错误码和错误信息
-			code = st.Code()
-			msg := st.Message()
 
 			ctx.JSON(http.StatusOK, response.DouyinUserLoginResponse{
-				StatusCode: int32(code),
-				StatusMsg:  msg,
+				StatusCode: int32(st.Code()),
+				StatusMsg:  st.Message(),
 			})
 			return
 		}
@@ -80,12 +78,9 @@ func UserRegister(ctx *gin.Context) {
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
 			// 获取错误码和错误信息
-			code = st.Code()
-			msg := st.Message()
-
 			ctx.JSON(http.StatusOK, response.DouyinUserRegisterResponse{
-				StatusCode: int32(code),
-				StatusMsg:  msg,
+				StatusCode: int32(st.Code()),
+				StatusMsg:  st.Message(),
 			})
 			return
 		}
@@ -129,12 +124,10 @@ func GetUser(ctx *gin.Context) {
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
 			// 获取错误码和错误信息
-			code = st.Code()
-			msg := st.Message()
 
 			ctx.JSON(http.StatusOK, response.DouyinUserResponse{
-				StatusCode: int32(code),
-				StatusMsg:  msg,
+				StatusCode: int32(st.Code()),
+				StatusMsg:  st.Message(),
 			})
 			return
 		}

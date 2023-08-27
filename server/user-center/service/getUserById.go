@@ -5,7 +5,7 @@ import (
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	userCache "user-center/cache"
 	"user-center/dao"
-	"user-center/pkg/e"
+	e2 "user-center/pkg/e"
 	userUtil "user-center/pkg/util"
 )
 
@@ -28,7 +28,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 
 	cacheData, err := cache.HasUser(ctx, service.Id)
 	if err != nil {
-		return nil, e.NewError(e.Error)
+		return nil, e2.NewError(e2.Error)
 	}
 	if len(cacheData) != 0 { //若缓存存在该记录
 		id := service.Id
@@ -48,7 +48,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	user, err := userDao.GetUserById(service.Id)
 	if err != nil {
 
-		return nil, e.NewError(e.Error)
+		return nil, e2.NewError(e2.Error)
 	}
 	if user.IsCelebrity() == true {
 		m := map[string]interface{}{
@@ -60,7 +60,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		//将用户信息添加至缓存
 		err = cache.AddUser(ctx, user.ID, m)
 		if err != nil {
-			return nil, e.NewError(e.Error)
+			return nil, e2.NewError(e2.Error)
 		}
 	}
 	return &pb.DouyinUserResponse{User: &pb.User{

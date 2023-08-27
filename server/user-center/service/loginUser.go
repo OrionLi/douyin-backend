@@ -5,7 +5,7 @@ import (
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"golang.org/x/crypto/bcrypt"
 	"user-center/dao"
-	"user-center/pkg/e"
+	e2 "user-center/pkg/e"
 	"user-center/pkg/util"
 )
 
@@ -28,28 +28,28 @@ func (service *LoginUserService) Login(ctx context.Context) (*pb.DouyinUserLogin
 	}()
 	// 数据验证
 	if err = util.ValidateUser(service.UserName, service.Password); err != nil {
-		return nil, e.NewError(e.InvalidParams)
+		return nil, e2.NewError(e2.InvalidParams)
 	}
 
 	// 查询用户是否存在
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if err != nil {
-		return nil, e.NewError(e.Error)
+		return nil, e2.NewError(e2.Error)
 	}
 	if exist == false {
-		return nil, e.NewError(e.ErrorExistUserNotFound)
+		return nil, e2.NewError(e2.ErrorExistUserNotFound)
 	}
 
 	// 比较密码是否匹配
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(service.Password)); err != nil {
-		return nil, e.NewError(e.ErrorNotCompare)
+		return nil, e2.NewError(e2.ErrorNotCompare)
 	}
 
 	// 签发token
 	token, err := util.GenerateToken(user.ID, service.UserName, 0)
 	if err != nil {
-		return nil, e.NewError(e.Error)
+		return nil, e2.NewError(e2.Error)
 	}
 
 	return &pb.DouyinUserLoginResponse{

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"user-center/constant"
 	"user-center/dao"
-	"user-center/pkg/e"
+	e2 "user-center/pkg/e"
 	"user-center/pkg/util"
 	"user-center/service"
 )
@@ -26,7 +26,7 @@ func (c RelationService) IsFollowDict(ctx context.Context, req *pb.IsFollowDictR
 		isFollow, err := dao.NewRelationDao(ctx).IsFollow(unit.SelfUserId, unit.UserIdList)
 		if err != nil {
 			util.LogrusObj.Errorf("IsFollowDict err: %v", err)
-			return nil, e.NewError(e.ErrorAborted)
+			return nil, e2.NewError(e2.ErrorAborted)
 		}
 		isFollowKey := strconv.FormatInt(unit.SelfUserId, 10) + "_" + strconv.FormatInt(unit.UserIdList, 10)
 		isFollowDict[isFollowKey] = isFollow
@@ -46,13 +46,13 @@ func (c RelationService) RelationAction(ctx context.Context, req *pb.RelationAct
 		// 关注
 		err := dao.NewRelationDao(ctx).FollowAction(req.SelfUserId, req.ToUserId)
 		if err != nil {
-			return nil, e.NewError(e.ErrorAborted)
+			return nil, e2.NewError(e2.ErrorAborted)
 		}
 	} else {
 		log.Infof(ctx, "unfollow action id:%v,toid:%v", req.SelfUserId, req.ToUserId)
 		err := dao.NewRelationDao(ctx).UnFollowAction(req.SelfUserId, req.ToUserId)
 		if err != nil {
-			return nil, e.NewError(e.ErrorAborted)
+			return nil, e2.NewError(e2.ErrorAborted)
 		}
 	}
 	return &pb.RelationActionRsp{
@@ -68,7 +68,7 @@ func (c RelationService) GetRelationFollowList(ctx context.Context, req *pb.GetR
 	list, err := service.RelationFollowList(ctx, req.UserId, 1)
 	if err != nil {
 		log.Errorf(ctx, "GetRelationFollowList error, err:%v", err)
-		return nil, e.NewError(e.ErrorAborted)
+		return nil, e2.NewError(e2.ErrorAborted)
 	}
 	return &pb.GetRelationFollowListRsp{
 		FollowList: list,
@@ -79,7 +79,7 @@ func (c RelationService) GetRelationFollowList(ctx context.Context, req *pb.GetR
 func (c RelationService) GetRelationFollowerList(ctx context.Context, req *pb.GetRelationFollowerListReq) (*pb.GetRelationFollowerListRsp, error) {
 	list, err := service.RelationFollowList(ctx, req.UserId, 2)
 	if err != nil {
-		return nil, e.NewError(e.ErrorAborted)
+		return nil, e2.NewError(e2.ErrorAborted)
 	}
 	return &pb.GetRelationFollowerListRsp{
 		FollowerList: list,

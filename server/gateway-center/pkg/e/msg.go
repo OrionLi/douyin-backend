@@ -1,17 +1,12 @@
 package e
 
-import (
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-)
-
 // CustomError 自定义的错误详情结构体
 type CustomError struct {
-	Code codes.Code `json:"code"`
-	Msg  string     `json:"msg"`
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }
 
-var MsgFlags = map[codes.Code]string{
+var MsgFlags = map[int]string{
 	Success:                    "success",
 	Error:                      "fail",
 	InvalidParams:              "参数错误",
@@ -21,7 +16,7 @@ var MsgFlags = map[codes.Code]string{
 
 //GstMag 获取状态码对应信息
 
-func GetMsg(code codes.Code) string {
+func GetMsg(code int) string {
 	msg, ok := MsgFlags[code]
 	if !ok {
 		return MsgFlags[1000]
@@ -29,7 +24,7 @@ func GetMsg(code codes.Code) string {
 	return msg
 }
 
-// NewError Grpc错误封装
+/*// NewError Grpc错误封装
 func NewError(code codes.Code) error {
 	c := &CustomError{
 		Code: code,
@@ -39,7 +34,7 @@ func NewError(code codes.Code) error {
 	// 使用status.Newf函数来创建一个新的status.Status类型的错误，并传入c作为格式化参数
 	st := status.Newf(code, "%v", c)
 	return st.Err()
-}
+}*/
 
 /*
 调用方解析
