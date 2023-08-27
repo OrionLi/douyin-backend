@@ -18,6 +18,7 @@ var (
 	RelationClient         pb.RelationServiceClient
 	VideoClient            pb.VideoCenterClient
 	VideoInteractionClient pb.DouyinVideoInteractionServiceClient
+	VideoStreamClient      pb.VideoCenter_PublishActionClient
 )
 
 func Init() {
@@ -71,5 +72,12 @@ func Init() {
 	if err != nil {
 		log.Fatalf("connect failed: %v", err)
 	}
+	VideoClient = pb.NewVideoCenterClient(Conn)
 	VideoInteractionClient = pb.NewDouyinVideoInteractionServiceClient(Conn)
+	//初始化VideoStreamClient
+	client, err := NewVideoStreamClient(Conn)
+	if err != nil {
+		log.Fatalf("Failed to get video-stream-service instances: %v", err)
+	}
+	VideoStreamClient = client
 }
