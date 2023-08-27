@@ -27,10 +27,10 @@ message User {
   bool is_follow = 5; //是否关注
   int64 fav_count = 6; // 点赞数量(赞过)
   int64 work_count =7; //投稿视频数
-  int32 get_fav_count = 8; // 获赞数量(被赞过)
-  string background_image=9;
-  string signature=10;
-    string total_favorited=11;
+  int32 total_favorited = 8; // 获赞数量(被赞过)
+  string background_image=9; //背景
+  string signature=10; //个人简介
+    string avatar=11; //头像
 }
 
 //注册

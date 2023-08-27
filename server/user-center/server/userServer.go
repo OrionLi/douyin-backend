@@ -3,11 +3,8 @@ package server
 import (
 	"context"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
-<<<<<<< HEAD
 	"user-center/grpc"
 	"user-center/pkg/e"
-=======
->>>>>>> 92ebd8700e1ecc2823a9c6e1f005196910d7cbf7
 	"user-center/service"
 )
 
@@ -49,14 +46,17 @@ func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserReque
 	vidCount := len(vids.VideoList)
 	userInfo := user.GetUser()
 	return &pb.DouyinUserResponse{User: &pb.User{
-		Id:            req.FollowId,
-		Name:          userInfo.GetName(),
-		FollowCount:   userInfo.FollowCount,
-		FollowerCount: userInfo.FollowerCount,
-		IsFollow:      isFollow.GetIsFollow(),
-		FavCount:      int64(favCount.GetFavCount()),
-		WorkCount:     int64(vidCount),
-		GetFavCount_:  favCount.GetFavCount_,
+		Id:              req.FollowId,
+		Name:            userInfo.GetName(),
+		FollowCount:     userInfo.FollowCount,
+		FollowerCount:   userInfo.FollowerCount,
+		IsFollow:        isFollow.GetIsFollow(),
+		FavCount:        int64(favCount.GetFavCount()),
+		WorkCount:       int64(vidCount),
+		GetFavCount_:    favCount.GetFavCount_,
+		BackgroundImage: "https://ts2.cn.mm.bing.net/th?id=OIP-C.HfZqICAPqMQslH0cMrIDFQHaKe&w=210&h=297&c=8&rs=1&qlt=90&o=6&dpr=1.1&pid=3.1&rm=2",
+		Signature:       "测试用户",
+		Avatar:          "https://ts2.cn.mm.bing.net/th?id=OIP-C.druUEHdZrBEuZPn2w80Y1QHaNK&w=187&h=333&c=8&rs=1&qlt=90&o=6&dpr=1.1&pid=3.1&rm=2",
 	}}, nil
 }
 
