@@ -17,7 +17,7 @@ func NewRelationService(dao *dao.RelationDao) *RelationService {
 }
 
 // Follow 关注
-func (s *RelationService) Follow(ctx context.Context, userId, toUserId uint) error {
+func (s *RelationService) Follow(ctx context.Context, userId, toUserId int64) error {
 	err := s.dao.Follow(ctx, userId, toUserId)
 	if err != nil {
 		return err
@@ -27,8 +27,8 @@ func (s *RelationService) Follow(ctx context.Context, userId, toUserId uint) err
 }
 
 // Unfollow 取消关注
-func (s *RelationService) Unfollow(ctx context.Context, userId, toUserId uint) error {
-	err := s.dao.Unfollow(ctx, userId, toUserId)
+func (s *RelationService) Unfollow(ctx context.Context, userId, toUserId int64) error {
+	err := s.dao.Unfollow(userId, toUserId)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (s *RelationService) Unfollow(ctx context.Context, userId, toUserId uint) e
 }
 
 // GetFollowList 获取关注列表
-func (s *RelationService) GetFollowList(ctx context.Context, userId uint) ([]*model.User, error) {
+func (s *RelationService) GetFollowList(ctx context.Context, userId int64) ([]*model.User, error) {
 	// 先从缓存中获取关注数
 	followCount, err := s.dao.GetFollowCountCache(userId)
 	if err != nil && err != redis.Nil {
@@ -51,7 +51,7 @@ func (s *RelationService) GetFollowList(ctx context.Context, userId uint) ([]*mo
 
 	// 如果缓存不存在,更新缓存
 	if followCount == 0 {
-		if err = s.dao.IncrFollowCountCache(userId, uint(len(users))); err != nil {
+		if err = s.dao.IncrFollowCountCache(userId, int64(len(users))); err != nil {
 			return nil, err
 		}
 	}
@@ -60,7 +60,7 @@ func (s *RelationService) GetFollowList(ctx context.Context, userId uint) ([]*mo
 }
 
 // GetFollowerList 获取粉丝列表
-func (s *RelationService) GetFollowerList(ctx context.Context, userId uint) ([]*model.User, error) {
+func (s *RelationService) GetFollowerList(ctx context.Context, userId int64) ([]*model.User, error) {
 
 	// 先从缓存中获取粉丝数
 	followerCount, err := s.dao.GetFollowerCountCache(userId)
@@ -75,7 +75,7 @@ func (s *RelationService) GetFollowerList(ctx context.Context, userId uint) ([]*
 
 	// 如果缓存不存在,更新缓存
 	if followerCount == 0 {
-		if err = s.dao.IncrFollowerCountCache(userId, uint(len(followers))); err != nil {
+		if err = s.dao.IncrFollowerCountCache(userId, int64(len(followers))); err != nil {
 			return nil, err
 		}
 	}
@@ -84,7 +84,7 @@ func (s *RelationService) GetFollowerList(ctx context.Context, userId uint) ([]*
 }
 
 // GetFriendList 获取好友列表
-func (s *RelationService) GetFriendList(ctx context.Context, userId uint) ([]*model.User, error) {
+func (s *RelationService) GetFriendList(ctx context.Context, userId int64) ([]*model.User, error) {
 
 	// 先从缓存中获取粉丝数
 	followerCount, err := s.dao.GetFollowerCountCache(userId)
@@ -92,14 +92,14 @@ func (s *RelationService) GetFriendList(ctx context.Context, userId uint) ([]*mo
 		return nil, err
 	}
 
-	friends, err := s.dao.GetFriendList(ctx, userId)
+	friends, err := s.dao.GetFriendList(userId)
 	if err != nil {
 		return nil, err
 	}
 
 	// 好友列表与粉丝列表大小相同,直接使用粉丝数缓存
 	if followerCount == 0 {
-		if err = s.dao.IncrFollowerCountCache(userId, uint(len(friends))); err != nil {
+		if err = s.dao.IncrFollowerCountCache(userId, int64(len(friends))); err != nil {
 			return nil, err
 		}
 	}

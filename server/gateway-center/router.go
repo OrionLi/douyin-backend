@@ -37,6 +37,11 @@ func NewRouter() *gin.Engine {
 		group.GET("/comment/action/", controller.CommentAction)
 		group.GET("/comment/list/", controller.CommentList)
 
+		group.POST("/relation/action/", controller.RelationAction)
+		group.GET("relation/follow/list/", controller.GetFollowList)
+		group.GET("relation/follower/list/", controller.GetFollowerList)
+		group.GET("relation/friend/list/", controller.GetFriendList)
+
 	}
 
 	return router
