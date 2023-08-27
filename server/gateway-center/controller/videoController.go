@@ -26,16 +26,15 @@ func CommentAction(c *gin.Context) {
 	userId := userIdAny.(int64)
 	var param baseResponse.CommentActionParam
 	if err := c.ShouldBind(&param); err != err {
-		convertErr := errno.ConvertErr(err)
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    &pb.Comment{},
 		})
 		return
 	}
 	if param.ActionType == "" || param.VideoID == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    &pb.Comment{},
 		})
 		return
@@ -45,7 +44,7 @@ func CommentAction(c *gin.Context) {
 		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 				Comment:    &pb.Comment{},
 			})
 			return
@@ -71,7 +70,7 @@ func CommentAction(c *gin.Context) {
 		commentID, err := strconv.ParseInt(param.CommentID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 				Comment:    &pb.Comment{},
 			})
 			return
@@ -94,7 +93,7 @@ func CommentAction(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-		VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 		Comment:    &pb.Comment{},
 	})
 }
@@ -106,7 +105,7 @@ func CommentList(c *gin.Context) {
 	videoId := c.Query("video_id")
 	if videoId == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    []*pb.Comment{},
 		})
 		return
@@ -114,7 +113,7 @@ func CommentList(c *gin.Context) {
 	videoID, err1 := strconv.ParseInt(videoId, 10, 64)
 	if err1 != nil {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			Comment:    []*pb.Comment{},
 		})
 		return
@@ -153,7 +152,7 @@ func ListFav(c *gin.Context) {
 	userIdToken := userIdAny.(int64)
 	if userId == "" {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			FavList:    []*pb.Video{},
 		})
 		return
@@ -162,14 +161,14 @@ func ListFav(c *gin.Context) {
 	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			FavList:    []*pb.Video{},
 		})
 		return
 	}
 	if userIdToken != UserIdParseInt {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
 			FavList:    []*pb.Video{},
 		})
 		return
