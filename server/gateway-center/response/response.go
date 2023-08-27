@@ -1,5 +1,7 @@
 package response
 
+import "github.com/OrionLi/douyin-backend/pkg/pb"
+
 type UserInfo struct {
 	Avatar          string `json:"avatar"`           // 用户头像
 	BackgroundImage string `json:"background_image"` // 用户个人页顶部大图
@@ -30,4 +32,15 @@ type DouyinUserLoginResponse struct {
 	StatusMsg  string `json:"status_msg,omitempty"`
 	UserID     int64  `json:"user_id"`
 	Token      string `json:"token"`
+}
+
+type DouyinChatGetMessageResponse struct {
+	StatusCode  int32         `json:"status_code"`
+	StatusMsg   string        `json:"status_msg,omitempty"`
+	MessageList []*pb.Message `json:"message_list,omitempty"`
+}
+
+type DouyinChatSendMessageResponse struct {
+	StatusCode int32  `json:"status_code"`
+	StatusMsg  string `json:"status_msg,omitempty"`
 }

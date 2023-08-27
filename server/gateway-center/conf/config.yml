@@ -1,0 +1,11 @@
+nacos:
+  Ip: 127.0.0.1
+  Port: 8848
+
+application:
+  chat-center:
+    ServiceName: chat-center
+  user-center:
+    ServiceName: user-center
+  video-center:
+    ServiceName: video-center
