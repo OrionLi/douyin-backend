@@ -1,6 +1,20 @@
 package response
 
-import "github.com/OrionLi/douyin-backend/pkg/pb"
+import (
+	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+func SuccessJSON(ctx *gin.Context, obj any) {
+	ctx.JSON(http.StatusOK, obj)
+}
+func ErrorJSON(ctx *gin.Context, code int64, msg string) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": code,
+		"StatusMsg":  msg,
+	})
+}
 
 type UserInfo struct {
 	Avatar          string `json:"avatar"`           // 用户头像
