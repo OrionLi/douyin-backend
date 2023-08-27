@@ -87,7 +87,7 @@ type CommentListResponse struct {
 }
 type FavListResponse struct {
 	VBResponse
-	FavList VideoArray `form:"video_list" json:"video_list"`
+	FavList []*pb.Video `form:"video_list" json:"video_list"`
 }
 
 type FavActionResponse struct {
