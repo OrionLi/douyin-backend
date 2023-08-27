@@ -2,16 +2,18 @@ package grpcClient
 
 import (
 	"context"
-	"gateway-center/pkg/errno"
+	"gateway-center/pkg/e"
+	"gateway-center/util"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"time"
 )
 
 // ResetVideoStreamClient 重置VideoStreamClient
 func ResetVideoStreamClient() {
 	VideoStreamClient = nil
-	client, err := NewVideoStreamClient(Conn)
+	client, err := NewVideoStreamClient(VideoConn)
 	if err != nil {
 		panic(err)
 	}
@@ -104,10 +106,24 @@ func Feed(ctx context.Context, req *pb.DouyinFeedRequest) ([]*pb.Video, int64, e
 		return videos, 0, err
 	}
 	if r.StatusCode != 0 {
-		return videos, 0, errno.NewErrno(int64(r.StatusCode), *r.StatusMsg)
+		return videos, 0, e.NewCustomError(int64(r.StatusCode), *r.StatusMsg)
 	}
 	videos = r.VideoList
 	return videos, *r.NextTime, nil
+}
+
+// GetPublishListCount 通过Token获取userId对应的VideoCount
+func GetPublishListCount(ctx context.Context, token string) (count int64, err error) {
+	userId := ValidateToken(token)
+	req := &pb.DouyinPublishListRequest{UserId: userId, Token: token}
+	r, err := VideoClient.PublishList(ctx, req)
+	if err != nil {
+		return 0, err
+	}
+	if r.StatusCode != 0 {
+		return 0, e.NewCustomError(int64(r.StatusCode), *r.StatusMsg)
+	}
+	return int64(len(r.VideoList)), nil
 }
 
 // PublishAction 投稿
@@ -124,7 +140,7 @@ func PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) erro
 	if recv.StatusCode == 0 {
 		return nil
 	} else {
-		return errno.NewErrno(int64(recv.StatusCode), *recv.StatusMsg)
+		return e.NewCustomError(int64(recv.StatusCode), *recv.StatusMsg)
 	}
 }
 
@@ -136,7 +152,7 @@ func PublishList(ctx context.Context, req *pb.DouyinPublishListRequest) ([]*pb.V
 		return videos, err
 	}
 	if r.StatusCode != 0 {
-		return videos, errno.NewErrno(int64(r.StatusCode), *r.StatusMsg)
+		return videos, e.NewCustomError(int64(r.StatusCode), *r.StatusMsg)
 	}
 	videos = r.VideoList
 	return videos, nil
@@ -170,4 +186,20 @@ func ActionComment(ctx context.Context, req *pb.DouyinCommentActionRequest) (*pb
 
 func ListComment(ctx context.Context, req *pb.DouyinCommentListRequest) (*pb.DouyinCommentListResponse, error) {
 	return VideoInteractionClient.ListComment(ctx, req)
+}
+
+// ValidateToken 校验Token
+func ValidateToken(token string) int64 {
+	if len(token) == 0 {
+		return -1
+	}
+	parseToken, err := util.ParseToken(token)
+	if err != nil {
+		return -1
+	}
+	// 判断 token 是否过期
+	if parseToken.ExpiresAt < time.Now().Unix() {
+		return -1
+	}
+	return int64(parseToken.ID)
 }

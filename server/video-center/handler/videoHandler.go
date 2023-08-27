@@ -18,7 +18,6 @@ type VideoServer struct {
 }
 
 func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) error {
-
 	for {
 		request, err := server.Recv()
 		if err == io.EOF {
@@ -55,6 +54,8 @@ func (s *VideoServer) PublishAction(server pb.VideoCenter_PublishActionServer) e
 			return err
 		}
 	}
+	//上传完毕之后更新缓存用户投稿的缓存
+
 	return nil
 }
 

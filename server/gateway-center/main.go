@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	grpcClient.UserClientInit()
 	conf.Init()
+	grpcClient.Init()
 	NewRouter().Run(":3010")
 
 }

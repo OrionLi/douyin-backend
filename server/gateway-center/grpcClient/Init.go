@@ -20,6 +20,7 @@ var (
 	VideoInteractionClient pb.DouyinVideoInteractionServiceClient
 	VideoStreamClient      pb.VideoCenter_PublishActionClient
 )
+var VideoConn *grpc.ClientConn
 
 func Init() {
 	// 创建clientConfig
@@ -68,14 +69,14 @@ func Init() {
 	if err != nil {
 		log.Fatalf("Failed to get video-service instances: %v", err)
 	}
-	conn, err = grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	VideoConn, err = grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("connect failed: %v", err)
 	}
-	VideoClient = pb.NewVideoCenterClient(Conn)
-	VideoInteractionClient = pb.NewDouyinVideoInteractionServiceClient(Conn)
+	VideoClient = pb.NewVideoCenterClient(VideoConn)
+	VideoInteractionClient = pb.NewDouyinVideoInteractionServiceClient(VideoConn)
 	//初始化VideoStreamClient
-	client, err := NewVideoStreamClient(Conn)
+	client, err := NewVideoStreamClient(VideoConn)
 	if err != nil {
 		log.Fatalf("Failed to get video-stream-service instances: %v", err)
 	}

@@ -26,9 +26,12 @@ func NewRouter() *gin.Engine {
 		group.POST("/user/register/", controller.UserRegister)
 		group.POST("/user/login/", controller.UserLogin)
 		// TODO 用户信息、用户关系相关请求
-
 		// video模块路由
 		// TODO 视频流相关请求
+		group.POST("/publish/action/", controller.PublishAction)
+		group.GET("/feed/", controller.Feed)
+		group.GET("/publish/list/", controller.PublishList)
+
 		group.GET("/favorite/action/", controller.ActionFav)
 		group.GET("/favorite/list/", controller.ListFav)
 		group.GET("/comment/action/", controller.CommentAction)
