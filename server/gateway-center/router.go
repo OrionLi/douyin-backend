@@ -29,10 +29,10 @@ func NewRouter() *gin.Engine {
 
 		// video模块路由
 		// TODO 视频流相关请求
-		group.GET("/video/favorite/action/", controller.ActionFav)
-		group.GET("/video/favorite/list/", controller.ListFav)
-		group.GET("/video/comment/action/", controller.CommentAction)
-		group.GET("/video/comment/list/", controller.CommentList)
+		group.GET("/favorite/action/", controller.ActionFav)
+		group.GET("/favorite/list/", controller.ListFav)
+		group.GET("/comment/action/", controller.CommentAction)
+		group.GET("/comment/list/", controller.CommentList)
 
 	}
 
