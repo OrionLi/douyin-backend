@@ -22,5 +22,18 @@ func NewRouter() *gin.Engine {
 		}
 
 	}
+	//video模块路由
+	v := g.Group("/video")
+	//TODO 视频流相关请求
+
+	// 评论相关请求
+	comment := v.Group("/comment")
+	comment.POST("/action", controller.CommentAction)
+	comment.GET("/list", controller.CommentList)
+	// 点赞相关请求
+	favorite := v.Group("/favorite")
+	favorite.POST("/action", controller.ActionFav)
+	favorite.GET("/list", controller.ListFav)
+
 	return r
 }
