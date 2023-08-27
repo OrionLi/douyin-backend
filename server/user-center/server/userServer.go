@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"user-center/pb"
+	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"user-center/service"
 )
 
