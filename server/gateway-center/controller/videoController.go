@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"gateway-center/grpcClient"
+	"gateway-center/pkg/e"
 	"gateway-center/pkg/errno"
 	baseResponse "gateway-center/response"
 	"gateway-center/util"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // FavoriteParam 点赞请求参数
@@ -142,29 +144,20 @@ func CommentList(c *gin.Context) {
 
 // ActionFav 点赞操作
 func ActionFav(c *gin.Context) {
-	var requestBody FavoriteParam
-	err := c.ShouldBindJSON(&requestBody)
-	if err != nil {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
-		return
-	}
-	userId := validateToken(requestBody.Token)
-	if userId == -1 {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.TokenErrCode, StatusMsg: errno.TokenErr.ErrMsg}})
-		return
-	}
-	videoId := util.StringToInt64(requestBody.VideoId)
+	userIdAny, _ := c.Get("UserId")
+	userId := userIdAny.(int64)
+	videoId := util.StringToInt64(c.Query("video_id"))
 	if videoId == -1 {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)})
 		return
 	}
-	actionType := util.StringToInt64(requestBody.ActionType)
+	actionType := util.StringToInt64(c.Query("action_type"))
 	resp, err := grpcClient.ActionFavorite(context.Background(), userId, videoId, int32(actionType))
-	if err != nil || resp.StatusCode != errno.SuccessCode {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.FavActionErrCode, StatusMsg: errno.FavActionErr.ErrMsg}})
+	if err != nil || resp.StatusCode != e.Success {
+		c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.Error, StatusMsg: e.GetMsg(e.Error)})
 		return
 	}
-	c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg}})
+	c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)})
 }
 
 // ListFav 获取喜欢列表
@@ -206,4 +199,17 @@ func ListFav(c *gin.Context) {
 	}
 	println(response)
 	c.JSON(http.StatusOK, response)
+}
+
+// validateToken 验证token
+func validateToken(token string) int64 {
+	parseToken, err := util.ParseToken(token)
+	if err != nil {
+		return -1
+	}
+	// 判断 token 是否过期
+	if parseToken.ExpiresAt < time.Now().Unix() {
+		return -1
+	}
+	return int64(parseToken.ID)
 }
