@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gateway/controller"
-	"gateway/middleware"
+	"gateway-center/controller"
+	"gateway-center/middleware"
 	"github.com/gin-gonic/gin"
 )
 
