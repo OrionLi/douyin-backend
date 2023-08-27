@@ -45,8 +45,8 @@ type PublishActionParam struct {
 	Title string `form:"title"`
 }
 type PublishListParam struct {
-	UserId int64  `json:"user_id"`
-	Token  string `json:"token"`
+	UserId int64  `json:"user_id" form:"user_id"`
+	Token  string `json:"token" form:"token"`
 }
 type FeedParam struct {
 	LatestTime int64  `json:"latest_time" form:"latest_time"`

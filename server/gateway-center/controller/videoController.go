@@ -2,15 +2,228 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"gateway-center/grpcClient"
-	"gateway-center/pkg/errno"
+	"gateway-center/pkg/e"
 	baseResponse "gateway-center/response"
 	"gateway-center/util"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/gin-gonic/gin"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 )
+
+// PublishAction 视频投稿
+func PublishAction(c *gin.Context) {
+	var params baseResponse.PublishActionParam
+	//参数绑定
+	if err := c.ShouldBind(&params); err != nil {
+		convertErr := e.ConvertErr(err)
+		util.LogrusObj.Errorf("参数绑定错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.PostForm, convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	fmt.Println(params.Token)
+	//middleWare已校验
+	_ = validateToken(params.Token)
+	//绑定二进制数据
+	file, err2 := c.FormFile("data")
+	if err2 != nil {
+		convertErr := e.ConvertErr(err2)
+		util.LogrusObj.Errorf("获取二进制流错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.PostForm, convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	open, err2 := file.Open()
+	if err2 != nil {
+		convertErr := e.ConvertErr(err2)
+		util.LogrusObj.Errorf("OpenFile Error 错误原因:%s", convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	fileData := make([]byte, file.Size)
+	_, err2 = open.Read(fileData)
+	defer func(open multipart.File) {
+		err := open.Close()
+		if err != nil {
+
+		}
+	}(open)
+	if err2 != nil {
+		convertErr := e.ConvertErr(err2)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	//调用rpcClient
+	err := grpcClient.PublishAction(context.Background(), &pb.DouyinPublishActionRequest{
+		Token: params.Token,
+		Data:  fileData,
+		Title: params.Title,
+	})
+	if err != nil {
+		convertErr := e.ConvertErr(err)
+		util.LogrusObj.Errorf("Upload Error ErrorMSG:%s", convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+		VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
+	})
+}
+
+// PublishList 获取用户投稿列
+func PublishList(c *gin.Context) {
+	var params baseResponse.PublishListParam
+	if err := c.ShouldBindQuery(&params); err != nil {
+		convertErr := e.ConvertErr(err)
+		util.LogrusObj.Errorf("参数绑定错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.PostForm, convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	if params.UserId <= 0 || len(params.Token) == 0 {
+		util.LogrusObj.Errorf("Token格式错误 URL:%s Token:%s UserId:%d", c.Request.RequestURI, params.Token, params.UserId)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
+		})
+		return
+	}
+	_, err2 := util.ParseToken(params.Token)
+	if err2 != nil {
+		util.LogrusObj.Errorf("Token验证失败 URL:%s Token:%s UserId:%d", c.Request.RequestURI, params.Token, params.UserId)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: e.TokenErr, StatusMsg: e.GetMsg(e.TokenErr)},
+		})
+		return
+	}
+	videos, err := grpcClient.PublishList(context.Background(), &pb.DouyinPublishListRequest{
+		UserId: params.UserId,
+		Token:  params.Token,
+	})
+	if err != nil {
+		convertErr := e.ConvertErr(err)
+		util.LogrusObj.Errorf("RPC Error ErrorMSG:%s", convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	videoList := baseResponse.VideoArray{}
+	for _, video := range videos {
+		info, err2 := grpcClient.GetUserById(context.Background(), uint(video.Author.Id))
+		if err2 != nil {
+			util.LogrusObj.Errorf("gRPC getUserInfo Error userId:%d", video.Author.Id)
+			continue
+		}
+		user := baseResponse.Vuser{
+			Id:            info.User.Id,
+			Name:          info.User.Name,
+			FollowerCount: info.User.FollowerCount,
+			FollowCount:   info.User.FollowCount,
+			IsFollow:      false,
+		}
+		v := baseResponse.Video{
+			Id:            video.Id,
+			User:          user,
+			CoverUrl:      video.CoverUrl,
+			PlayUrl:       video.PlayUrl,
+			FavoriteCount: video.FavoriteCount,
+			CommentCount:  video.CommentCount,
+			IsFavorite:    video.IsFavorite,
+			Title:         video.Title,
+		}
+		videoList = append(videoList, v)
+	}
+	c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+		VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
+		VideoList:  videoList,
+	})
+}
+
+// Feed Feed流
+func Feed(c *gin.Context) {
+	var params baseResponse.FeedParam
+	if err := c.ShouldBindQuery(&params); err != nil {
+		convertErr := e.ConvertErr(err)
+		//记录日志
+		util.LogrusObj.Errorf("参数绑定错误 URL:%s form %v 错误原因:%s", c.Request.URL, c.Request.RequestURI, convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.FeedResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	isLogin := false
+	isFollow := false
+	userId := validateToken(params.Token)
+	if userId != -1 {
+		isLogin = true
+	}
+	fmt.Printf("LatestTime: %d, Token: %s\n", params.LatestTime, params.Token)
+	videos, nextTime, err := grpcClient.Feed(context.Background(), &pb.DouyinFeedRequest{
+		Token:      &params.Token,
+		LatestTime: &params.LatestTime,
+	})
+	if err != nil {
+		convertErr := e.ConvertErr(err)
+		util.LogrusObj.Errorf("rpc调用错误 URL:%s 错误原因:%s", c.Request.URL, convertErr.Msg)
+		c.JSON(http.StatusOK, baseResponse.FeedResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
+		})
+		return
+	}
+	VideoList := baseResponse.VideoArray{}
+	for _, video := range videos {
+		info, err := grpcClient.GetUserById(context.Background(), uint(video.Author.Id))
+		if err != nil {
+			util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
+			continue
+		}
+		if isLogin {
+			follow, err := grpcClient.IsFollow(context.Background(), uint(video.Author.Id), uint(userId))
+			if err != nil {
+				isFollow = false
+			}
+			isFollow = follow.IsFollow
+		}
+		user := baseResponse.Vuser{
+			Id:            info.User.Id,
+			Name:          info.User.Name,
+			FollowerCount: info.User.FollowerCount,
+			FollowCount:   info.User.FollowCount,
+			IsFollow:      isFollow,
+		}
+		fmt.Println(isLogin)
+		fmt.Println(isFollow)
+		v := &baseResponse.Video{
+			Id:            video.Id,
+			User:          user,
+			CoverUrl:      video.CoverUrl,
+			PlayUrl:       video.PlayUrl,
+			FavoriteCount: video.FavoriteCount,
+			CommentCount:  video.CommentCount,
+			IsFavorite:    video.IsFavorite,
+			Title:         video.Title,
+		}
+		VideoList = append(VideoList, *v)
+	}
+	c.JSON(http.StatusOK, baseResponse.FeedResponse{
+		VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
+		VideoList:  VideoList,
+		NextTime:   nextTime,
+	})
+}
 
 // FavoriteParam 点赞请求参数
 type FavoriteParam struct {
@@ -23,16 +236,16 @@ type FavoriteParam struct {
 func CommentAction(c *gin.Context) {
 	var param baseResponse.CommentActionParam
 	if err := c.ShouldBind(&param); err != err {
-		convertErr := errno.ConvertErr(err)
+		convertErr := e.ConvertErr(err)
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.ErrCode), StatusMsg: convertErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: int32(convertErr.Code), StatusMsg: convertErr.Msg},
 			Comment:    &pb.Comment{},
 		})
 		return
 	}
 	if len(param.Token) == 0 || param.ActionType == "" || param.VideoID == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			Comment:    &pb.Comment{},
 		})
 		return
@@ -40,7 +253,7 @@ func CommentAction(c *gin.Context) {
 	user, err := util.ParseToken(param.Token)
 	if err != nil {
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			Comment:    &pb.Comment{},
 		})
 		return
@@ -50,7 +263,7 @@ func CommentAction(c *gin.Context) {
 		videoId, err := strconv.ParseInt(param.VideoID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 				Comment:    &pb.Comment{},
 			})
 			return
@@ -64,7 +277,7 @@ func CommentAction(c *gin.Context) {
 		response, err := grpcClient.ActionComment(c, &request)
 		if err != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.FailedToCallRpc, StatusMsg: e.GetMsg(e.FailedToCallRpc)},
 				Comment:    &pb.Comment{},
 			})
 		}
@@ -76,7 +289,7 @@ func CommentAction(c *gin.Context) {
 		commentID, err := strconv.ParseInt(param.CommentID, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 				Comment:    &pb.Comment{},
 			})
 			return
@@ -90,7 +303,7 @@ func CommentAction(c *gin.Context) {
 		response, err2 := grpcClient.ActionComment(c, &request)
 		if err2 != nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-				VBResponse: baseResponse.VBResponse{StatusCode: errno.FailedToCallRpcCode, StatusMsg: errno.FailedToCallRpcErr.ErrMsg},
+				VBResponse: baseResponse.VBResponse{StatusCode: e.FailedToCallRpc, StatusMsg: e.GetMsg(e.FailedToCallRpc)},
 				Comment:    &pb.Comment{},
 			})
 			return
@@ -99,7 +312,7 @@ func CommentAction(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
-		VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+		VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 		Comment:    &pb.Comment{},
 	})
 }
@@ -110,7 +323,7 @@ func CommentList(c *gin.Context) {
 	videoId := c.Query("video_id")
 	if len(token) == 0 || videoId == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			Comment:    []*pb.Comment{},
 		})
 		return
@@ -118,7 +331,7 @@ func CommentList(c *gin.Context) {
 	videoID, err1 := strconv.ParseInt(videoId, 10, 64)
 	if err1 != nil {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			Comment:    []*pb.Comment{},
 		})
 		return
@@ -126,7 +339,7 @@ func CommentList(c *gin.Context) {
 	parseToken, err1 := util.ParseToken(token)
 	if err1 != nil {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			Comment:    []*pb.Comment{},
 		})
 		return
@@ -145,26 +358,26 @@ func ActionFav(c *gin.Context) {
 	var requestBody FavoriteParam
 	err := c.ShouldBindJSON(&requestBody)
 	if err != nil {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)}})
 		return
 	}
 	userId := validateToken(requestBody.Token)
 	if userId == -1 {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.TokenErrCode, StatusMsg: errno.TokenErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.TokenErr, StatusMsg: e.GetMsg(e.TokenErr)}})
 		return
 	}
 	videoId := util.StringToInt64(requestBody.VideoId)
 	if videoId == -1 {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg}})
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)}})
 		return
 	}
 	actionType := util.StringToInt64(requestBody.ActionType)
 	resp, err := grpcClient.ActionFavorite(context.Background(), userId, videoId, int32(actionType))
-	if err != nil || resp.StatusCode != errno.SuccessCode {
-		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.FavActionErrCode, StatusMsg: errno.FavActionErr.ErrMsg}})
+	if err != nil || resp.StatusCode != e.Success {
+		c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.FavActionErr, StatusMsg: e.GetMsg(e.FavListEmpty)}})
 		return
 	}
-	c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: errno.SuccessCode, StatusMsg: errno.Success.ErrMsg}})
+	c.JSON(http.StatusOK, baseResponse.FavActionResponse{baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)}})
 }
 
 // ListFav 获取喜欢列表
@@ -173,7 +386,7 @@ func ListFav(c *gin.Context) {
 	token := c.Query("token")
 	if userId == "" || token == "" {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			FavList:    []*pb.Video{},
 		})
 		return
@@ -182,14 +395,14 @@ func ListFav(c *gin.Context) {
 	UserIdParseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			FavList:    []*pb.Video{},
 		})
 		return
 	}
 	if tokenUserId != UserIdParseInt {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
-			VBResponse: baseResponse.VBResponse{StatusCode: errno.ParamErrCode, StatusMsg: errno.ParamErr.ErrMsg},
+			VBResponse: baseResponse.VBResponse{StatusCode: e.ParamErr, StatusMsg: e.GetMsg(e.ParamErr)},
 			FavList:    []*pb.Video{},
 		})
 		return
@@ -198,8 +411,8 @@ func ListFav(c *gin.Context) {
 	response, _ := grpcClient.GetFavoriteList(c, &request)
 	if response == nil {
 		c.JSON(http.StatusOK, &pb.DouyinFavoriteListResponse{
-			StatusCode: errno.FavListEmptyCode,
-			StatusMsg:  errno.FavListEmptyErr.ErrMsg,
+			StatusCode: e.FavListEmpty,
+			StatusMsg:  e.GetMsg(e.FavListEmpty),
 			VideoList:  []*pb.Video{},
 		})
 		return

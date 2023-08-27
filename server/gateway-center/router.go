@@ -20,12 +20,16 @@ func NewRouter() *gin.Engine {
 			*/
 			authed.GET("user/", controller.GetUser)
 		}
-
+		feed := g.Group("/feed")
+		{
+			feed.GET("/", controller.Feed)
+		}
 	}
 	//video模块路由
-	v := g.Group("/video")
+	v := g.Group("/publish")
 	//TODO 视频流相关请求
-
+	v.POST("/action/", controller.PublishAction)
+	v.GET("/list/", controller.PublishList)
 	// 评论相关请求
 	comment := v.Group("/comment")
 	comment.POST("/action", controller.CommentAction)
