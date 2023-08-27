@@ -10,7 +10,10 @@ import (
 )
 
 var (
-	Address string
+	ServiceName string
+	ServerIp    string
+	ServerPort  int
+	NacosIp     string
 
 	DbHost     string
 	DbPort     string
@@ -27,13 +30,11 @@ var (
 // nacos配置项
 var (
 	NacosAddress string
-	NacosPort    int
+	NacosPort    uint64
 )
 
-// 各个微服务的服务名
+// 微服务的服务名
 var (
-	ChatCenterServiceName  string
-	UserCenterServiceName  string
 	VideoCenterServiceName string
 )
 
@@ -52,8 +53,6 @@ func Init() error {
 	}
 
 	// 获取配置项的值并赋值给变量
-	Address = viper.GetString("server.address")
-
 	DbHost = viper.GetString("mysql.DbHost")
 	DbPort = viper.GetString("mysql.DbPort")
 	DbUser = viper.GetString("mysql.DbUser")
@@ -66,13 +65,16 @@ func Init() error {
 
 	// 解析 Nacos 配置
 	NacosAddress = viper.GetString("nacos.Ip")
-	NacosPort = viper.GetInt("nacos.Port")
+	NacosPort = uint64(viper.GetInt("nacos.Port"))
 
 	// 解析各个微服务的服务名
-	ChatCenterServiceName = viper.GetString("application.chat-center.ServiceName")
-	UserCenterServiceName = viper.GetString("application.user-center.ServiceName")
-	VideoCenterServiceName = viper.GetString("application.video-center.ServiceName")
 
+	VideoCenterServiceName = viper.GetString("application.video-center.ServiceName")
+	ServiceName = viper.GetString("application.ServiceName")
+	ServerIp = viper.GetString("application.Ip")
+	ServerPort = int(viper.GetUint("application.Port"))
+	NacosIp = viper.GetString("nacos.Ip")
+	NacosPort = viper.GetUint64("nacos.Port")
 	//mysql连接信息
 	conn := strings.Join([]string{DbUser, ":", DbPassword, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8mb4&parseTime=true"}, "")
 	// gorm引擎初始化
@@ -86,7 +88,7 @@ func Init() error {
 		return err
 	}
 	// grpc初始化
-	err = server.Grpc(Address)
+	err = server.Grpc(ServerIp)
 	if err != nil {
 		return err
 	}

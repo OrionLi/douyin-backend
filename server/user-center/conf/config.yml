@@ -1,5 +1,4 @@
-server:
-  address: :3001
+
 
 mysql:
   DB: mysql
@@ -23,9 +22,9 @@ nacos:
   Port: 8848
 
 application:
-  chat-center:
-    ServiceName: chat-center
-  user-center:
-    ServiceName: user-center
+  ServiceName: user-center
+  Ip: 127.0.0.1
+  Port: :8811
+
   video-center:
     ServiceName: video-center
