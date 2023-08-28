@@ -1,7 +1,10 @@
 nacos:
   Ip: 127.0.0.1
   Port: 8848
-
+redis:
+  passwd:
+  host:  r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379
+  db: 0
 application:
   chat-center:
     ServiceName: chat-center
