@@ -2,9 +2,12 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
+	"user-center/cache"
 	"user-center/grpc"
 	"user-center/pkg/e"
+	"user-center/pkg/util"
 	"user-center/service"
 )
 
@@ -19,6 +22,7 @@ func NewUserRPCServer() *UserRPCServer {
 // GetUserById 通过id获取用户基本信息
 func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserRequest) (*pb.DouyinUserResponse, error) {
 	// 用户基本信息请求体
+	videoCountKey := fmt.Sprintf("publishlist:%d", req.UserId)
 	userReq := service.GetUserByIdService{Id: uint(req.GetFollowId())}
 	user, err := userReq.GetUserById(ctx)
 	if err != nil {
@@ -41,9 +45,20 @@ func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserReque
 	if favCount.StatusCode != 0 {
 		return nil, e.NewError(e.Error)
 	}
+
+	//用户作品数量缓存添加缓存
+	key, err := cache.RedisGetKey(ctx, videoCountKey)
+	var vidCount int64
+	if err != nil {
+		vids, err := grpc.GetPublishList(ctx, uint(req.GetFollowId()), req.GetToken())
+		if err != nil {
+			return nil, e.NewError(e.Error)
+		}
+		vidCount := len(vids.VideoList)
+		err = cache.RedisSetKey(ctx, videoCountKey, vidCount)
+	}
+	vidCount = util.StrToInt64(key)
 	// 获取用户发布视频列表
-	vids, err := grpc.GetPublishList(ctx, uint(req.GetFollowId()), req.GetToken())
-	vidCount := len(vids.VideoList)
 	userInfo := user.GetUser()
 	return &pb.DouyinUserResponse{User: &pb.User{
 		Id:              req.FollowId,
@@ -52,7 +67,7 @@ func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserReque
 		FollowerCount:   userInfo.FollowerCount,
 		IsFollow:        isFollow.GetIsFollow(),
 		FavCount:        int64(favCount.GetFavCount()),
-		WorkCount:       int64(vidCount),
+		WorkCount:       vidCount,
 		TotalFavorited:  favCount.GetFavCount_,
 		BackgroundImage: "https://ts2.cn.mm.bing.net/th?id=OIP-C.HfZqICAPqMQslH0cMrIDFQHaKe&w=210&h=297&c=8&rs=1&qlt=90&o=6&dpr=1.1&pid=3.1&rm=2",
 		Signature:       "测试用户",
