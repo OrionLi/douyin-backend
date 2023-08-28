@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"gateway-center/cache"
 	"gateway-center/grpcClient"
 	"gateway-center/pkg/e"
 	baseResponse "gateway-center/response"
@@ -12,6 +13,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // PublishAction 视频投稿
@@ -78,10 +80,54 @@ func PublishAction(c *gin.Context) {
 	c.JSON(http.StatusOK, baseResponse.PublishListResponse{
 		VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
 	})
+	//投稿成功之后重新查询用户投稿列表，更新缓存
+	//先删除Key
+	token := grpcClient.ValidateToken(params.Token)
+	var PLKey = fmt.Sprintf("PersonVideoList:%d", token)
+	cache.RedisDeleteKey(context.Background(), PLKey)
+	var videoList baseResponse.VideoArray
+	//调用grpc
+	videos, err := grpcClient.PublishList(context.Background(), &pb.DouyinPublishListRequest{
+		UserId: token,
+		Token:  params.Token,
+	})
+	if err != nil {
+		return
+	}
+	for _, video := range videos {
+		info, err2 := grpcClient.GetUserById(context.Background(), uint(video.Author.Id), uint(video.Author.Id), params.Token)
+		if err2 != nil {
+			util.LogrusObj.Errorf("gRPC getUserInfo Error userId:%d", video.Author.Id)
+			continue
+		}
+		user := baseResponse.Vuser{
+			Id:            info.User.Id,
+			Name:          info.User.Name,
+			FollowerCount: info.User.FollowerCount,
+			FollowCount:   info.User.FollowCount,
+			IsFollow:      false,
+		}
+		v := baseResponse.Video{
+			Id:            video.Id,
+			User:          user,
+			CoverUrl:      video.CoverUrl,
+			PlayUrl:       video.PlayUrl,
+			FavoriteCount: video.FavoriteCount,
+			CommentCount:  video.CommentCount,
+			IsFavorite:    video.IsFavorite,
+			Title:         video.Title,
+		}
+		videoList = append(videoList, v)
+	}
+	err2 = cache.RedisSetPublishListVideoList(context.Background(), PLKey, videoList)
+	if err2 != nil {
+		util.LogrusObj.Errorf("Cache Error Set PublishList Key:%s error ErrMSG:%s", PLKey, err2.Error())
+	}
 }
 
 // PublishList 获取用户投稿列
 func PublishList(c *gin.Context) {
+
 	var params baseResponse.PublishListParam
 	if err := c.ShouldBindQuery(&params); err != nil {
 		convertErr := e.ConvertErr(err)
@@ -98,6 +144,9 @@ func PublishList(c *gin.Context) {
 		})
 		return
 	}
+	//RedisKey
+	var PLKey = fmt.Sprintf("PersonVideoList:%d", params.UserId)
+	videoList := baseResponse.VideoArray{}
 	_, err2 := util.ParseToken(params.Token)
 	if err2 != nil {
 		util.LogrusObj.Errorf("Token验证失败 URL:%s Token:%s UserId:%d", c.Request.RequestURI, params.Token, params.UserId)
@@ -106,6 +155,15 @@ func PublishList(c *gin.Context) {
 		})
 		return
 	}
+	videoList, err2 = cache.RedisGetPublishListVideoList(context.Background(), PLKey)
+	if err2 == nil { //获取成功，直接返回结果
+		c.JSON(http.StatusOK, baseResponse.PublishListResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
+			VideoList:  videoList,
+		})
+		return
+	}
+	//获取失败，调用grpc
 	videos, err := grpcClient.PublishList(context.Background(), &pb.DouyinPublishListRequest{
 		UserId: params.UserId,
 		Token:  params.Token,
@@ -118,7 +176,6 @@ func PublishList(c *gin.Context) {
 		})
 		return
 	}
-	videoList := baseResponse.VideoArray{}
 	for _, video := range videos {
 		info, err2 := grpcClient.GetUserById(context.Background(), uint(video.Author.Id), uint(video.Author.Id), params.Token)
 		if err2 != nil {
@@ -148,6 +205,10 @@ func PublishList(c *gin.Context) {
 		VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
 		VideoList:  videoList,
 	})
+	err2 = cache.RedisSetPublishListVideoList(context.Background(), PLKey, videoList)
+	if err2 != nil {
+		util.LogrusObj.Errorf("Cache Error Set PublishList Key:%s error ErrMSG:%s", PLKey, err2.Error())
+	}
 }
 
 // Feed Feed流
@@ -168,7 +229,17 @@ func Feed(c *gin.Context) {
 	if userId != -1 {
 		isLogin = true
 	}
+	var FeedKey = fmt.Sprintf("FeedCache:latest_time:%dUserId:%s", params.LatestTime, userId)
 	fmt.Printf("LatestTime: %d, Token: %s\n", params.LatestTime, params.Token)
+	VideoList, err := cache.RedisGetFeedVideoList(context.Background(), FeedKey)
+	if err == nil { //找到数据，则返回
+		c.JSON(http.StatusOK, baseResponse.FeedResponse{
+			VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
+			VideoList:  VideoList,
+			NextTime:   time.Now().Unix(),
+		})
+		return
+	}
 	videos, nextTime, err := grpcClient.Feed(context.Background(), &pb.DouyinFeedRequest{
 		Token:      &params.Token,
 		LatestTime: &params.LatestTime,
@@ -181,7 +252,7 @@ func Feed(c *gin.Context) {
 		})
 		return
 	}
-	VideoList := baseResponse.VideoArray{}
+
 	for _, video := range videos {
 		var info *pb.DouyinUserResponse
 		if isLogin {
@@ -225,6 +296,10 @@ func Feed(c *gin.Context) {
 		VideoList:  VideoList,
 		NextTime:   nextTime,
 	})
+	err = cache.RedisSetFeedVideoList(context.Background(), FeedKey, VideoList)
+	if err != nil {
+		util.LogrusObj.Errorf("Cache Error Set PublishList Key:%s error ErrMSG:%s", FeedKey, err.Error())
+	}
 }
 
 // FavoriteParam 点赞请求参数
