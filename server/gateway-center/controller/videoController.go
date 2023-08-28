@@ -428,7 +428,7 @@ func ActionFav(c *gin.Context) {
 	actionType := util.StringToInt64(c.Query("action_type"))
 	resp, err := grpcClient.ActionFavorite(context.Background(), userId, videoId, int32(actionType))
 	if err != nil || resp.StatusCode != e.Success {
-		c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.Error, StatusMsg: e.GetMsg(e.Error)})
+		c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.FavActionErr, StatusMsg: e.GetMsg(e.FavActionErr)})
 		return
 	}
 	c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)})

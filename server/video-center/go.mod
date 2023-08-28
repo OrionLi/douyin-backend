@@ -3,7 +3,7 @@ module video-center
 go 1.20
 
 require (
-	github.com/OrionLi/douyin-backend v1.0.9
+	github.com/OrionLi/douyin-backend v1.0.15
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5

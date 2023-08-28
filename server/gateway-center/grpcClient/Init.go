@@ -50,34 +50,33 @@ func Init() {
 	}
 
 	// 获取 gRPC 服务实例信息
-	//instances, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
-	//	ServiceName: conf.ChatCenterServiceName,
-	//})
-	//if err != nil {
-	//	log.Fatalf("Failed to get chat-service instances: %v", err)
-	//}
-	//
-	//conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	//if err != nil {
-	//	log.Fatalf("connect failed: %v", err)
-	//}
-	//ChatClient = pb.NewDouyinMessageServiceClient(conn)
-	////
-	//// 获取 gRPC 服务实例信息
-	//inst, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
-	//	ServiceName: conf.UserCenterServiceName,
-	//})
-	//if err != nil {
-	//	log.Fatalf("Failed to get chat-service instances: %v", err)
-	//}
-	//
-	//Userconn, err := grpc.Dial(fmt.Sprintf("%s:%d", inst.Ip, inst.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	//if err != nil {
-	//	log.Fatalf("connect failed: %v", err)
-	//}
-	//UserClient = pb.NewUserServiceClient(Userconn)
-
 	instances, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
+		ServiceName: conf.ChatCenterServiceName,
+	})
+	if err != nil {
+		log.Fatalf("Failed to get chat-service instances: %v", err)
+	}
+
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("connect failed: %v", err)
+	}
+	ChatClient = pb.NewDouyinMessageServiceClient(conn)
+
+	inst, err := nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
+		ServiceName: conf.UserCenterServiceName,
+	})
+	if err != nil {
+		log.Fatalf("Failed to get user-service instances: %v", err)
+	}
+
+	UserConn, err := grpc.Dial(fmt.Sprintf("%s:%d", inst.Ip, inst.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("connect failed: %v", err)
+	}
+	UserClient = pb.NewUserServiceClient(UserConn)
+
+	instances, err = nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
 		ServiceName: conf.VideoCenterServiceName,
 	})
 	if err != nil {
