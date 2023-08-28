@@ -8,7 +8,6 @@ import (
 	"gateway-center/util"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/status"
-	"net/http"
 	"strconv"
 )
 
@@ -39,12 +38,13 @@ func UserLogin(ctx *gin.Context) {
 		response.ErrorJSON(ctx, int64(code), e.GetMsg(code))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.DouyinUserLoginResponse{
+	res := response.DouyinUserLoginResponse{
 		StatusCode: int32(code),
 		StatusMsg:  e.GetMsg(code),
 		UserID:     resp.UserId,
 		Token:      resp.Token,
-	})
+	}
+	response.SuccessJSON(ctx, res)
 
 }
 
