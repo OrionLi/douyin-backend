@@ -1,4 +1,4 @@
-package grpcClient
+package grpc
 
 import (
 	"context"
@@ -6,16 +6,13 @@ import (
 )
 
 func GetFavCount(ctx context.Context, uId uint) (*pb.DouyinFavoriteCountResponse, error) {
-	conn := GetConn()
-	clientVideo := pb.NewDouyinVideoInteractionServiceClient(conn)
-	resp, err := clientVideo.CountFavorite(ctx, &pb.DouyinFavoriteCountRequest{UserId: int64(uId)})
+
+	resp, err := VideoInteractionClient.CountFavorite(ctx, &pb.DouyinFavoriteCountRequest{UserId: int64(uId)})
 	return resp, err
 }
 
 func GetPublishList(ctx context.Context, uId uint, token string) (*pb.DouyinPublishListResponse, error) {
-	conn := GetConn()
-	clientVideo := pb.NewVideoCenterClient(conn)
-	resp, err := clientVideo.PublishList(ctx, &pb.DouyinPublishListRequest{
+	resp, err := VideoClient.PublishList(ctx, &pb.DouyinPublishListRequest{
 		UserId: int64(uId),
 		Token:  token,
 	})

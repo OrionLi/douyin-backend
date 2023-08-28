@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"gateway-center/grpcClient"
 	"gateway-center/pkg/e"
 	"gateway-center/response"
@@ -90,6 +91,7 @@ func GetUser(ctx *gin.Context) {
 	code := e.Success
 	var err error
 	userId := ctx.Query("user_id")
+	token := ctx.Query("token")
 	myId, _ := ctx.Get("UserId")
 	mId := myId.(uint)
 	uId, err := strconv.Atoi(userId)
@@ -99,8 +101,10 @@ func GetUser(ctx *gin.Context) {
 		response.ErrorJSON(ctx, int64(code), e.GetMsg(code))
 		return
 	}
-	user, err := GetUserInfo(ctx, mId, uint(uId), " ")
+	user, err := GetUserInfo(ctx, mId, uint(uId), token)
 	if err != nil {
+
+		//日志
 		util.LogrusObj.Error("<Grpc>  ", err)
 		if st, ok := status.FromError(err); ok {
 			// 获取封装的错误码和错误信息
@@ -112,7 +116,7 @@ func GetUser(ctx *gin.Context) {
 		response.ErrorJSON(ctx, int64(code), e.GetMsg(code))
 		return
 	}
-	// todo: 添加返回
+
 	res := response.DouyinUserResponse{
 		StatusCode: int32(code),
 		StatusMsg:  e.GetMsg(code),
@@ -122,34 +126,16 @@ func GetUser(ctx *gin.Context) {
 	return
 }
 
-func GetUserInfo(ctx *gin.Context, myId, uId uint, token string) (*response.UserInfo, error) {
+func GetUserInfo(ctx *gin.Context, myId, uId uint, token string) (user *response.UserInfo, err error) {
 	// respUserInfo 有id，name，关注总数和粉丝总数字段
-	respUserInfo, err := grpcClient.GetUserById(ctx, uId)
+	respUserInfo, err := grpcClient.GetUserById(ctx, myId, uId, token)
 	if err != nil {
 		return nil, err
 	}
-
-	respIsFollow, err := grpcClient.IsFollow(ctx, myId, uId)
+	jsonData, err := json.Marshal(respUserInfo)
 	if err != nil {
 		return nil, err
 	}
-
-	//todo: 剩余信息需从其他模块获取
-	favoriteCount, err := grpcClient.GetFavoriteCount(ctx, int64(uId))
-
-	user := response.UserInfo{
-		ID:              respUserInfo.User.GetId(),
-		Name:            respUserInfo.User.Name,
-		FollowCount:     respUserInfo.User.FollowCount,
-		FollowerCount:   respUserInfo.User.FollowerCount,
-		IsFollow:        respIsFollow.IsFollow,
-		Avatar:          "https://th.bing.com/th/id/OIP.7puQ571IXynjU6anJWm_XAHaHa?w=214&h=214&c=7&r=0&o=5&dpr=1.1&pid=1.7",
-		BackgroundImage: "https://th.bing.com/th/id/R.476b455c002094fac528b20cf23db88c?rik=iEHmrlVbrFcATw&pid=ImgRaw&r=0",
-		Signature:       "test",
-		//需从video模块获取
-		TotalFavorited: "", //获赞数
-		WorkCount:      0,
-		FavoriteCount:  int64(favoriteCount.GetFavCount_),
-	}
-	return &user, nil
+	err = json.Unmarshal(jsonData, &user)
+	return
 }

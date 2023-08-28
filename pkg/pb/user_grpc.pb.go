@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserService_GetUserById_FullMethodName = "/user.UserService/GetUserById"
-	UserService_Register_FullMethodName    = "/user.UserService/Register"
-	UserService_Login_FullMethodName       = "/user.UserService/Login"
-	UserService_IsFollow_FullMethodName    = "/user.UserService/IsFollow"
+	UserService_GetUserById_FullMethodName = "/UserService/GetUserById"
+	UserService_Register_FullMethodName    = "/UserService/Register"
+	UserService_Login_FullMethodName       = "/UserService/Login"
+	UserService_IsFollow_FullMethodName    = "/UserService/IsFollow"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -195,7 +195,7 @@ func _UserService_IsFollow_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user.UserService",
+	ServiceName: "UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

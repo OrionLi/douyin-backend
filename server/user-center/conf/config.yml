@@ -1,5 +1,4 @@
-server:
-  address: :3001
+
 
 mysql:
   DB: mysql
@@ -17,3 +16,15 @@ redis:
 
   RedisPw: ${REDIS_PASSWORD}
   RedisDbName: 2
+
+nacos:
+  Ip: 127.0.0.1
+  Port: 8848
+
+application:
+  ServiceName: user-center
+  Ip: 127.0.0.1
+  Port: :8811
+
+  video-center:
+    ServiceName: video-center

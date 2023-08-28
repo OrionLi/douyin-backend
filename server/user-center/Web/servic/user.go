@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"google.golang.org/grpc/status"
+	"user-center/grpc"
 	"web/grpcClient"
 	"web/pkg/util"
 	"web/serializer"
@@ -107,13 +108,13 @@ func GetUser(ctx context.Context, myId, uId uint, token string) (*serializer.Use
 	}
 	fmt.Println(`2`)
 	//todo: 剩余信息需从其他模块获取
-	respFavCount, err := grpcClient.GetFavCount(ctx, uId)
+	respFavCount, err := grpc.GetFavCount(ctx, uId)
 	if err != nil || respFavCount.GetStatusCode() != 0 {
 		fmt.Println("err", err)
 		return nil, err
 	}
 
-	respVideo, err := grpcClient.GetPublishList(ctx, uId, token)
+	respVideo, err := grpc.GetPublishList(ctx, uId, token)
 	if err != nil || respVideo.GetStatusCode() != 0 {
 		return nil, err
 	}

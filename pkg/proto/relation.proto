@@ -1,5 +1,6 @@
 syntax = "proto3";
 option go_package = "../pb;pb";
+import "user.proto";
 
 service RelationService {
   rpc RelationAction (RelationActionRequest) returns (RelationActionResponse) {}
@@ -8,66 +9,62 @@ service RelationService {
   rpc GetFriendList (GetFriendListRequest) returns (GetFriendListResponse) {}
 }
 
+// 关系操作请求
 message RelationActionRequest {
-  string token = 1;
-  uint64 to_user_id = 2;
-  int32 action_type = 3;
+  string token = 1; // 用户鉴权token
+  int64 to_user_id = 2; // 对方用户id
+  int32 action_type = 3; // 1-关注,2-取消关注
 }
 
+// 关系操作响应
 message RelationActionResponse {
   int32 status_code = 1;
   string status_msg = 2;
 }
 
+// 获取关注列表请求
 message GetFollowListRequest {
-  uint64 user_id = 1;
-  string token = 2;
+  int64 user_id = 1; // 用户id
+  string token = 2; // 用户鉴权token
 }
 
+// 获取关注列表响应
 message GetFollowListResponse {
   int32 status_code = 1;
   string status_msg = 2;
-  repeated User user_list = 3;
+  repeated User user_list = 3; // 用户列表
 }
 
+// 获取粉丝列表请求
 message GetFollowerListRequest {
-  uint64 user_id = 1;
-  string token = 2;
+  int64 user_id = 1; // 用户id
+  string token = 2; // 用户鉴权token
 }
 
+// 获取粉丝列表响应
 message GetFollowerListResponse {
   int32 status_code = 1;
   string status_msg = 2;
-  repeated User user_list = 3;
+  repeated User user_list = 3; // 用户列表
 }
 
+// 获取好友列表请求
 message GetFriendListRequest {
-  uint64 user_id = 1;
-  string token = 2;
+  int64 user_id = 1; // 用户id
+  string token = 2; // 用户鉴权token
 }
 
+// 获取好友列表响应
 message GetFriendListResponse {
   int32 status_code = 1;
   string status_msg = 2;
-  repeated FriendUser user_list = 3;
+  repeated FriendUser user_list = 3; // 好友用户列表
 }
 
-message User {
-  uint64 id = 1;
-  string name = 2;
-  uint64 follow_count = 3;
-  uint64 follower_count = 4;
-  bool is_follow = 5;
-  string avatar = 6;
-  string background_image = 7;
-  string signature = 8;
-  uint64 total_favorited = 9;
-  uint64 work_count = 10;
-  uint64 favorite_count = 11;
-}
-
+// 好友用户信息
 message FriendUser {
-  User user = 1;
-  string message = 2;
-  int32 msg_type = 3;
+  User user = 1; // 用户信息
+  string message = 2; // 最新聊天消息
+  int32 msg_type = 3; // 消息类型,0=接收的消息,1=发送的消息
 }
+
