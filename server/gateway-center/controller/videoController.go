@@ -120,7 +120,7 @@ func PublishList(c *gin.Context) {
 	}
 	videoList := baseResponse.VideoArray{}
 	for _, video := range videos {
-		info, err2 := grpcClient.GetUserById(context.Background(), uint(video.Author.Id))
+		info, err2 := grpcClient.GetUserById(context.Background(), uint(video.Author.Id), uint(video.Author.Id), params.Token)
 		if err2 != nil {
 			util.LogrusObj.Errorf("gRPC getUserInfo Error userId:%d", video.Author.Id)
 			continue
@@ -183,17 +183,21 @@ func Feed(c *gin.Context) {
 	}
 	VideoList := baseResponse.VideoArray{}
 	for _, video := range videos {
-		info, err := grpcClient.GetUserById(context.Background(), uint(video.Author.Id))
-		if err != nil {
-			util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
-			continue
-		}
+		var info *pb.DouyinUserResponse
 		if isLogin {
-			follow, err := grpcClient.IsFollow(context.Background(), uint(video.Author.Id), uint(userId))
+			info, err = grpcClient.GetUserById(context.Background(), uint(video.Author.Id), uint(userId), params.Token)
 			if err != nil {
-				isFollow = false
+				util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
+				continue
 			}
-			isFollow = follow.IsFollow
+			isFollow = info.User.IsFollow
+		} else {
+			info, err = grpcClient.GetUserById(context.Background(), uint(video.Author.Id), 0, "")
+			if err != nil {
+				util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
+				continue
+			}
+			isFollow = false
 		}
 		user := baseResponse.Vuser{
 			Id:            info.User.Id,
