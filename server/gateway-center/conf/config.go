@@ -17,6 +17,13 @@ var (
 	VideoCenterServiceName string
 )
 
+// cache
+var (
+	RedisPasswd string
+	RedisHost   string
+	RedisDB     int
+)
+
 // Init 初始化配置文件与引擎
 func Init() error {
 
@@ -40,6 +47,10 @@ func Init() error {
 	ChatCenterServiceName = viper.GetString("application.chat-center.ServiceName")
 	UserCenterServiceName = viper.GetString("application.user-center.ServiceName")
 	VideoCenterServiceName = viper.GetString("application.video-center.ServiceName")
+
+	RedisPasswd = viper.GetString("redis.passwd")
+	RedisHost = viper.GetString("redis.host")
+	RedisDB = viper.GetInt("redis.db")
 
 	return nil
 }
