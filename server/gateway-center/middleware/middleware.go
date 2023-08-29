@@ -17,12 +17,15 @@ func JWT() gin.HandlerFunc {
 			code = e.ErrorAuthToken
 		} else {
 			claims, err := util.ParseToken(token)
-			// 将id存入上下文
-			ctx.Set("UserId", claims.ID)
+
 			if err != nil {
 				code = e.Error
 			} else if time.Now().Unix() > claims.ExpiresAt {
 				code = e.ErrorAuthCheckTokenTimeout
+			}
+			if claims != nil {
+				// 将id存入上下文
+				ctx.Set("UserId", claims.ID)
 			}
 		}
 		if code != e.Success {
@@ -30,6 +33,7 @@ func JWT() gin.HandlerFunc {
 				"status_code": code,
 				"status_msg":  e.GetMsg(code),
 			})
+
 			ctx.Abort()
 			return
 		}
