@@ -1,6 +1,0 @@
-[error]: 2023/08/20 12:54:45 [<login>err: crypto/bcrypt: hashedPassword is not the hash of the given passwordbe from req:&{hh 123456561}]
-[error]: 2023/08/20 13:04:48 [<getUserById> : record not found [be from req]:&{8}]
-[error]: 2023/08/20 13:05:41 [<getUserById> : record not found [be from req]:&{8}]
-[info]: 2023/08/20 13:33:04 [err: <nil>]
-[error]: 2023/08/20 13:58:16 [<login> crypto/bcrypt: hashedPassword is not the hash of the given password [be from req]:&{hh 111754}]
-[error]: 2023/08/20 23:39:19 [<getUserById> : record not found [be from req]:&{142}]

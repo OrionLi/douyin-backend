@@ -5,6 +5,7 @@ import (
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"user-center/pkg/util"
 	"user-center/service"
 )
 
@@ -18,16 +19,16 @@ func NewRelationServer(relationService *service.RelationService) *RelationServer
 }
 
 func (s *RelationServer) RelationAction(ctx context.Context, req *pb.RelationActionRequest) (*pb.RelationActionResponse, error) {
-	userId, err1 := getUserIdByToken(req.Token)
+	parseToken, err1 := util.ParseToken(req.Token)
 	if err1 != nil {
 		return nil, err1
 	}
 
 	var err error
 	if req.ActionType == 1 {
-		err = s.relationService.Follow(ctx, userId, req.ToUserId)
+		err = s.relationService.Follow(ctx, int64(parseToken.ID), req.ToUserId)
 	} else if req.ActionType == 2 {
-		err = s.relationService.Unfollow(ctx, userId, req.ToUserId)
+		err = s.relationService.Unfollow(ctx, int64(parseToken.ID), req.ToUserId)
 	}
 
 	if err != nil {
@@ -38,12 +39,12 @@ func (s *RelationServer) RelationAction(ctx context.Context, req *pb.RelationAct
 }
 
 func (s *RelationServer) GetFollowList(ctx context.Context, req *pb.GetFollowListRequest) (*pb.GetFollowListResponse, error) {
-	userId, err := getUserIdByToken(req.Token)
+	parseToken, err := util.ParseToken(req.Token)
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := s.relationService.GetFollowList(ctx, userId)
+	users, err := s.relationService.GetFollowList(ctx, int64(parseToken.ID))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "获取关注列表失败: %v", err)
 	}
@@ -65,12 +66,12 @@ func (s *RelationServer) GetFollowList(ctx context.Context, req *pb.GetFollowLis
 }
 
 func (s *RelationServer) GetFollowerList(ctx context.Context, req *pb.GetFollowerListRequest) (*pb.GetFollowerListResponse, error) {
-	userId, err := getUserIdByToken(req.Token)
+	parseToken, err := util.ParseToken(req.Token)
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := s.relationService.GetFollowerList(ctx, userId)
+	users, err := s.relationService.GetFollowerList(ctx, int64(parseToken.ID))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "获取粉丝列表失败: %v", err)
 	}
@@ -92,12 +93,12 @@ func (s *RelationServer) GetFollowerList(ctx context.Context, req *pb.GetFollowe
 }
 
 func (s *RelationServer) GetFriendList(ctx context.Context, req *pb.GetFriendListRequest) (*pb.GetFriendListResponse, error) {
-	userId, err := getUserIdByToken(req.Token)
+	parseToken, err := util.ParseToken(req.Token)
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := s.relationService.GetFriendList(ctx, userId)
+	users, err := s.relationService.GetFriendList(ctx, int64(parseToken.ID))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "获取好友列表失败: %v", err)
 	}
@@ -118,10 +119,4 @@ func (s *RelationServer) GetFriendList(ctx context.Context, req *pb.GetFriendLis
 		StatusCode: 0,
 		UserList:   respUsers,
 	}, nil
-}
-
-// 用户鉴权逻辑
-func getUserIdByToken(token string) (int64, error) {
-	// TODO: 实现具体逻辑
-	return 1, nil
 }

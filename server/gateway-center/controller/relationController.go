@@ -2,18 +2,12 @@ package controller
 
 import (
 	"gateway-center/grpcClient"
+	"gateway-center/pkg/e"
+	"gateway-center/response"
 	"gateway-center/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
-
-//type RelationController struct {
-//	relationServer *grpcClient.RelationServer
-//}
-//
-//func NewRelationController(server *server.RelationServer) *RelationController {
-//	return &RelationController{relationServer: server}
-//}
 
 func RelationAction(ctx *gin.Context) {
 	// 获取请求参数
@@ -23,13 +17,19 @@ func RelationAction(ctx *gin.Context) {
 
 	// 调用rpc
 	resp, err := grpcClient.RelationAction(ctx, token, toUserId, actionType)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+	if err != nil || resp.StatusCode != e.Success {
+		ctx.JSON(http.StatusInternalServerError, response.RelationActionResponse{
+			StatusCode: e.Error,
+			StatusMsg:  e.GetMsg(e.Error),
+		})
 		return
 	}
 
 	// 返回响应
-	ctx.JSON(http.StatusOK, gin.H{"message": resp.StatusMsg})
+	ctx.JSON(http.StatusOK, response.RelationActionResponse{
+		StatusCode: e.Success,
+		StatusMsg:  e.GetMsg(e.Success),
+	})
 }
 
 func GetFollowList(ctx *gin.Context) {
@@ -37,12 +37,20 @@ func GetFollowList(ctx *gin.Context) {
 	token := ctx.Query("token")
 
 	resp, err := grpcClient.GetFollowList(ctx, userId, token)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+	if err != nil || resp.StatusCode != e.Success {
+		ctx.JSON(http.StatusInternalServerError, response.GetFollowListResponse{
+			StatusCode: e.Error,
+			StatusMsg:  e.GetMsg(e.Error),
+			UserList:   nil,
+		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user_list": resp.UserList})
+	ctx.JSON(http.StatusOK, response.GetFollowListResponse{
+		StatusCode: e.Success,
+		StatusMsg:  e.GetMsg(e.Success),
+		UserList:   resp.GetUserList(),
+	})
 }
 
 func GetFollowerList(ctx *gin.Context) {
@@ -50,12 +58,20 @@ func GetFollowerList(ctx *gin.Context) {
 	token := ctx.Query("token")
 
 	resp, err := grpcClient.GetFollowerList(ctx, userId, token)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+	if err != nil || resp.StatusCode != e.Success {
+		ctx.JSON(http.StatusInternalServerError, response.GetFollowerListResponse{
+			StatusCode: e.Error,
+			StatusMsg:  e.GetMsg(e.Error),
+			UserList:   nil,
+		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user_list": resp.UserList})
+	ctx.JSON(http.StatusOK, response.GetFollowerListResponse{
+		StatusCode: e.Success,
+		StatusMsg:  e.GetMsg(e.Success),
+		UserList:   resp.GetUserList(),
+	})
 }
 
 func GetFriendList(ctx *gin.Context) {
@@ -63,10 +79,18 @@ func GetFriendList(ctx *gin.Context) {
 	token := ctx.Query("token")
 
 	resp, err := grpcClient.GetFriendList(ctx, userId, token)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+	if err != nil || resp.StatusCode != e.Success {
+		ctx.JSON(http.StatusInternalServerError, response.GetFriendListResponse{
+			StatusCode: e.Error,
+			StatusMsg:  e.GetMsg(e.Error),
+			UserList:   nil,
+		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user_list": resp.UserList})
+	ctx.JSON(http.StatusOK, response.GetFriendListResponse{
+		StatusCode: e.Success,
+		StatusMsg:  e.GetMsg(e.Success),
+		UserList:   resp.GetUserList(),
+	})
 }

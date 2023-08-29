@@ -16,8 +16,8 @@ func Grpc(addr string) error {
 	// 创建一个grpc服务，并设置不安全的证书 todo: 后期改用STL
 	grpcServer := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
 
-	pb.RegisterUserServiceServer(grpcServer, &UserRPCServer{})       //注册用户服务
-	pb.RegisterRelationServiceServer(grpcServer, &RelationService{}) //注册关注服务
+	pb.RegisterUserServiceServer(grpcServer, &UserRPCServer{})      //注册用户服务
+	pb.RegisterRelationServiceServer(grpcServer, &RelationServer{}) //注册关注服务
 
 	//启动服务
 	err := grpcServer.Serve(listen)
