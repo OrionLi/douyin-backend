@@ -19,7 +19,7 @@ nacos:
 application:
   ServiceName: user-center
   Ip: 127.0.0.1
-  Port: :8811
+  Port: 8811
 
   video-center:
     ServiceName: video-center

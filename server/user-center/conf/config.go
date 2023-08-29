@@ -3,10 +3,6 @@ package conf
 import (
 	"github.com/spf13/viper"
 	"os"
-	"strings"
-	"user-center/cache"
-	"user-center/dao"
-	"user-center/server"
 )
 
 var (
@@ -22,7 +18,7 @@ var (
 	DbName     string
 
 	RedisDb     string
-	redisAddr   string
+	RedisAddr   string
 	RedisPw     string
 	RedisDbName string
 )
@@ -59,7 +55,7 @@ func Init() error {
 	DbPassword, _ = os.LookupEnv("MYSQL_PASSWORD")
 	DbName = viper.GetString("mysql.DbName")
 	RedisDb = viper.GetString("redis.RedisDb")
-	redisAddr = viper.GetString("redis.RedisAddr")
+	RedisAddr = viper.GetString("redis.RedisAddr")
 	RedisPw, _ = os.LookupEnv("REDIS_PASSWORD")
 	RedisDbName = viper.GetString("redis.RedisDbName")
 
@@ -75,24 +71,6 @@ func Init() error {
 	ServerPort = viper.GetUint64("application.Port")
 	NacosIp = viper.GetString("nacos.Ip")
 	NacosPort = viper.GetUint64("nacos.Port")
-	//nacos注册
-	server.RegisterNacos(ServerIp, ServiceName, NacosIp, NacosPort, ServerPort)
-	//mysql连接信息
-	conn := strings.Join([]string{DbUser, ":", DbPassword, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8mb4&parseTime=true"}, "")
-	// gorm引擎初始化
-	err = dao.Database(conn)
-	if err != nil {
-		return err
-	}
-	// redis引擎初始化
-	err = cache.Redis(RedisDb, redisAddr, RedisPw, RedisDbName)
-	if err != nil {
-		return err
-	}
-	// grpc初始化
-	err = server.Grpc(ServerIp)
-	if err != nil {
-		return err
-	}
+
 	return nil
 }
