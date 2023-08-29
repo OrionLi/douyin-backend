@@ -7,17 +7,16 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net"
 	"user-center/pkg/util"
 )
 
 // Grpc 启动grpc服务的
 func Grpc(addr string) error {
-
+	addr = ":" + addr
 	listen, _ := net.Listen("tcp", addr)
 	// 创建一个grpc服务，并设置不安全的证书 todo: 后期改用STL
-	grpcServer := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	grpcServer := grpc.NewServer()
 
 	pb.RegisterUserServiceServer(grpcServer, &UserRPCServer{})      //注册用户服务
 	pb.RegisterRelationServiceServer(grpcServer, &RelationServer{}) //注册关注服务
@@ -29,6 +28,7 @@ func Grpc(addr string) error {
 		util.LogrusObj.Error("Service startup error ", err)
 		return err
 	}
+	fmt.Println("启动成功")
 	return nil
 }
 
@@ -66,13 +66,13 @@ func RegisterNacos(
 
 	// 注册实例到Nacos服务中
 	success, err := namingClient.RegisterInstance(vo.RegisterInstanceParam{
-		Ip:          serverIp,           // 注册实例的IP地址
-		Port:        uint64(serverPort), // 注册实例的端口
-		ServiceName: serviceName,        // 服务的名称
-		Weight:      10,                 // 权重为10
-		Enable:      true,               // 设置实例为可用状态
-		Healthy:     true,               // 设置实例为健康状态
-		Ephemeral:   true,               // 设置实例为临时实例
+		Ip:          serverIp,    // 注册实例的IP地址
+		Port:        serverPort,  // 注册实例的端口
+		ServiceName: serviceName, // 服务的名称
+		Weight:      10,          // 权重为10
+		Enable:      true,        // 设置实例为可用状态
+		Healthy:     true,        // 设置实例为健康状态
+		Ephemeral:   true,        // 设置实例为临时实例
 	})
 	if !success {
 		return // 注册失败则退出函数

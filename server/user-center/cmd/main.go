@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strconv"
 	"strings"
 	"user-center/cache"
 	"user-center/conf"
@@ -16,7 +17,9 @@ func main() {
 	if err != nil {
 		util.LogrusObj.Error("<Main> : ", err)
 	}
+
 	//nacos注册
+
 	server.RegisterNacos(conf.ServerIp, conf.ServiceName, conf.NacosIp, conf.NacosPort, conf.ServerPort)
 	//mysql连接信息
 	conn := strings.Join([]string{conf.DbUser, ":", conf.DbPassword, "@tcp(", conf.DbHost, ":", conf.DbPort, ")/", conf.DbName, "?charset=utf8mb4&parseTime=true"}, "")
@@ -31,8 +34,9 @@ func main() {
 		log.Fatal(err)
 	}
 	// grpc初始化
-	err = server.Grpc(conf.ServerIp)
+	err = server.Grpc(strconv.FormatUint(conf.ServerPort, 10))
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
