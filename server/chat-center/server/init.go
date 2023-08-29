@@ -66,7 +66,6 @@ func RegisterNacos() {
 		Ip:          conf.GRPCAddress, // 设置你的服务器的 IP 地址
 		Port:        uint64(conf.GRPCPort),
 		ServiceName: conf.NacosServerName, // 设置服务的名称
-		GroupName:   conf.NacosGroup,      // 设置服务的分组
 		Weight:      10,                   // 权重为10
 		Enable:      true,                 // 设置实例为可用状态
 		Healthy:     true,                 // 设置实例为健康状态

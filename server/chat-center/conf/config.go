@@ -13,20 +13,14 @@ var (
 )
 
 var (
-	WebPort string
-)
-
-var (
 	GRPCAddress string
 	GRPCPort    int
 )
 
 var (
-	NacosAddress     string
-	NacosPort        int
-	NacosNamespaceId string
-	NacosGroup       string
-	NacosServerName  string
+	NacosAddress    string
+	NacosPort       int
+	NacosServerName string
 )
 
 func InitConf() {
@@ -48,13 +42,6 @@ func InitConf() {
 	ESUser = elasticsearchConfig.GetString("user")
 	ESPassword = elasticsearchConfig.GetString("password")
 
-	// 解析 Gin 配置
-	ginConfig := viper.Sub("gin")
-	if ginConfig == nil {
-		log.Fatal("Missing 'gin' configuration section")
-	}
-	WebPort = ginConfig.GetString("port")
-
 	// 解析 gRPC 配置
 	gRPCConfig := viper.Sub("gRPC")
 	if gRPCConfig == nil {
@@ -70,7 +57,5 @@ func InitConf() {
 	}
 	NacosAddress = nacosConfig.GetString("address")
 	NacosPort = nacosConfig.GetInt("port")
-	NacosNamespaceId = nacosConfig.GetString("namespaceId")
-	NacosGroup = nacosConfig.GetString("group")
 	NacosServerName = nacosConfig.GetString("server-name")
 }

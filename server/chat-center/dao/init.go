@@ -30,6 +30,9 @@ func Init() {
 	if err != nil {
 		log.Fatalf("Error getting response: %s", err)
 	}
+	if res.StatusCode != 200 {
+		log.Fatalf("ElsaticSearch connect fail: %s", res.Status())
+	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
