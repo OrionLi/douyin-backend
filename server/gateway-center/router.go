@@ -15,33 +15,30 @@ func NewRouter() *gin.Engine {
 		authed.Use(middleware.JWT())
 		{
 			//可通过ctx.get("id")来获取user_id
-			authed.GET("user/", controller.GetUser)
+			// 聊天模块
+			authed.POST("/message/action/", controller.SendMessage)
+			authed.GET("/message/chat/", controller.GetMessage)
+
+			// 用户模块
+			authed.GET("/user/", controller.GetUser)
+
+			// 视频模块
+			authed.POST("/favorite/action/", controller.ActionFav)
+			authed.GET("/favorite/list/", controller.ListFav)
+			authed.POST("/comment/action/", controller.CommentAction)
+			authed.GET("/comment/list/", controller.CommentList)
 		}
-
-		// chat模块路由
-		group.POST("/message/action/", controller.SendMessage)
-		group.GET("/message/chat/", controller.GetMessage)
-
 		// user模块路由
 		group.POST("/user/register/", controller.UserRegister)
 		group.POST("/user/login/", controller.UserLogin)
-		// TODO 用户信息、用户关系相关请求
-		// video模块路由
-		// TODO 视频流相关请求
+		group.POST("/relation/action/", controller.RelationAction)
+		group.GET("/relation/follow/list/", controller.GetFollowList)
+		group.GET("/relation/follower/list/", controller.GetFollowerList)
+		group.GET("/relation/friend/list/", controller.GetFriendList)
+
 		group.POST("/publish/action/", controller.PublishAction)
 		group.GET("/feed/", controller.Feed)
 		group.GET("/publish/list/", controller.PublishList)
-
-		group.GET("/favorite/action/", controller.ActionFav)
-		group.GET("/favorite/list/", controller.ListFav)
-		group.GET("/comment/action/", controller.CommentAction)
-		group.GET("/comment/list/", controller.CommentList)
-
-		group.POST("/relation/action/", controller.RelationAction)
-		group.GET("relation/follow/list/", controller.GetFollowList)
-		group.GET("relation/follower/list/", controller.GetFollowerList)
-		group.GET("relation/friend/list/", controller.GetFriendList)
-
 	}
 
 	return router

@@ -229,7 +229,7 @@ func Feed(c *gin.Context) {
 	if userId != -1 {
 		isLogin = true
 	}
-	var FeedKey = fmt.Sprintf("FeedCache:latest_time:%dUserId:%s", params.LatestTime, userId)
+	var FeedKey = fmt.Sprintf("FeedCache:latest_time:%dUserId:%d", params.LatestTime, userId)
 	fmt.Printf("LatestTime: %d, Token: %s\n", params.LatestTime, params.Token)
 	VideoList, err := cache.RedisGetFeedVideoList(context.Background(), FeedKey)
 	if err == nil { //找到数据，则返回
@@ -302,17 +302,10 @@ func Feed(c *gin.Context) {
 	}
 }
 
-// FavoriteParam 点赞请求参数
-type FavoriteParam struct {
-	Token      string `json:"token"`
-	VideoId    string `json:"video_id"`
-	ActionType string `json:"action_type"`
-}
-
 // CommentAction 评论操作
 func CommentAction(c *gin.Context) {
 	userIdAny, _ := c.Get("UserId")
-	userId := userIdAny.(int64)
+	userId := int64(userIdAny.(uint))
 	var param baseResponse.CommentActionParam
 	if err := c.ShouldBind(&param); err != err {
 		c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
@@ -390,7 +383,7 @@ func CommentAction(c *gin.Context) {
 // CommentList 评论列表
 func CommentList(c *gin.Context) {
 	userIdAny, _ := c.Get("UserId")
-	userId := userIdAny.(int64)
+	userId := int64(userIdAny.(uint))
 	videoId := c.Query("video_id")
 	if videoId == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
@@ -419,7 +412,7 @@ func CommentList(c *gin.Context) {
 // ActionFav 点赞操作
 func ActionFav(c *gin.Context) {
 	userIdAny, _ := c.Get("UserId")
-	userId := userIdAny.(int64)
+	userId := int64(userIdAny.(uint))
 	videoId := util.StringToInt64(c.Query("video_id"))
 	if videoId == -1 {
 		c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)})
@@ -438,7 +431,7 @@ func ActionFav(c *gin.Context) {
 func ListFav(c *gin.Context) {
 	userId := c.Query("user_id")
 	userIdAny, _ := c.Get("UserId")
-	userIdToken := userIdAny.(int64)
+	userIdToken := int64(userIdAny.(uint))
 	if userId == "" {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
 			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},

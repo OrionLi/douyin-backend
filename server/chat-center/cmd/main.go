@@ -1,9 +1,9 @@
 package main
 
 import (
-	"chat-center/Web/rpc/server"
 	"chat-center/conf"
 	"chat-center/dao"
+	"chat-center/server"
 )
 
 func main() {

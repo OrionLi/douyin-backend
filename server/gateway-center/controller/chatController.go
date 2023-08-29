@@ -11,7 +11,7 @@ import (
 
 func GetMessage(c *gin.Context) {
 	currentIdAny, _ := c.Get("UserId")
-	currentId := currentIdAny.(int64)
+	currentId := int64(currentIdAny.(uint))
 	interActiveId := util.StringToInt64(c.Query("to_user_id"))
 	preMsgTime := util.StringToInt64(c.Query("pre_msg_time"))
 	// 判断是否无法转为int64
@@ -30,7 +30,7 @@ func GetMessage(c *gin.Context) {
 
 func SendMessage(c *gin.Context) {
 	currentIdAny, _ := c.Get("UserId")
-	currentId := currentIdAny.(int64)
+	currentId := int64(currentIdAny.(uint))
 	interActiveIdStr := c.Query("to_user_id")
 	actionType := c.Query("action_type")
 	content := c.Query("content")

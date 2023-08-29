@@ -7,12 +7,10 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/jinzhu/gorm v1.9.16
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
 	golang.org/x/crypto v0.12.0
-	google.golang.org/appengine v1.6.7
 	google.golang.org/grpc v1.57.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.3
