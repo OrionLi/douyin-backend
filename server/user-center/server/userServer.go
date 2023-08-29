@@ -21,6 +21,12 @@ func NewUserRPCServer() *UserRPCServer {
 
 // GetUserById 通过id获取用户基本信息
 func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserRequest) (*pb.DouyinUserResponse, error) {
+	//游客浏览
+	if req.GetToken() == "" {
+		userReq := service.GetUserByIdService{Id: uint(req.GetFollowId())}
+		return userReq.GetUserById(ctx)
+	}
+
 	// 用户基本信息请求体
 	videoCountKey := fmt.Sprintf("publishlist:%d", req.UserId)
 	userReq := service.GetUserByIdService{Id: uint(req.GetFollowId())}

@@ -344,6 +344,15 @@ func CommentAction(c *gin.Context) {
 				Comment:    &pb.Comment{},
 			})
 		}
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(userId), "")
+		if err != nil || userInfo == nil {
+			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+				VBResponse: baseResponse.VBResponse{StatusCode: e.FailedToCallRpc, StatusMsg: e.GetMsg(e.FailedToCallRpc)},
+				Comment:    &pb.Comment{},
+			})
+			return
+		}
+		response.Comment.User = userInfo.User
 		c.JSON(http.StatusOK, response)
 		return
 	}
@@ -371,6 +380,15 @@ func CommentAction(c *gin.Context) {
 			})
 			return
 		}
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(userId), "")
+		if err != nil || userInfo == nil {
+			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
+				VBResponse: baseResponse.VBResponse{StatusCode: e.FailedToCallRpc, StatusMsg: e.GetMsg(e.FailedToCallRpc)},
+				Comment:    &pb.Comment{},
+			})
+			return
+		}
+		response.Comment.User = userInfo.User
 		c.JSON(http.StatusOK, response)
 		return
 	}
@@ -406,6 +424,14 @@ func CommentList(c *gin.Context) {
 		VideoId:    videoID,
 	}
 	response, _ := grpcClient.ListComment(c, &request)
+	for _, comment := range response.CommentList {
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(comment.User.Id), "")
+		if err != nil || userInfo == nil {
+			c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.FavActionErr, StatusMsg: e.GetMsg(e.FavActionErr)})
+			continue
+		}
+		comment.User = userInfo.User
+	}
 	c.JSON(http.StatusOK, response)
 }
 
@@ -465,6 +491,13 @@ func ListFav(c *gin.Context) {
 		})
 		return
 	}
-	println(response)
+	for _, video := range response.VideoList {
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(UserIdParseInt), uint(video.Author.Id), "")
+		if err != nil || userInfo == nil {
+			c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.FavActionErr, StatusMsg: e.GetMsg(e.FavActionErr)})
+			continue
+		}
+		video.Author = userInfo.User
+	}
 	c.JSON(http.StatusOK, response)
 }

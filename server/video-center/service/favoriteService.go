@@ -101,11 +101,10 @@ func (f FavoriteServiceImpl) ListFav(userId int64) (bool, []*pb.Video) {
 	//pb
 	var favVideoList []*pb.Video
 	for _, v := range favs {
-		//todo 得到用户ID，然后调用rpc查询用户信息
-		//var user := xxx(v.AuthorID) //然后修改Author
+		user := pb.User{Id: v.AuthorID}
 		video := &pb.Video{
 			Id:            v.Id,
-			Author:        nil,
+			Author:        &user,
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
 			FavoriteCount: v.FavoriteCount,
