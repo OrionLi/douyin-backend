@@ -12,7 +12,7 @@ import (
 var (
 	ServiceName string
 	ServerIp    string
-	ServerPort  int
+	ServerPort  uint64
 	NacosIp     string
 
 	DbHost     string
@@ -72,9 +72,11 @@ func Init() error {
 	VideoCenterServiceName = viper.GetString("application.video-center.ServiceName")
 	ServiceName = viper.GetString("application.ServiceName")
 	ServerIp = viper.GetString("application.Ip")
-	ServerPort = int(viper.GetUint("application.Port"))
+	ServerPort = viper.GetUint64("application.Port")
 	NacosIp = viper.GetString("nacos.Ip")
 	NacosPort = viper.GetUint64("nacos.Port")
+	//nacos注册
+	server.RegisterNacos(ServerIp, ServiceName, NacosIp, NacosPort, ServerPort)
 	//mysql连接信息
 	conn := strings.Join([]string{DbUser, ":", DbPassword, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8mb4&parseTime=true"}, "")
 	// gorm引擎初始化
