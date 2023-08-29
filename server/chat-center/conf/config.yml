@@ -2,7 +2,7 @@ elasticsearch:
   address: DouyinDBA.raqtpie.xyz
   port: 9200
   user: elastic
-  password: elasticnode1
+  password:
 
 gRPC:
   address: 192.168.1.12
