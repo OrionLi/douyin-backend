@@ -33,9 +33,7 @@ func (s *CommentService) SaveComment(LoginUserId int64, videoId int64, content s
 	if !b {
 		return false, &pb.Comment{}, nil
 	}
-	//TODO 通过用户ID查询用户然信息后封装
 	user := pb.User{Id: LoginUserId}
-
 	commentApi := model.ConvertToCommentApi(comment, &user)
 	return true, &commentApi, nil
 }
@@ -57,7 +55,6 @@ func (s *CommentService) DeleteComment(LoginUserId int64, videoId int64, comment
 				return false, &pb.Comment{}, err
 			}
 			//该评论存在而且正确删除
-			//TODO 通过ID查询用户信息
 			user := pb.User{Id: LoginUserId}
 
 			commentApi := model.ConvertToCommentApi(comment, &user)
@@ -88,7 +85,6 @@ func (s *CommentService) ListComment(videoId int64) ([]*pb.Comment, error) {
 	var commentApis []*pb.Comment
 	for _, comment := range comments {
 		//每个评论里面的userID comment.UserId
-		//todo 利用grpc查询user信息
 		user := pb.User{Id: comment.UserId}
 
 		CommentApi := model.ConvertToCommentApi(comment, &user)
