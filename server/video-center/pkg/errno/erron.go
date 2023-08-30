@@ -54,7 +54,7 @@ var (
 	CommentPostingErr      = NewErrno(CommentPostingCode, "Failed to post a comment")
 	DeleteCommentErr       = NewErrno(DeleteCommentCode, "Failed to delete comment")
 	NoMyCommentErr         = NewErrno(NoMyCommentCode, "Not your comment")
-	NoCommentExistsErr     = NewErrno(NoCommentExistsCode, "Comment does not exist")
+	NoCommentExistsErr     = NewErrno(NoCommentExistsCode, "留下第一条评论吧！")
 	FavListEmptyErr        = NewErrno(FavListEmptyCode, "Like the list to be empty")
 	FavActionErr           = NewErrno(FavActionErrCode, "Like operation failed")
 	FavCountErr            = NewErrno(FavCountErrCode, "Failed to get number of likes")
