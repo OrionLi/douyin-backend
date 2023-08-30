@@ -81,14 +81,15 @@ func PublishAction(c *gin.Context) {
 		VBResponse: baseResponse.VBResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success)},
 	})
 	//投稿成功之后重新查询用户投稿列表，更新缓存
+	value, _ := c.Get("UserId")
+	userId := int64(value.(uint))
 	//先删除Key
-	token := grpcClient.ValidateToken(params.Token)
-	var PLKey = fmt.Sprintf("PersonVideoList:%d", token)
+	var PLKey = fmt.Sprintf("PersonVideoList:%d", userId)
 	cache.RedisDeleteKey(context.Background(), PLKey)
 	var videoList baseResponse.VideoArray
 	//调用grpc
 	videos, err := grpcClient.PublishList(context.Background(), &pb.DouyinPublishListRequest{
-		UserId: token,
+		UserId: int64(userId),
 		Token:  params.Token,
 	})
 	if err != nil {
@@ -225,7 +226,7 @@ func Feed(c *gin.Context) {
 	}
 	isLogin := false
 	isFollow := false
-	userId := grpcClient.ValidateToken(params.Token)
+	userId := validateToken(params.Token) //验证token是否有效，有效则为用户状态，无效则为游客状态
 	if userId != -1 {
 		isLogin = true
 	}
@@ -255,15 +256,15 @@ func Feed(c *gin.Context) {
 
 	for _, video := range videos {
 		var info *pb.DouyinUserResponse
-		if isLogin {
+		if isLogin { //用户模式
 			info, err = grpcClient.GetUserById(context.Background(), uint(video.Author.Id), uint(userId), params.Token)
 			if err != nil {
 				util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
 				continue
 			}
 			isFollow = info.User.IsFollow
-		} else {
-			info, err = grpcClient.GetUserById(context.Background(), uint(video.Author.Id), 0, "")
+		} else { //游客模式
+			info, err = grpcClient.GetUserById(context.Background(), uint(video.Author.Id), uint(video.Author.Id), "")
 			if err != nil {
 				util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
 				continue
@@ -500,4 +501,20 @@ func ListFav(c *gin.Context) {
 		video.Author = userInfo.User
 	}
 	c.JSON(http.StatusOK, response)
+}
+
+// 如果token验证失败则返回user为-1
+func validateToken(token string) int64 {
+	if len(token) == 0 {
+		return -1
+	}
+	parseToken, err := util.ParseToken(token)
+	if err != nil {
+		return -1
+	}
+	// 判断 token 是否过期
+	if parseToken.ExpiresAt < time.Now().Unix() {
+		return -1
+	}
+	return int64(parseToken.ID)
 }
