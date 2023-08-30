@@ -257,7 +257,7 @@ func Feed(c *gin.Context) {
 	for _, video := range videos {
 		var info *pb.DouyinUserResponse
 		if isLogin { //用户模式
-			info, err = grpcClient.GetUserById(context.Background(), uint(video.Author.Id), uint(userId), params.Token)
+			info, err = grpcClient.GetUserById(context.Background(), uint(userId), uint(video.Author.Id), params.Token)
 			if err != nil {
 				util.LogrusObj.Errorf("获取User失败 UserId:%d UserToken:%d", video.Author.Id, &params.Token)
 				continue

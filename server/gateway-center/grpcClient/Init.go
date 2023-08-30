@@ -75,6 +75,7 @@ func Init() {
 		log.Fatalf("connect failed: %v", err)
 	}
 	UserClient = pb.NewUserServiceClient(UserConn)
+	RelationClient = pb.NewRelationServiceClient(UserConn)
 
 	instances, err = nacosClient.SelectOneHealthyInstance(vo.SelectOneHealthInstanceParam{
 		ServiceName: conf.VideoCenterServiceName,

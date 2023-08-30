@@ -2,7 +2,6 @@ package conf
 
 import (
 	"github.com/spf13/viper"
-	"os"
 )
 
 var (
@@ -52,11 +51,11 @@ func Init() error {
 	DbHost = viper.GetString("mysql.DbHost")
 	DbPort = viper.GetString("mysql.DbPort")
 	DbUser = viper.GetString("mysql.DbUser")
-	DbPassword, _ = os.LookupEnv("MYSQL_PASSWORD")
+	DbPassword = viper.GetString("mysql.DbPassword")
 	DbName = viper.GetString("mysql.DbName")
 	RedisDb = viper.GetString("redis.RedisDb")
 	RedisAddr = viper.GetString("redis.RedisAddr")
-	RedisPw, _ = os.LookupEnv("REDIS_PASSWORD")
+	RedisPw = viper.GetString("redis.RedisPw")
 	RedisDbName = viper.GetString("redis.RedisDbName")
 
 	// 解析 Nacos 配置

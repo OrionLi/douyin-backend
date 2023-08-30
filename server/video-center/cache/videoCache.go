@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"time"
-	"video-center/Web/pkg/baseResponse"
+	"video-center/baseResponse"
 	"video-center/dao"
 )
 

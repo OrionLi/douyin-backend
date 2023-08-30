@@ -23,7 +23,6 @@ func (s *RelationServer) RelationAction(ctx context.Context, req *pb.RelationAct
 	if err1 != nil {
 		return nil, err1
 	}
-
 	var err error
 	if req.ActionType == 1 {
 		err = s.relationService.Follow(ctx, int64(parseToken.ID), req.ToUserId)
