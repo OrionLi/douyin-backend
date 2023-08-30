@@ -2,14 +2,10 @@ package grpcClient
 
 import (
 	"context"
-	"fmt"
-	"gateway-center/cache"
 	"gateway-center/pkg/e"
-	"gateway-center/util"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"time"
 )
 
 // ResetVideoStreamClient 重置VideoStreamClient
@@ -114,30 +110,6 @@ func Feed(ctx context.Context, req *pb.DouyinFeedRequest) ([]*pb.Video, int64, e
 	return videos, *r.NextTime, nil
 }
 
-// GetPublishListCount 通过Token获取userId对应的VideoCount
-func GetPublishListCount(ctx context.Context, token string) (count int64, err error) {
-	userId := ValidateToken(token)
-	PACountKey := fmt.Sprintf("publishlist:%d", userId)
-	vCount, err := cache.RedisGetKey(ctx, PACountKey)
-	if err != nil { //出错，没找到，查询数据库，并写入cache
-		util.LogrusObj.Errorf("Cache get PublishListCount Error ErrorMSG:%s", err.Error())
-		req := &pb.DouyinPublishListRequest{UserId: userId, Token: token}
-		r, err := VideoClient.PublishList(ctx, req)
-		if err != nil {
-			return 0, err
-		}
-		if r.StatusCode != 0 {
-			return 0, e.NewCustomError(int64(r.StatusCode), *r.StatusMsg)
-		}
-		err = cache.RedisSetKey(ctx, PACountKey, int64(len(r.VideoList)))
-		if err != nil {
-			util.LogrusObj.Errorf("Cache set PublishListCount Error ErrorMSG:%s", err.Error())
-		}
-		return int64(len(r.VideoList)), nil
-	} //找到返回结果
-	return util.StringToInt64(vCount), nil
-}
-
 // PublishAction 投稿
 func PublishAction(ctx context.Context, req *pb.DouyinPublishActionRequest) error {
 	err := VideoStreamClient.Send(req)
@@ -198,20 +170,4 @@ func ActionComment(ctx context.Context, req *pb.DouyinCommentActionRequest) (*pb
 
 func ListComment(ctx context.Context, req *pb.DouyinCommentListRequest) (*pb.DouyinCommentListResponse, error) {
 	return VideoInteractionClient.ListComment(ctx, req)
-}
-
-// ValidateToken 校验Token
-func ValidateToken(token string) int64 {
-	if len(token) == 0 {
-		return -1
-	}
-	parseToken, err := util.ParseToken(token)
-	if err != nil {
-		return -1
-	}
-	// 判断 token 是否过期
-	if parseToken.ExpiresAt < time.Now().Unix() {
-		return -1
-	}
-	return int64(parseToken.ID)
 }

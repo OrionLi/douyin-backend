@@ -104,7 +104,7 @@ func (s *VideoServer) Feed(ctx context.Context, req *pb.DouyinFeedRequest) (*pb.
 	var userId int64
 	userId = 0
 	//判断token,并获取userId
-	util.LogrusObj.Infof("FeedRequest Token:%s lastest_time%d:", *req.Token, req.LatestTime)
+	util.LogrusObj.Infof("FeedRequest Token:%s lastest_time:%d", *req.Token, req.LatestTime)
 	if len(req.GetToken()) != 0 {
 		token, err := util.ParseToken(req.GetToken())
 		if err != nil {
