@@ -345,7 +345,7 @@ func CommentAction(c *gin.Context) {
 				Comment:    &pb.Comment{},
 			})
 		}
-		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(userId), "")
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(userId), param.Token)
 		if err != nil || userInfo == nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
 				VBResponse: baseResponse.VBResponse{StatusCode: e.FailedToCallRpc, StatusMsg: e.GetMsg(e.FailedToCallRpc)},
@@ -381,7 +381,7 @@ func CommentAction(c *gin.Context) {
 			})
 			return
 		}
-		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(userId), "")
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(userId), param.Token)
 		if err != nil || userInfo == nil {
 			c.JSON(http.StatusOK, baseResponse.CommentActionResponse{
 				VBResponse: baseResponse.VBResponse{StatusCode: e.FailedToCallRpc, StatusMsg: e.GetMsg(e.FailedToCallRpc)},
@@ -404,6 +404,7 @@ func CommentList(c *gin.Context) {
 	userIdAny, _ := c.Get("UserId")
 	userId := int64(userIdAny.(uint))
 	videoId := c.Query("video_id")
+	token := c.Query("token")
 	if videoId == "" {
 		c.JSON(http.StatusOK, baseResponse.CommentListResponse{
 			VBResponse: baseResponse.VBResponse{StatusCode: e.InvalidParams, StatusMsg: e.GetMsg(e.InvalidParams)},
@@ -426,7 +427,7 @@ func CommentList(c *gin.Context) {
 	}
 	response, _ := grpcClient.ListComment(c, &request)
 	for _, comment := range response.CommentList {
-		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(comment.User.Id), "")
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(userId), uint(comment.User.Id), token)
 		if err != nil || userInfo == nil {
 			c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.FavActionErr, StatusMsg: e.GetMsg(e.FavActionErr)})
 			continue
@@ -458,6 +459,7 @@ func ActionFav(c *gin.Context) {
 func ListFav(c *gin.Context) {
 	userId := c.Query("user_id")
 	userIdAny, _ := c.Get("UserId")
+	token := c.Query("token")
 	userIdToken := int64(userIdAny.(uint))
 	if userId == "" {
 		c.JSON(http.StatusOK, baseResponse.FavListResponse{
@@ -493,7 +495,7 @@ func ListFav(c *gin.Context) {
 		return
 	}
 	for _, video := range response.VideoList {
-		userInfo, err := grpcClient.GetUserById(context.Background(), uint(UserIdParseInt), uint(video.Author.Id), "")
+		userInfo, err := grpcClient.GetUserById(context.Background(), uint(UserIdParseInt), uint(video.Author.Id), token)
 		if err != nil || userInfo == nil {
 			c.JSON(http.StatusOK, baseResponse.DouyinFavoriteActionResponse{StatusCode: e.FavActionErr, StatusMsg: e.GetMsg(e.FavActionErr)})
 			continue
