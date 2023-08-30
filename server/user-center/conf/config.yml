@@ -3,13 +3,13 @@ mysql:
   DbHost: DouyinDBA.raqtpie.xyz
   DbPort: 3306
   DbUser: DouyinDBA
-  DbPassword: ${MYSQL_PASSWORD}
+  DbPassword: nibainimane
   DbName: DouyinDB
 
 redis:
   RedisDb: redis
   RedisAddr: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379
-  RedisPw: ${REDIS_PASSWORD}
+  RedisPw: Rh2004==
   RedisDbName: 2
 
 nacos:

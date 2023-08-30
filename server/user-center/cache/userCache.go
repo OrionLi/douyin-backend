@@ -8,35 +8,35 @@ import (
 func NewUserCache(ctx context.Context) *RedisCache {
 	return &RedisCache{NewRedisClient(ctx)}
 }
-func (userCache *RedisCache) IsFollow(ctx context.Context, uId, followId uint) bool {
 
-	return userCache.
+// IsFollow  是否关注
+func (c *RedisCache) IsFollow(ctx context.Context, uId, followId uint) bool {
+	return c.
 		Exists(ctx, GenFollowUserCacheKey(uId, followId)).
 		Val() == 1
 }
 
 // AddFollow 关注关系缓存
-func (userCache *RedisCache) AddFollow(ctx context.Context, uId, followId uint) error {
-
-	return userCache.
+func (c *RedisCache) AddFollow(ctx context.Context, uId, followId uint) error {
+	return c.
 		Set(ctx, GenFollowUserCacheKey(uId, followId), 1, time.Hour).
 		Err()
 }
 
 // AddUser 用户信息缓存
-func (userCache *RedisCache) AddUser(ctx context.Context, uId uint, m map[string]interface{}) error {
-	err := userCache.HSet(ctx, GenUserInfoCacheKey(uId), m).Err()
+func (c *RedisCache) AddUser(ctx context.Context, uId uint, m map[string]interface{}) error {
+	err := c.HSet(ctx, GenUserInfoCacheKey(uId), m).Err()
 	if err != nil {
 		return err
 	}
 	// 设置键的过期时间为10天
-	return userCache.Expire(ctx, GenUserInfoCacheKey(uId), 10*24*3600*time.Second).Err()
+	return c.Expire(ctx, GenUserInfoCacheKey(uId), 10*24*3600*time.Second).Err()
 }
 
 // HasUser 判断Redis中是否存在某个用户信息缓存
-func (userCache *RedisCache) HasUser(ctx context.Context, uId uint) (cacheData map[string]string, err error) {
+func (c *RedisCache) HasUser(ctx context.Context, uId uint) (cacheData map[string]string, err error) {
 	// 获取一个哈希表中的所有字段和值
-	cacheData, err = userCache.HGetAll(ctx, GenUserInfoCacheKey(uId)).Result()
+	cacheData, err = c.HGetAll(ctx, GenUserInfoCacheKey(uId)).Result()
 	if err != nil {
 		return nil, err
 	}
