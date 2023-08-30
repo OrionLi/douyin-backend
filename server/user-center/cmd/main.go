@@ -7,6 +7,7 @@ import (
 	"user-center/cache"
 	"user-center/conf"
 	"user-center/dao"
+	"user-center/grpc"
 	"user-center/pkg/util"
 	"user-center/server"
 )
@@ -33,6 +34,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	grpc.Init(conf.NacosAddress, conf.NacosPort)
 	// grpc初始化
 	err = server.Grpc(strconv.FormatUint(conf.ServerPort, 10))
 	if err != nil {
