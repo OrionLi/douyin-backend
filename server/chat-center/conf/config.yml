@@ -5,7 +5,7 @@ elasticsearch:
   password:
 
 gRPC:
-  address: 192.168.1.12
+  address: 127.0.0.1
   port: 9421
 
 nacos:
