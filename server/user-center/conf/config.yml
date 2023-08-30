@@ -10,7 +10,7 @@ redis:
   RedisDb: redis
   RedisAddr: r-bp12xmzrbjr36iq7lepd.redis.rds.aliyuncs.com:6379
   RedisPw:
-  RedisDbName: 2
+  RedisDbName: 0
 
 nacos:
   Ip: 127.0.0.1
