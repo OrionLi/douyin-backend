@@ -19,7 +19,8 @@ var (
 )
 var VideoConn *grpc.ClientConn
 
-func Init() {
+func Init(nacosAddress string,
+	nacosPort uint64) {
 	// 创建clientConfig
 	clientConfig := constant.ClientConfig{
 		TimeoutMs:           5000,
@@ -30,8 +31,8 @@ func Init() {
 	// 创建ServerConfig
 	serverConfigs := []constant.ServerConfig{
 		{
-			IpAddr: conf.NacosAddress,
-			Port:   uint64(conf.NacosPort),
+			IpAddr: nacosAddress,
+			Port:   nacosPort,
 		},
 	}
 

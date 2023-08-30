@@ -52,12 +52,10 @@ func Init() error {
 	DbPort = viper.GetString("mysql.DbPort")
 	DbUser = viper.GetString("mysql.DbUser")
 	DbPassword = viper.GetString("mysql.DbPassword")
-	//DbPassword, _ = os.LookupEnv("MYSQL_PASSWORD")
 	DbName = viper.GetString("mysql.DbName")
 	RedisDb = viper.GetString("redis.RedisDb")
 	RedisAddr = viper.GetString("redis.RedisAddr")
 	RedisPw = viper.GetString("redis.RedisPw")
-	//RedisPw, _ = os.LookupEnv("REDIS_PASSWORD")
 	RedisDbName = viper.GetString("redis.RedisDbName")
 
 	// 解析 Nacos 配置

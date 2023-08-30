@@ -69,6 +69,7 @@ func RegisterNacos() {
 		Weight:      10,                   // 权重为10
 		Enable:      true,                 // 设置实例为可用状态
 		Healthy:     true,                 // 设置实例为健康状态
+		Ephemeral:   true,                 // 设置实例为临时实例
 	}
 
 	_, err = nacosClient.RegisterInstance(*instance)
