@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"user-center/pkg/util"
 )
 
@@ -12,10 +11,15 @@ import (
 func GenFollowUserCacheKey(userId, followUserId uint) string {
 	return "follow_user_" + util.UintToStr(userId) + "_" + util.UintToStr(followUserId)
 }
+
 func GenUserInfoCacheKey(userId uint) string {
 	return "user_info_" + util.UintToStr(userId)
 }
 
-func CacheChangeUserCountKey(userID int64, category string) string {
-	return fmt.Sprintf("user:%d:%s", userID, category)
+func GenFollowCountCacheKey(userId uint) string {
+	return "count:follow:" + util.UintToStr(userId)
+}
+
+func GenFollowerCountCacheKey(userId uint) string {
+	return "count:follower:" + util.UintToStr(userId)
 }

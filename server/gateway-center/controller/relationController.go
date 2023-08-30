@@ -36,6 +36,7 @@ func GetFollowList(ctx *gin.Context) {
 	userId := util.StringToInt64(ctx.Query("user_id"))
 	token := ctx.Query("token")
 
+	println(userId)
 	resp, err := grpcClient.GetFollowList(ctx, userId, token)
 	if err != nil || resp.StatusCode != e.Success {
 		ctx.JSON(http.StatusInternalServerError, response.GetFollowListResponse{

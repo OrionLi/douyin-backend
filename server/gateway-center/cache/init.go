@@ -26,6 +26,7 @@ func Init() {
 		panic("redis ping error")
 	}
 }
+
 func RedisSetKey(ctx context.Context, key string, value interface{}) error {
 	if _, err := RedisClient.Get(ctx, key).Result(); err != redis.Nil {
 		fmt.Printf("Key is existed %s\n", key)
@@ -65,6 +66,7 @@ func RedisSetPublishListVideoList(ctx context.Context, key string, videoList res
 	fmt.Printf("Redis client set successfully...%s\n", key)
 	return nil
 }
+
 func RedisGetPublishListVideoList(ctx context.Context, key string) (response.VideoArray, error) {
 	videos := response.VideoArray{}
 	err := RedisClient.Get(ctx, key).Scan(&videos)
@@ -77,6 +79,7 @@ func RedisGetPublishListVideoList(ctx context.Context, key string) (response.Vid
 	fmt.Printf("Redis client get successfully... %s\n", key)
 	return videos, nil
 }
+
 func RedisDeleteKey(ctx context.Context, key string) {
 	RedisClient.Del(ctx, key)
 }
