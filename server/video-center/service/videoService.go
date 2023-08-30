@@ -90,7 +90,7 @@ func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video,
 	isFav = false
 	//如果登录了传入userId，否则传0表示没有登录
 	for _, v := range list {
-		if userId != 0 { //！=0表示已登录，查询是否是作者的粉丝s
+		if userId != 0 { //！0表示已登录，查询是否是作者的粉丝s
 			favorite, err := dao.IsFavorite(context.Background(), v.Id, userId) //查看是否点赞
 			if err != nil {
 				isFav = false
@@ -118,7 +118,7 @@ func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video,
 		videos = append(videos, &pb.Video{
 			Id: v.Id,
 			Author: &pb.User{
-				Id: userId,
+				Id: v.AuthorID,
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
