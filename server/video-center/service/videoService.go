@@ -28,14 +28,11 @@ func (s *VideoService) PublishList(authorId int64) ([]*pb.Video, error) {
 	for _, v := range videoList {
 		//查询缓存，更新fav缓存 有变化则改动
 		favKey := fmt.Sprintf("favorite:%d", v.Id)
-		value, err := cache.RedisGetKey(s.ctx, favKey)
+		value, err := cache.GetFavoriteCountCache(v.Id)
 		if err != nil {
 			util.LogrusObj.Errorf("Cache Error Key:%s ErrorCause:%s", favKey, err.Error())
-		}
-		toUint := util.StrToUint(value)
-		if toUint != v.FavoriteCount {
-			//更新Fav缓存
-			err := cache.RedisSetKey(s.ctx, favKey, v.FavoriteCount)
+			err := cache.SetFavoriteCountCache(v.Id, v.FavoriteCount)
+			value, err = cache.GetFavoriteCountCache(v.Id)
 			if err != nil {
 				util.LogrusObj.Errorf("Cache Error Key:%s errorCause:%s", favKey, err.Error())
 			}
@@ -47,7 +44,7 @@ func (s *VideoService) PublishList(authorId int64) ([]*pb.Video, error) {
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
+			FavoriteCount: value,
 			CommentCount:  v.CommentCount,
 			IsFavorite:    false,
 			Title:         v.Title,
@@ -99,18 +96,11 @@ func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video,
 		}
 		//查询缓存，更新fav缓存 有变化则改动
 		favKey := fmt.Sprintf("favorite:%d", v.Id)
-		value, err := cache.RedisGetKey(s.ctx, favKey)
-		if err != nil {
+		value, err := cache.GetFavoriteCountCache(v.Id)
+		if err != nil { //没找的cache，则就是当前video的点赞数
 			util.LogrusObj.Errorf("Cache Error Key:%s ErrorCause:%s", favKey, err.Error())
-			err := cache.RedisSetKey(s.ctx, favKey, v.FavoriteCount)
-			if err != nil {
-				util.LogrusObj.Errorf("Cache Error Key:%s errorCause:%s", favKey, err.Error())
-			}
-		}
-		toUint := util.StrToUint(value)
-		if toUint != v.FavoriteCount {
-			//更新Fav缓存
-			err := cache.RedisSetKey(s.ctx, favKey, v.FavoriteCount)
+			err := cache.SetFavoriteCountCache(v.Id, v.FavoriteCount)
+			value, err = cache.GetFavoriteCountCache(v.Id)
 			if err != nil {
 				util.LogrusObj.Errorf("Cache Error Key:%s errorCause:%s", favKey, err.Error())
 			}
@@ -122,7 +112,7 @@ func (s *VideoService) FeedVideoList(lastTime int64, userId int64) ([]*pb.Video,
 			},
 			PlayUrl:       v.PlayUrl,
 			CoverUrl:      v.CoverUrl,
-			FavoriteCount: v.FavoriteCount,
+			FavoriteCount: value,
 			CommentCount:  v.CommentCount,
 			IsFavorite:    isFav,
 			Title:         v.Title,
