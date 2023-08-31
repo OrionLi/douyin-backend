@@ -1,7 +1,0 @@
-[info]: 2023/08/25 22:19:28 [goroutine:UpdateToMySQL is running2023-08-25 22:19:28.7712623 +0800 CST m=+1.719510601]
-[info]: 2023/08/25 22:22:20 [goroutine:UpdateToMySQL is running2023-08-25 22:22:20.244147 +0800 CST m=+2.466822601]
-[info]: 2023/08/25 22:22:54 [goroutine:UpdateToMySQL is running2023-08-25 22:22:54.8025271 +0800 CST m=+0.414989001]
-[info]: 2023/08/25 22:25:23 [goroutine:UpdateToMySQL is running2023-08-25 22:25:23.4285107 +0800 CST m=+1.482089801]
-[info]: 2023/08/25 22:28:44 [goroutine:UpdateToMySQL is running2023-08-25 22:28:44.7425283 +0800 CST m=+2.266930401]
-[info]: 2023/08/25 22:46:18 [goroutine:UpdateToMySQL is running2023-08-25 22:46:18.5613233 +0800 CST m=+0.426152801]
-[info]: 2023/08/25 22:48:29 [goroutine:UpdateToMySQL is running2023-08-25 22:48:29.6225783 +0800 CST m=+0.397291401]

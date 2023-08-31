@@ -1,6 +1,6 @@
 qiniu:
-  accessKey: ak
-  secretKey: sk
+  accessKey:
+  secretKey:
   bucket: ori-tsuru-hime
   url: http://rzhmys0lm.hn-bkt.clouddn.com/
 ffmpet:
