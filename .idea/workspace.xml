@@ -5,44 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="845ef6a9-f69e-47fe-bd14-29b518890973" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server/gateway-center/logs/2023-08-30.log" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/user-center/cache/relation_cache.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/video-center/baseResponse/base.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/chat-center/conf/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/chat-center/conf/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/gateway-center/cache/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/cache/init.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/gateway-center/controller/relationController.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/controller/relationController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/gateway-center/controller/videoController.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/controller/videoController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/gateway-center/grpcClient/Init.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/grpcClient/Init.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/gateway-center/response/videoBasicResponse.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/response/videoBasicResponse.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/cache/key.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/cache/key.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/cache/userCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/cache/userCache.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/conf/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/conf/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/conf/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/conf/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/dao/relation.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/dao/relation.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/logs/2023-08-30.log" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/logs/2023-08-30.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/server/relationServer.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/server/relationServer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-center/service/relation_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/service/relation_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/controller/CommentController.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/controller/FavoriteController.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/controller/FeedController.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/controller/PublishActionController.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/controller/PublishListController.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/main.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/middleware/loggerMiddleware.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/middleware/validationFeedRequest.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/pkg/baseResponse/base.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/Comment.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/Favorite.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/Feed.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/Init.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/IsFan.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/PublishAction.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/PublishList.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/Web/rpc/UserInfo.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/cache/videoCache.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/cache/videoCache.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/conf/DalConf.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/conf/DalConf.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/logs/2023-08-30.log" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/logs/2023-08-30.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/pkg/errno/erron.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/pkg/errno/erron.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/video-center/service/videoService.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/service/videoService.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +20,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file://D:/go" />
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -64,32 +28,33 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2UBtdlP5fYvIHp8zwGFVu48Ka5d" />
-  <component name="ProjectLevelVcsManager">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;F:/GoWorks/src/team-dy/douyin-backend&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;go.vgo&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "develop",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "C:/Users/OriTsuruHime",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "go.vgo"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="F:\GoWorks\src\team-dy\douyin-backend\server\user-center\pb" />
@@ -181,6 +146,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="VgoProject">
     <environment>
