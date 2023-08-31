@@ -69,20 +69,14 @@ func (s *VideoServer) PublishList(ctx context.Context, req *pb.DouyinPublishList
 		resp.StatusMsg = &errno.ParamErr.ErrMsg
 		return resp, nil
 	}
-	result, err2 := util.ParseToken(token)
+	_, err2 := util.ParseToken(token)
 	if err2 != nil {
 		convertErr := errno.ConvertErr(err2)
 		resp.StatusCode = int32(convertErr.ErrCode)
 		resp.StatusMsg = &convertErr.ErrMsg
 		return resp, nil
 	}
-	if result.ID != uint(req.UserId) {
-		resp.StatusCode = errno.TokenErrCode
-		resp.StatusMsg = &errno.TokenErr.ErrMsg
-		return resp, nil
-	}
 	util.LogrusObj.Infof("Token Validated UserId:%d", req.UserId)
-	//Token验证成功之后，根据UserId返回
 	list, err := service.NewVideoService(ctx).PublishList(req.UserId)
 	if err != nil {
 		convertErr := errno.ConvertErr(err)
