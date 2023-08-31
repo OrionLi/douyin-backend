@@ -28,7 +28,7 @@ func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserReque
 	}
 
 	// 用户基本信息请求体
-	videoCountKey := fmt.Sprintf("publishlist:%d", req.UserId)
+	videoCountKey := fmt.Sprintf("publishlist:%d", req.GetFollowId())
 	userReq := service.GetUserByIdService{Id: uint(req.GetFollowId())}
 	user, err := userReq.GetUserById(ctx)
 	if err != nil {
