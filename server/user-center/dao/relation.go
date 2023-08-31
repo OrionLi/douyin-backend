@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"user-center/model"
 )
@@ -20,46 +21,45 @@ func NewRelationDao(ctx context.Context) *RelationDao {
 // Follow 关注
 func (d *RelationDao) Follow(ctx context.Context, userId, toUserId int64) error {
 	fmt.Printf("userid：%v，toUserId：%v", userId, toUserId)
-	return d.DB.Model(&model.User{}).Where("id = ?", userId).Association("Follows").Append(&model.User{
+	return d.Clauses(clause.Locking{Strength: "UPDATE"}).Model(&model.User{Model: gorm.Model{ID: uint(userId)}}).Association("Follows").Append(&model.User{
 		Model: gorm.Model{ID: uint(toUserId)},
 	})
 }
 
 // Unfollow 取消关注
 func (d *RelationDao) Unfollow(userId, toUserId int64) error {
-	return d.DB.Model(&model.User{}).Where("id = ?", userId).Association("Follows").Delete(&model.User{
+	return d.DB.Model(&model.User{Model: gorm.Model{ID: uint(userId)}}).Association("Follows").Delete(&model.User{
 		Model: gorm.Model{ID: uint(toUserId)},
 	})
 }
 
 // GetFollowList 获取关注列表
 func (d *RelationDao) GetFollowList(ctx context.Context, userId int64) ([]*model.User, error) {
-	var users []*model.User
-	if err := d.DB.Model(&model.User{}).Where("id = ?", userId).Association("Follows").Find(&users); err != nil {
+	var user *model.User
+	if err := d.Where("id = ?", userId).Preload("Follows").Find(&user).Error; err != nil {
 		return nil, err
 	}
-	return users, nil
+	return user.Follows, nil
 }
 
 // GetFollowerList 获取粉丝列表
 func (d *RelationDao) GetFollowerList(ctx context.Context, userId int64) ([]*model.User, error) {
-	var users []*model.User
-	if err := d.DB.Model(&model.User{}).Where("id = ?", userId).Association("Fans").Find(&users); err != nil {
+	var user *model.User
+	if err := d.Where("id = ?", userId).Preload("Fans").Find(&user).Error; err != nil {
 		return nil, err
 	}
-	return users, nil
+	return user.Fans, nil
 }
 
 // GetFriendList 获取好友列表
 func (d *RelationDao) GetFriendList(userId int64) ([]*model.User, error) {
-	// 通过双向关联查询获取互相关注好友
-	var friends []*model.User
-	if err := d.DB.Model(&model.User{}).
-		Where("id IN (?)", d.DB.Model(&model.User{}).Where("id = ?", userId).Select("follow_id")).
-		Where("follow_id IN (?)", d.DB.Model(&model.User{}).Where("id = ?", userId).Select("id")).
-		Find(&friends).Error; err != nil {
-		return nil, err
-	}
+
+	// Get the intersection of fans and follows
+	friends := []*model.User{}
+	db.Raw("SELECT * FROM user WHERE id IN (SELECT follow_id FROM follows WHERE user_id = ?) AND id IN (SELECT user_id FROM follows WHERE follow_id = ?)",
+		userId, userId).Scan(&friends)
+
+	fmt.Println(friends)
 	return friends, nil
 }
 

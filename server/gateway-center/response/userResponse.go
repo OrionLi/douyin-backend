@@ -35,9 +35,9 @@ type DouyinUserRegisterResponse struct {
 	Token      string `json:"token"`
 }
 type DouyinUserResponse struct {
-	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"`
-	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
-	User       *UserInfo
+	StatusCode int32     `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code"`
+	StatusMsg  string    `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
+	User       *UserInfo `protobuf:"bytes,3,opt,name=user,json=user,proto3" json:"user,omitempty"`
 }
 
 type DouyinUserLoginResponse struct {

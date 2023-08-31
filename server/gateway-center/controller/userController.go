@@ -126,16 +126,19 @@ func GetUser(ctx *gin.Context) {
 	return
 }
 
-func GetUserInfo(ctx *gin.Context, myId, uId uint, token string) (user *response.UserInfo, err error) {
+func GetUserInfo(ctx *gin.Context, myId, uId uint, token string) (*response.UserInfo, error) {
+	var user response.UserInfo
 	// respUserInfo 有id，name，关注总数和粉丝总数字段
 	respUserInfo, err := grpcClient.GetUserById(ctx, myId, uId, token)
 	if err != nil {
 		return nil, err
 	}
-	jsonData, err := json.Marshal(respUserInfo)
+
+	jsonData, err := json.Marshal(respUserInfo.User)
 	if err != nil {
 		return nil, err
 	}
 	err = json.Unmarshal(jsonData, &user)
-	return
+
+	return &user, nil
 }
