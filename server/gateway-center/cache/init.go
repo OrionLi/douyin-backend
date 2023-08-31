@@ -87,7 +87,7 @@ func RedisSetFeedVideoList(ctx context.Context, key string, videoList response.V
 	if _, err := RedisClient.Get(ctx, key).Result(); err != redis.Nil {
 		fmt.Printf("Key is existed %s\n", key)
 	}
-	err := RedisClient.Set(ctx, key, &videoList, 3*time.Minute).Err()
+	err := RedisClient.Set(ctx, key, &videoList, 45*time.Second).Err()
 	if err != nil {
 		panic(err)
 	}

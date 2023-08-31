@@ -4,9 +4,19 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="845ef6a9-f69e-47fe-bd14-29b518890973" name="Changes" comment="">
+    <list default="true" id="845ef6a9-f69e-47fe-bd14-29b518890973" name="Changes" comment="修改video模块的缓存设置">
+      <change afterPath="$PROJECT_DIR$/server/chat-center/logs/2023-08-31.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/gateway-center/logs/2023-08-31.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/user-center/logs/2023-08-31.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/video-center/service/videoService.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/service/videoService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/chat-center/conf/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/chat-center/conf/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/gateway-center/cache/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/cache/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/gateway-center/conf/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/conf/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/gateway-center/controller/videoController.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/controller/videoController.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/gateway-center/grpcClient/Init.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/gateway-center/grpcClient/Init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/user-center/conf/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/user-center/conf/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/video-center/conf/DalConf.yml" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/conf/DalConf.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/video-center/logs/2023-08-31.log" beforeDir="false" afterPath="$PROJECT_DIR$/server/video-center/logs/2023-08-31.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,16 +81,7 @@
       <recent name="F:\GoWorks\src\team-dy\douyin-backend\server\gateway-center\pkg\e" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build gateway-center">
-    <configuration name="go build Test.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="douyin-backend" />
-      <working_directory value="$PROJECT_DIR$/server/gateway-center" />
-      <kind value="FILE" />
-      <package value="team-dy/douyin-backend" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/server/gateway-center/middleware/Test.go" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Go Build.go build user-center/cmd">
     <configuration name="go build chat-center/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="douyin-backend" />
       <working_directory value="$PROJECT_DIR$/server/chat-center" />
@@ -120,12 +121,25 @@
       <filePath value="$PROJECT_DIR$/server/video-center/cmd/main.go" />
       <method v="2" />
     </configuration>
+    <configuration name="TestUnReg in chat-center/conf" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="douyin-backend" />
+      <working_directory value="$PROJECT_DIR$/server/chat-center/conf" />
+      <root_directory value="$PROJECT_DIR$/server/chat-center" />
+      <kind value="PACKAGE" />
+      <package value="chat-center/conf" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestUnReg\E$" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build gateway-center" />
-        <item itemvalue="Go Build.go build chat-center/cmd" />
-        <item itemvalue="Go Build.go build video-center/cmd" />
         <item itemvalue="Go Build.go build user-center/cmd" />
+        <item itemvalue="Go Build.go build video-center/cmd" />
+        <item itemvalue="Go Build.go build chat-center/cmd" />
+        <item itemvalue="Go Test.TestUnReg in chat-center/conf" />
       </list>
     </recent_temporary>
   </component>
@@ -146,7 +160,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="修改video模块的缓存设置" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改video模块的缓存设置" />
   </component>
   <component name="VgoProject">
     <environment>
@@ -155,5 +170,16 @@
       </map>
     </environment>
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/server/video-center/handler/videoInteractionHandler.go</url>
+          <line>13</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
