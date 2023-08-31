@@ -14,10 +14,6 @@ func NewUserDao(ctx context.Context) *UserDao {
 	return &UserDao{NewDBClient(ctx)}
 }
 
-func NewUserDaoByDB(db *gorm.DB) *UserDao {
-	return &UserDao{db}
-}
-
 // ExistOrNotByUserName 根据userName查询数据库中是否存在该名字
 func (dao *UserDao) ExistOrNotByUserName(userName string) (user *model.User, exist bool, err error) {
 	var count int64

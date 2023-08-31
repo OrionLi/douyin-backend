@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"user-center/cache"
 	"user-center/grpc"
@@ -21,19 +20,20 @@ func NewUserRPCServer() *UserRPCServer {
 
 // GetUserById 通过id获取用户基本信息
 func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserRequest) (*pb.DouyinUserResponse, error) {
-	//游客浏览
+	//游客浏览则返回基本信息
 	if req.GetToken() == "" {
 		userReq := service.GetUserByIdService{Id: uint(req.GetFollowId())}
 		return userReq.GetUserById(ctx)
 	}
 
 	// 用户基本信息请求体
-	videoCountKey := fmt.Sprintf("publishlist:%d", req.GetFollowId())
+	videoCountKey := cache.VideoCacheCountKey(req.GetFollowId())
 	userReq := service.GetUserByIdService{Id: uint(req.GetFollowId())}
 	user, err := userReq.GetUserById(ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	// 是否关注请求体
 	isFollowreq := service.IsFollowService{
 		UserId:       uint(req.GetUserId()),
@@ -43,6 +43,7 @@ func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserReque
 	if err != nil {
 		return nil, err
 	}
+
 	// 获取用户关注数与被关注数
 	favCount, err := grpc.GetFavCount(ctx, uint(req.GetFollowId()))
 	if err != nil {
@@ -52,19 +53,25 @@ func (s *UserRPCServer) GetUserById(ctx context.Context, req *pb.DouyinUserReque
 		return nil, e.NewError(e.Error)
 	}
 
-	//用户作品数量缓存添加缓存
+	//用户作品数量
 	key, err := cache.RedisGetKey(ctx, videoCountKey)
-	var vidCount int64
 	if err != nil {
-		vids, err := grpc.GetPublishList(ctx, uint(req.GetFollowId()), req.GetToken())
-		if err != nil {
+		return nil, e.NewError(e.Error)
+	}
+	var vidCount int64
+	//当缓存中不存在则通过grpc获取
+	if key == "" {
+		vidResp, err := grpc.GetPublishList(ctx, uint(req.GetFollowId()), req.GetToken())
+		if err != nil || vidResp.GetStatusCode() != 0 {
 			return nil, e.NewError(e.Error)
 		}
-		vidCount := len(vids.VideoList)
-		err = cache.RedisSetKey(ctx, videoCountKey, vidCount)
+		vidCount = int64(len(vidResp.VideoList))
+		//将数据存入缓存
+		_ = cache.RedisSetKey(ctx, videoCountKey, vidCount)
+	} else {
+		vidCount = util.StrToInt64(key)
 	}
-	vidCount = util.StrToInt64(key)
-	// 获取用户发布视频列表
+	// 获取用户基本信息
 	userInfo := user.GetUser()
 	return &pb.DouyinUserResponse{User: &pb.User{
 		Id:              req.FollowId,

@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"user-center/pkg/util"
 )
 
@@ -22,4 +23,8 @@ func GenFollowCountCacheKey(userId uint) string {
 
 func GenFollowerCountCacheKey(userId uint) string {
 	return "count:follower:" + util.UintToStr(userId)
+}
+
+func VideoCacheCountKey(id int64) string {
+	return fmt.Sprintf("publishlist:%d", id)
 }
