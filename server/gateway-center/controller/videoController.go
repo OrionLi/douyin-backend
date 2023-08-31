@@ -230,7 +230,7 @@ func Feed(c *gin.Context) {
 	if userId != -1 {
 		isLogin = true
 	}
-	var FeedKey = fmt.Sprintf("FeedCache:latest_time:%dUserId:%d", params.LatestTime, userId)
+	var FeedKey = fmt.Sprintf("FeedCache:UserId:%d", userId)
 	fmt.Printf("LatestTime: %d, Token: %s\n", params.LatestTime, params.Token)
 	VideoList, err := cache.RedisGetFeedVideoList(context.Background(), FeedKey)
 	if err == nil { //找到数据，则返回
