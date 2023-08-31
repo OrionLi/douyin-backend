@@ -2,6 +2,7 @@ package dao
 
 import (
 	"bytes"
+	"chat-center/model"
 	"chat-center/pkg/utils"
 	"context"
 	"encoding/json"
@@ -12,7 +13,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // GetAllMessagesByToUserId 查询指定 toUserId 的消息列表
@@ -71,7 +71,7 @@ func GetAllMessagesByToUserId(toUserId int64, fromUserId int64) ([]*pb.Message, 
 // toUserId : 消息接收者
 // fromUserId : 消息发送者
 // time : 最后一次阅读消息的时间
-func GetMessageByToUserId(time time.Time, toUserId int64, fromUserId int64) ([]*pb.Message, error) {
+func GetMessageByToUserId(time int64, toUserId int64, fromUserId int64) ([]*pb.Message, error) {
 	query := fmt.Sprintf(`
 		{
 			"query": {
@@ -79,11 +79,11 @@ func GetMessageByToUserId(time time.Time, toUserId int64, fromUserId int64) ([]*
 					"must": [
 						{ "term": { "to_user_id": %d } },
 						{ "term": { "from_user_id": %d } },
-						{ "range": { "create_time": { "gt": "%s" } } }
+						{ "range": { "create_time": { "gt": "%d" } } }
 					]
 				}
 			}
-		}`, toUserId, fromUserId, time.Format("2006-01-02 15:04:05"))
+		}`, toUserId, fromUserId, time)
 
 	// 创建排序条件
 	sort := `{
@@ -128,21 +128,21 @@ func GetMessageList(res *esapi.Response) []*pb.Message {
 		toUserId := int(source["to_user_id"].(float64))
 		fromUserId := int(source["from_user_id"].(float64))
 		content := source["content"].(string)
-		createTime := source["create_time"].(string)
+		createTime := source["create_time"].(float64)
 
 		messageList = append(messageList, &pb.Message{
 			Id:         int64(id),
 			ToUserId:   int64(toUserId),
 			FromUserId: int64(fromUserId),
 			Content:    content,
-			CreateTime: createTime,
+			CreateTime: strconv.FormatInt(int64(createTime), 10),
 		})
 	}
 	return messageList
 }
 
 // SendMessage 发送信息
-func SendMessage(message *pb.Message) error {
+func SendMessage(message model.Message) error {
 	docJSON, err := json.Marshal(message)
 	if err != nil {
 		log.Fatalf("Error marshaling JSON: %s", err)

@@ -25,7 +25,12 @@ func GetMessage(c *gin.Context) {
 		c.JSON(http.StatusOK, response.DouyinChatGetMessageResponse{StatusCode: e.Error, StatusMsg: e.GetMsg(e.Error)})
 		return
 	}
-	c.JSON(http.StatusOK, response.DouyinChatGetMessageResponse{StatusCode: e.Success, StatusMsg: e.GetMsg(e.Success), MessageList: resp.GetMessageList()})
+	messageList := util.PbMessageListToMessageList(resp.MessageList)
+	c.JSON(http.StatusOK, response.DouyinChatGetMessageResponse{
+		StatusCode:  e.Success,
+		StatusMsg:   e.GetMsg(e.Success),
+		MessageList: messageList,
+	})
 }
 
 func SendMessage(c *gin.Context) {

@@ -2,6 +2,7 @@ package service
 
 import (
 	"chat-center/dao"
+	"chat-center/model"
 	"chat-center/pkg/utils"
 	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
@@ -31,10 +32,9 @@ func (c ChatServiceImpl) GetAllHistoryMessage(currentId int64, interActiveId int
 
 // GetMessageByPreMsgTime 根据toUserId查询数据库中所有聊天记录
 func (c ChatServiceImpl) GetMessageByPreMsgTime(currentId int64, interActiveId int64, preMsgTime int64) ([]*pb.Message, error) {
-	timeObj := time.Unix(preMsgTime, 0)
 	// 查询相关记录, 从preMsgTime开始
 	// Dao层中toUserId和fromUserId的顺序是反的，因为前端传参中toUserId为对方的ID，fromUserId为自己的ID
-	messageList, err := dao.GetMessageByToUserId(timeObj, currentId, interActiveId)
+	messageList, err := dao.GetMessageByToUserId(preMsgTime, currentId, interActiveId)
 	if err != nil {
 		utils.LogrusObj.Error("<GetMessageByPreMsgTime> Get message error: ", err)
 		return nil, err
@@ -53,14 +53,13 @@ func (c ChatServiceImpl) SendMessage(currentId int64, interActiveId int64, conte
 		fmt.Printf("Error generating ID: %s\n", err)
 		return err
 	}
-	now := time.Now()
-	format := now.Format("2006-01-02 15:04:05")
-	message := &pb.Message{
+	now := time.Now().Unix()
+	message := model.Message{
 		Id:         int64(id),
 		ToUserId:   interActiveId,
 		FromUserId: currentId,
 		Content:    content,
-		CreateTime: format,
+		CreateTime: now,
 	}
 	err = dao.SendMessage(message)
 	if err != nil {
