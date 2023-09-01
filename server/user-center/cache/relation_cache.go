@@ -9,29 +9,15 @@ func NewRelationCache(ctx context.Context) *RedisCache {
 	return &RedisCache{NewRedisClient(ctx)}
 }
 
-//// IncrFollowCountCache 更新关注数缓存
-//func (c *RedisCache) IncrFollowCountCache(userId, incr int64) error {
-//	return c.IncrBy(context.Background(), GenFollowCountCacheKey(uint(userId)), incr).Err()
-//}
-//
-//// IncrFollowerCountCache 更新粉丝数缓存
-//func (c *RedisCache) IncrFollowerCountCache(userId, incr int64) error {
-//	return c.IncrBy(context.Background(), GenFollowerCountCacheKey(uint(userId)), incr).Err()
-//}
-
-// IncrFollowCountCache 更新关注数缓存
-func (c *RedisCache) IncrFollowCountCache(userId int64, incr int64) error {
-	key := GenFollowCountCacheKey(uint(userId))
-	count, _ := c.GetFollowCountCache(userId)
-	err := c.Set(context.Background(), key, count+incr, time.Hour).Err()
+// UpdateFollowCountCache 更新关注数缓存
+func (c *RedisCache) UpdateFollowCountCache(userId int64, num int64) error {
+	err := c.Set(context.Background(), GenFollowCountCacheKey(uint(userId)), num, time.Hour).Err()
 	return err
 }
 
-// IncrFollowerCountCache 更新粉丝数缓存
-func (c *RedisCache) IncrFollowerCountCache(userId int64, incr int64) error {
-	key := GenFollowerCountCacheKey(uint(userId))
-	count, _ := c.GetFollowerCountCache(userId)
-	err := c.Set(context.Background(), key, count+incr, time.Hour).Err()
+// UpdateFollowerCountCache 更新粉丝数缓存
+func (c *RedisCache) UpdateFollowerCountCache(userId int64, num int64) error {
+	err := c.Set(context.Background(), GenFollowerCountCacheKey(uint(userId)), num, time.Hour).Err()
 	return err
 }
 
