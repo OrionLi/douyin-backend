@@ -20,14 +20,6 @@ func GenUserInfoCacheKey(userId uint) string {
 	return "user_info_" + util.UintToStr(userId)
 }
 
-func GenFollowCountCacheKey(userId uint) string {
-	return "count:follow:" + util.UintToStr(userId)
-}
-
-func GenFollowerCountCacheKey(userId uint) string {
-	return "count:follower:" + util.UintToStr(userId)
-}
-
 func VideoCacheCountKey(id int64) string {
 	return fmt.Sprintf("publishlist:%d", id)
 }
