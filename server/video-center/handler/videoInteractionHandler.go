@@ -29,7 +29,7 @@ func (v VideoInteractionServer) ActionFavorite(ctx context.Context, request *pb.
 			StatusMsg:  errno.Success.ErrMsg,
 		}, nil
 	case 2:
-		err := service.NewFavoriteService(ctx).DeleteFav(selfUserId, videoId)
+		err := service.NewFavoriteService(ctx).DeleteFav(videoId, selfUserId)
 		if err != nil {
 			return &pb.DouyinFavoriteActionResponse{
 				StatusCode: errno.FavActionErrCode,

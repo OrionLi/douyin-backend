@@ -22,7 +22,7 @@ func CreateFav(ctx context.Context, videoId int64, userId int64) error {
 
 // DeleteFav 取消点赞
 func DeleteFav(ctx context.Context, videoId int64, userId int64) error {
-	return DB.WithContext(ctx).Model(&Fav{}).Where("user_id = ? and video_id = ?", userId, videoId).Delete(&Fav{}).Error
+	return DB.WithContext(ctx).Model(&Fav{}).Delete(&Fav{UserId: uint(userId), VideoId: videoId}).Error
 }
 
 // IsFavorite 判断是否点赞
