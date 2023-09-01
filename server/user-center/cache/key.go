@@ -9,6 +9,9 @@ import (
 用于规范缓存键的格式
 */
 
+const FollowCount = "FollowCount"
+const FanCount = "FanCount"
+
 func GenFollowUserCacheKey(userId, followUserId uint) string {
 	return "follow_user_" + util.UintToStr(userId) + "_" + util.UintToStr(followUserId)
 }
