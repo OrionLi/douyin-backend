@@ -20,7 +20,7 @@ func NewRelationService(dao *dao.RelationDao) *RelationService {
 func (s *RelationService) Follow(ctx context.Context, userId, toUserId int64) error {
 	relationCache := cache.NewRelationCache(ctx)
 	relationDao := dao.NewRelationDao(ctx)
-	err := relationDao.Follow(ctx, userId, toUserId)
+	err := relationDao.Follow(userId, toUserId)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (s *RelationService) GetFollowList(ctx context.Context, userId int64) ([]*m
 		return nil, err
 	}
 
-	users, err := relationDao.GetFollowList(ctx, userId)
+	users, err := relationDao.GetFollowList(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (s *RelationService) GetFollowerList(ctx context.Context, userId int64) ([]
 		return nil, err
 	}
 
-	followers, err := relationDao.GetFollowerList(ctx, userId)
+	followers, err := relationDao.GetFollowerList(userId)
 	if err != nil {
 		return nil, err
 	}
