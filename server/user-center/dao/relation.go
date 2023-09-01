@@ -76,3 +76,33 @@ func (d *RelationDao) GetFriendList(userId int64) ([]*model.User, error) {
 		Scan(&friends)
 	return friends, nil
 }
+
+// UpdateFanCount 更新 FanCount
+func (d *RelationDao) UpdateFanCount(userID int64, newFanCount int) error {
+	user := &model.User{}
+	if err := d.First(user, userID).Error; err != nil {
+		return err
+	}
+
+	user.FanCount = int64(newFanCount)
+	if err := d.Save(user).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdateFollowCount 更新 FollowCount
+func (d *RelationDao) UpdateFollowCount(userID int64, newFollowCount int) error {
+	user := &model.User{}
+	if err := d.First(user, userID).Error; err != nil {
+		return err
+	}
+
+	user.FollowCount = int64(newFollowCount)
+	if err := d.Save(user).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

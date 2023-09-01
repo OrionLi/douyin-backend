@@ -60,6 +60,9 @@ func (s *RelationService) GetFollowList(ctx context.Context, userId int64) ([]*m
 		if err = relationCache.IncrFollowCountCache(userId, int64(len(users))); err != nil {
 			return nil, err
 		}
+		if err = relationDao.UpdateFanCount(userId, len(users)); err != nil {
+			return nil, err
+		}
 	}
 
 	return users, nil
@@ -84,6 +87,9 @@ func (s *RelationService) GetFollowerList(ctx context.Context, userId int64) ([]
 	// 如果缓存不存在,更新缓存
 	if followerCount == 0 {
 		if err = relationCache.IncrFollowerCountCache(userId, int64(len(followers))); err != nil {
+			return nil, err
+		}
+		if err = relationDao.UpdateFanCount(userId, len(followers)); err != nil {
 			return nil, err
 		}
 	}
