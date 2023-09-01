@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"time"
 )
 
 func NewRelationCache(ctx context.Context) *RedisCache {
@@ -11,13 +10,13 @@ func NewRelationCache(ctx context.Context) *RedisCache {
 
 // UpdateFollowCountCache 更新关注数缓存
 func (c *RedisCache) UpdateFollowCountCache(userId int64, num int64) error {
-	err := c.HSet(context.Background(), GenUserInfoCacheKey(uint(userId)), FollowCount, num, time.Hour).Err()
+	err := c.HSet(context.Background(), GenUserInfoCacheKey(uint(userId)), FollowCount, num).Err()
 	return err
 }
 
 // UpdateFollowerCountCache 更新粉丝数缓存
 func (c *RedisCache) UpdateFollowerCountCache(userId int64, num int64) error {
-	err := c.HSet(context.Background(), GenUserInfoCacheKey(uint(userId)), FanCount, num, time.Hour).Err()
+	err := c.HSet(context.Background(), GenUserInfoCacheKey(uint(userId)), FanCount, num).Err()
 	return err
 }
 
