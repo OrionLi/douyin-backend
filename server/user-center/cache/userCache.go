@@ -23,6 +23,13 @@ func (c *RedisCache) AddFollow(ctx context.Context, uId, followId uint) error {
 		Err()
 }
 
+// DeleteFollow 取关关系缓存
+func (c *RedisCache) DeleteFollow(ctx context.Context, uId, followId uint) error {
+	return c.
+		Del(ctx, GenFollowUserCacheKey(uId, followId)).
+		Err()
+}
+
 // AddUser 用户信息缓存
 func (c *RedisCache) AddUser(ctx context.Context, uId uint, m map[string]interface{}) error {
 	err := c.HSet(ctx, GenUserInfoCacheKey(uId), m).Err()

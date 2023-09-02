@@ -13,11 +13,11 @@ const FollowCount = "FollowCount"
 const FanCount = "FanCount"
 
 func GenFollowUserCacheKey(userId, followUserId uint) string {
-	return "follow_user_" + util.UintToStr(userId) + "_" + util.UintToStr(followUserId)
+	return "follow:" + util.UintToStr(userId) + ":" + util.UintToStr(followUserId)
 }
 
 func GenUserInfoCacheKey(userId uint) string {
-	return "user_info_" + util.UintToStr(userId)
+	return "user:info:" + util.UintToStr(userId)
 }
 
 func VideoCacheCountKey(id int64) string {

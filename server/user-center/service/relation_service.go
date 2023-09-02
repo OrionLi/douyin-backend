@@ -20,6 +20,8 @@ func NewRelationService(dao *dao.RelationDao) *RelationService {
 func (s *RelationService) Follow(ctx context.Context, userId, toUserId int64) error {
 	relationCache := cache.NewRelationCache(ctx)
 	relationDao := dao.NewRelationDao(ctx)
+	userCache := cache.NewUserCache(ctx)
+	userCache.AddFollow(ctx, uint(userId), uint(toUserId))
 	err := relationDao.Follow(userId, toUserId)
 	if err != nil {
 		return err
@@ -32,7 +34,9 @@ func (s *RelationService) Follow(ctx context.Context, userId, toUserId int64) er
 func (s *RelationService) Unfollow(ctx context.Context, userId, toUserId int64) error {
 	relationDao := dao.NewRelationDao(ctx)
 	relationCache := cache.NewRelationCache(ctx)
+	userCache := cache.NewUserCache(ctx)
 	err := relationDao.Unfollow(userId, toUserId)
+	userCache.DeleteFollow(ctx, uint(userId), uint(toUserId))
 	if err != nil {
 		return err
 	}

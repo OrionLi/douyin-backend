@@ -55,6 +55,7 @@ func (s *RelationServer) GetFollowList(ctx context.Context, req *pb.GetFollowLis
 			Name:          user.Username,
 			FollowCount:   user.FollowCount,
 			FollowerCount: user.FanCount,
+			IsFollow:      true,
 		})
 	}
 
@@ -75,13 +76,21 @@ func (s *RelationServer) GetFollowerList(ctx context.Context, req *pb.GetFollowe
 		return nil, status.Errorf(codes.Internal, "获取粉丝列表失败: %v", err)
 	}
 
+	isFollowService := service.IsFollowService{
+		UserId:       parseToken.ID,
+		FollowUserId: 0,
+	}
+
 	respUsers := make([]*pb.User, 0, len(users))
 	for _, user := range users {
+		isFollowService.FollowUserId = user.ID
+		isFollow, _ := isFollowService.IsFollow(ctx)
 		respUsers = append(respUsers, &pb.User{
 			Id:            int64(user.ID),
 			Name:          user.Username,
 			FollowCount:   user.FollowCount,
 			FollowerCount: user.FanCount,
+			IsFollow:      isFollow.GetIsFollow(),
 		})
 	}
 
@@ -110,6 +119,7 @@ func (s *RelationServer) GetFriendList(ctx context.Context, req *pb.GetFriendLis
 				Name:          user.Username,
 				FollowCount:   user.FollowCount,
 				FollowerCount: user.FanCount,
+				IsFollow:      true,
 			},
 		})
 	}
