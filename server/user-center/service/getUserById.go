@@ -17,6 +17,7 @@ type GetUserByIdService struct {
 // GetUserById 获取用户基本信息 返回Id,Name,关注总数和粉丝总数
 func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinUserResponse, error) { //todo: 添加返回结构体
 	cache := userCache.NewUserCache(ctx)
+	relationDao := dao.NewRelationDao(ctx)
 	var err error
 
 	defer func() {
@@ -34,8 +35,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		id := service.Id
 		name := cacheData["Name"]
 
-		followCount := userUtil.StrToInt64(cacheData["FollowCount"])
-		fanCount := userUtil.StrToInt64(cacheData["FanCount"])
+		followCount, _ := GetFollowCount(relationDao, cache, int64(id))
+		fanCount, _ := GetFollowerCount(relationDao, cache, int64(id))
 
 		return &pb.DouyinUserResponse{User: &pb.User{
 			Id:            int64(id),
