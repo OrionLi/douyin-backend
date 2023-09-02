@@ -32,7 +32,7 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		return nil, e2.NewError(e2.Error)
 	}
 
-	if len(cacheData) != 0 { //若缓存存在该记录
+	if len(cacheData) > 3 { //若缓存存在该记录
 
 		id := service.Id
 		name := cacheData["Name"]
@@ -50,6 +50,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	userDao := dao.NewUserDao(ctx)
 	//获取用户基本信息
 	user, err := userDao.GetUserById(service.Id)
+	followCount, _ := GetFollowCount(relationDao, cache, int64(service.Id))
+	fanCount, _ := GetFollowerCount(relationDao, cache, int64(service.Id))
 	if err != nil {
 
 		return nil, e2.NewError(e2.Error)
@@ -58,8 +60,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 		m := map[string]interface{}{
 			"Id":          user.ID,
 			"Name":        user.Username,
-			"FollowCount": user.FollowCount,
-			"FanCount":    user.FanCount,
+			"FollowCount": followCount,
+			"FanCount":    fanCount,
 		}
 		//将用户信息添加至缓存
 		err = cache.AddUser(ctx, user.ID, m)
@@ -70,8 +72,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	return &pb.DouyinUserResponse{User: &pb.User{
 		Id:            int64(user.ID),
 		Name:          user.Username,
-		FollowCount:   user.FollowCount,
-		FollowerCount: user.FanCount,
+		FollowCount:   followCount,
+		FollowerCount: fanCount,
 	}}, nil
 
 }
