@@ -36,8 +36,8 @@ func (c *RedisCache) AddUser(ctx context.Context, uId uint, m map[string]interfa
 	if err != nil {
 		return err
 	}
-	// 设置键的过期时间为10天
-	return c.Expire(ctx, GenUserInfoCacheKey(uId), 10*24*3600*time.Second).Err()
+	// 设置键的过期时间为10分钟
+	return c.Expire(ctx, GenUserInfoCacheKey(uId), 600*time.Second).Err()
 }
 
 // HasUser 判断Redis中是否存在某个用户信息缓存

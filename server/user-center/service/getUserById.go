@@ -31,7 +31,9 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	if err != nil {
 		return nil, e2.NewError(e2.Error)
 	}
+
 	if len(cacheData) != 0 { //若缓存存在该记录
+
 		id := service.Id
 		name := cacheData["Name"]
 
