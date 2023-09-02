@@ -58,10 +58,8 @@ func (service *GetUserByIdService) GetUserById(ctx context.Context) (*pb.DouyinU
 	}
 	if user.IsCelebrity() == true {
 		m := map[string]interface{}{
-			"Id":          user.ID,
-			"Name":        user.Username,
-			"FollowCount": followCount,
-			"FanCount":    fanCount,
+			"Id":   user.ID,
+			"Name": user.Username,
 		}
 		//将用户信息添加至缓存
 		err = cache.AddUser(ctx, user.ID, m)
