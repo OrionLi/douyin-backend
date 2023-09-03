@@ -2,31 +2,38 @@ package server
 
 import (
 	"chat-center/conf"
+	"fmt"
 	"github.com/OrionLi/douyin-backend/pkg/pb"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
-	"strconv"
 )
 
 func InitGRPCServer() {
+	//引入证书
+	cert, err := credentials.NewServerTLSFromFile("../../server/key/test.pem", "../../server/key/test.key")
+	if err != nil {
+		fmt.Printf("credentials.NewServerTLSFromFile Err :%s\n", err.Error())
+	}
 	// 创建grpc服务
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.Creds(cert))
 
 	// 注册ChatService
 	pb.RegisterDouyinMessageServiceServer(grpcServer, NewChatServer())
 
 	// 监听指定端口
-	address := ":" + strconv.Itoa(conf.GRPCPort)
+	address := fmt.Sprintf(":%d", conf.GRPCPort)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	log.Println("gRPC server is listening on port : 9422")
+	log.Println("gRPC server is listening on port : 9421")
 
 	// 启动gRPC服务器
 	if err := grpcServer.Serve(listener); err != nil {
