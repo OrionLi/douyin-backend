@@ -7,6 +7,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"net"
 	"user-center/pkg/util"
 )
@@ -14,9 +15,11 @@ import (
 // Grpc 启动grpc服务的
 func Grpc(addr string) error {
 	addr = ":" + addr
+	creds, _ := credentials.NewServerTLSFromFile("F:\\GoWorks\\src\\team-dy\\douyin-backend\\server\\key\\test.pem",
+		"F:\\GoWorks\\src\\team-dy\\douyin-backend\\server\\key\\test.key")
 	listen, _ := net.Listen("tcp", addr)
 	// 创建一个grpc服务，并设置不安全的证书 todo: 后期改用STL
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
 
 	pb.RegisterUserServiceServer(grpcServer, &UserRPCServer{})      //注册用户服务
 	pb.RegisterRelationServiceServer(grpcServer, &RelationServer{}) //注册关注服务

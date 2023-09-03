@@ -8,6 +8,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 )
@@ -37,7 +38,8 @@ func Init() {
 			Port:   uint64(conf.NacosPort),
 		},
 	}
-
+	// 保存公钥
+	creds, _ := credentials.NewClientTLSFromFile("F:\\GoWorks\\src\\team-dy\\douyin-backend\\server\\key\\test.pem", "*.ygxiaobai111.com")
 	// 创建服务发现客户端
 	nacosClient, err := clients.NewNamingClient(
 		vo.NacosClientParam{
@@ -70,7 +72,7 @@ func Init() {
 		log.Fatalf("Failed to get user-service instances: %v", err)
 	}
 
-	UserConn, err := grpc.Dial(fmt.Sprintf("%s:%d", inst.Ip, inst.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	UserConn, err := grpc.Dial(fmt.Sprintf("%s:%d", inst.Ip, inst.Port), grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("connect failed: %v", err)
 	}

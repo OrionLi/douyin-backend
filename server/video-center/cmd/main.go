@@ -44,7 +44,7 @@ func main() {
 	go service.UpdateFavoriteCacheToMySQLAtRegularTime()
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb
-		grpc.MaxSendMsgSize(52428800))
+		grpc.MaxSendMsgSize(52428800)) //加密
 	pb.RegisterVideoCenterServer(server, &handler.VideoServer{})
 	pb.RegisterDouyinVideoInteractionServiceServer(server, &handler.VideoInteractionServer{})
 	Sip := fmt.Sprintf("%s:%d", ServerIp, ServerPort)
