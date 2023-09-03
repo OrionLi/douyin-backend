@@ -39,7 +39,7 @@ func Init() {
 		},
 	}
 	// 保存公钥
-	creds, _ := credentials.NewClientTLSFromFile("F:\\GoWorks\\src\\team-dy\\douyin-backend\\server\\key\\test.pem", "*.ygxiaobai111.com")
+	creds, _ := credentials.NewClientTLSFromFile("../../server/key/test.pem", "*.ygxiaobai111.com")
 	// 创建服务发现客户端
 	nacosClient, err := clients.NewNamingClient(
 		vo.NacosClientParam{

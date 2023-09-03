@@ -15,11 +15,13 @@ import (
 // Grpc 启动grpc服务的
 func Grpc(addr string) error {
 	addr = ":" + addr
-	creds, _ := credentials.NewServerTLSFromFile("F:\\GoWorks\\src\\team-dy\\douyin-backend\\server\\key\\test.pem",
-		"F:\\GoWorks\\src\\team-dy\\douyin-backend\\server\\key\\test.key")
+	cert, err := credentials.NewServerTLSFromFile("../../server/key/test.pem", "../../server/key/test.key")
+	if err != nil {
+		fmt.Printf("credentials.NewServerTLSFromFile Err :%s\n", err.Error())
+	}
 	listen, _ := net.Listen("tcp", addr)
 	// 创建一个grpc服务，并设置不安全的证书 todo: 后期改用STL
-	grpcServer := grpc.NewServer(grpc.Creds(creds))
+	grpcServer := grpc.NewServer(grpc.Creds(cert))
 
 	pb.RegisterUserServiceServer(grpcServer, &UserRPCServer{})      //注册用户服务
 	pb.RegisterRelationServiceServer(grpcServer, &RelationServer{}) //注册关注服务
