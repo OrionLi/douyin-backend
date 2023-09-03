@@ -7,6 +7,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"net"
 	"os"
 	"os/signal"
@@ -42,9 +43,15 @@ func main() {
 	BeforeExit()
 	service.UpdateFavoriteCacheToMySQL()
 	go service.UpdateFavoriteCacheToMySQLAtRegularTime()
+	//引入证书
+	cert, err := credentials.NewServerTLSFromFile("../../server/key/test.pem", "../../server/key/test.key")
+	if err != nil {
+		fmt.Printf("credentials.NewServerTLSFromFile Err :%s\n", err.Error())
+	}
 	server := grpc.NewServer(
 		grpc.MaxRecvMsgSize(52428800), //50Mb
-		grpc.MaxSendMsgSize(52428800)) //加密
+		grpc.MaxSendMsgSize(52428800),
+		grpc.Creds(cert)) //加密
 	pb.RegisterVideoCenterServer(server, &handler.VideoServer{})
 	pb.RegisterDouyinVideoInteractionServiceServer(server, &handler.VideoInteractionServer{})
 	Sip := fmt.Sprintf("%s:%d", ServerIp, ServerPort)
