@@ -7,7 +7,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"log"
 	"user-center/conf"
 )
@@ -55,7 +55,8 @@ func Init(nacosAddress string,
 	if err != nil {
 		log.Fatalf("Failed to get video-service instances: %v", err)
 	}
-	VideoConn, err = grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	creds, _ := credentials.NewClientTLSFromFile("../../server/key/test.pem", "*.ygxiaobai111.com")
+	VideoConn, err = grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("connect failed: %v", err)
 	}

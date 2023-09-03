@@ -9,7 +9,6 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 )
 
@@ -59,7 +58,7 @@ func Init() {
 		log.Fatalf("Failed to get chat-service instances: %v", err)
 	}
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("connect failed: %v", err)
 	}
@@ -85,7 +84,7 @@ func Init() {
 	if err != nil {
 		log.Fatalf("Failed to get video-service instances: %v", err)
 	}
-	VideoConn, err = grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	VideoConn, err = grpc.Dial(fmt.Sprintf("%s:%d", instances.Ip, instances.Port), grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("connect failed: %v", err)
 	}

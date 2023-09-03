@@ -27,7 +27,7 @@ func Grpc(addr string) error {
 	pb.RegisterRelationServiceServer(grpcServer, &RelationServer{}) //注册关注服务
 
 	//启动服务
-	err := grpcServer.Serve(listen)
+	err = grpcServer.Serve(listen)
 	if err != nil {
 		fmt.Printf("failed to serve%v", err)
 		util.LogrusObj.Error("Service startup error ", err)
